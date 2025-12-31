@@ -4,9 +4,9 @@ Generate a client-friendly update message for WhatsApp or email.
 
 ## Instructions
 
-1. Read /deliverables/PROGRESS.md to understand recent work
-2. Read /deliverables/ROLLOUT.md to understand current phase status
-3. Read /docs/PROJECT_ORIGIN.md to get client name and project name
+1. Read /deliverables/progress.md to understand recent work
+2. Read /deliverables/rollout.md to understand current phase status
+3. Read /docs/project-origin.md to get client name and project name
 
 ## Generate Message
 
@@ -40,7 +40,7 @@ Questions? Just reply here!
 
 ## After Generating
 
-1. Save the message to /deliverables/CLIENT_UPDATE.txt
+1. Save the message to /deliverables/client-update.txt
 2. Tell the user the message is ready to copy
 3. Remind them to review before sending
 

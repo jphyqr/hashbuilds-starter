@@ -8,17 +8,17 @@ Ask the user: "What did you complete in this session?"
 
 Then update the following files:
 
-## 1. Update ROLLOUT.md
+## 1. Update rollout.md
 
-Open /deliverables/ROLLOUT.md and:
+Open /deliverables/rollout.md and:
 - Mark completed tasks with [x]
 - Update phase status if needed (Not Started → In Progress → Complete)
 - Update the "Last Updated" date
 - Update "Next Steps" section
 
-## 2. Update PROGRESS.md
+## 2. Update progress.md
 
-Open /deliverables/PROGRESS.md and:
+Open /deliverables/progress.md and:
 - Add a new date entry at the top (below the header)
 - List completed items under "### Completed"
 - Note any decisions under "### Decisions Made"
@@ -43,7 +43,7 @@ Format:
 ---
 ```
 
-## 3. Update CHANGELOG.md (if releasing)
+## 3. Update changelog.md (if releasing)
 
 If this is a release/deployment:
 - Add version entry under [Unreleased]
@@ -52,9 +52,9 @@ If this is a release/deployment:
 ## 4. Verify Consistency
 
 Make sure:
-- ROLLOUT.md phase status matches actual progress
-- PROGRESS.md entries are clear and dated
-- CHANGELOG.md captures user-visible changes
+- rollout.md phase status matches actual progress
+- progress.md entries are clear and dated
+- changelog.md captures user-visible changes
 
 ## After Updating
 

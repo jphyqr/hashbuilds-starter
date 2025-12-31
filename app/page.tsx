@@ -4,12 +4,12 @@ export default function Home() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-8">
       <main className="max-w-2xl text-center space-y-8">
-        {/* Project Name - Update after filling out PROJECT_ORIGIN.md */}
+        {/* Project Name - Update after filling out project-origin.md */}
         <h1 className="text-4xl font-bold tracking-tight">
           Project Name
         </h1>
 
-        {/* Tagline - Update after filling out BUSINESS_CONTEXT.md */}
+        {/* Tagline - Update after filling out business-context.md */}
         <p className="text-xl text-gray-600 dark:text-gray-400">
           Your project tagline here
         </p>
@@ -48,15 +48,15 @@ export default function Home() {
             </li>
             <li className="flex gap-2">
               <span className="text-yellow-500">→</span>
-              Fill out docs/PROJECT_ORIGIN.md
+              Fill out docs/project-origin.md
             </li>
             <li className="flex gap-2">
               <span className="text-gray-400">○</span>
-              Fill out docs/BUSINESS_CONTEXT.md
+              Fill out docs/business-context.md
             </li>
             <li className="flex gap-2">
               <span className="text-gray-400">○</span>
-              Follow docs/SETUP_CHECKLIST.md
+              Follow docs/setup-checklist.md
             </li>
           </ol>
         </div>

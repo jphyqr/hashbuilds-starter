@@ -15,8 +15,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Project Name", // Update in docs/PROJECT_ORIGIN.md
-  description: "Project description", // Update in docs/BUSINESS_CONTEXT.md
+  title: "Project Name", // Update in docs/project-origin.md
+  description: "Project description", // Update in docs/business-context.md
 };
 
 export default function RootLayout({
