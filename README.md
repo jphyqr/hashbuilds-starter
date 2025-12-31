@@ -1,6 +1,6 @@
 # hashbuilds-starter
 
-A production-ready Next.js starter template optimized for Claude Code development.
+A production-ready Next.js starter template optimized for Claude Code development. Built by [HashBuilds](https://hashbuilds.com).
 
 ## Features
 
