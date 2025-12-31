@@ -1,4 +1,4 @@
-# PROJECT_ORIGIN.md - Static Project Record
+# project-origin.md - Static Project Record
 
 **This file is STATIC.** Once filled out, it should never change. It's the historical record of how this project started.
 
@@ -107,7 +107,7 @@ _Any other context that's important to remember:_
 
 ---
 
-**Remember:** This file is a historical record. Don't update it as the project evolves - that's what BUSINESS_CONTEXT.md is for.
+**Remember:** This file is a historical record. Don't update it as the project evolves - that's what business-context.md is for.
 
 ---
 

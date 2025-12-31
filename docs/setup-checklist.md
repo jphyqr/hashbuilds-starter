@@ -1,4 +1,4 @@
-# SETUP_CHECKLIST.md - First-Time Project Setup
+# setup-checklist.md - First-Time Project Setup
 
 **Follow this checklist when starting a new project from this template.**
 
@@ -8,7 +8,7 @@
 
 ### 1.1 Fill Out Project Origin
 
-Open [PROJECT_ORIGIN.md](PROJECT_ORIGIN.md) and complete:
+Open [project-origin.md](project-origin.md) and complete:
 
 - [ ] Project name and domain
 - [ ] Client information
@@ -20,7 +20,7 @@ Open [PROJECT_ORIGIN.md](PROJECT_ORIGIN.md) and complete:
 
 ### 1.2 Fill Out Business Context
 
-Open [BUSINESS_CONTEXT.md](BUSINESS_CONTEXT.md) and complete:
+Open [business-context.md](business-context.md) and complete:
 
 - [ ] One-liner description
 - [ ] User personas (at least primary user)
@@ -28,9 +28,9 @@ Open [BUSINESS_CONTEXT.md](BUSINESS_CONTEXT.md) and complete:
 - [ ] Business model basics
 - [ ] Success criteria
 
-### 1.3 Update CLAUDE.md
+### 1.3 Update claude.md
 
-Open [/CLAUDE.md](/CLAUDE.md) and update:
+Open [/claude.md](/claude.md) and update:
 
 - [ ] Project name in Quick Start section
 - [ ] One-liner in Project Overview
@@ -42,7 +42,7 @@ Open [/CLAUDE.md](/CLAUDE.md) and update:
 
 ### 2.1 Database Setup
 
-Follow [services/DATABASE.md](services/DATABASE.md):
+Follow [services/database.md](services/database.md):
 
 - [ ] Choose provider (Neon recommended)
 - [ ] Create account and project
@@ -54,7 +54,7 @@ Follow [services/DATABASE.md](services/DATABASE.md):
 
 ### 2.2 Email Setup
 
-Follow [services/EMAIL.md](services/EMAIL.md):
+Follow [services/email.md](services/email.md):
 
 - [ ] Choose provider (Resend recommended)
 - [ ] Create account
@@ -66,7 +66,7 @@ Follow [services/EMAIL.md](services/EMAIL.md):
 
 ### 2.3 Auth Setup
 
-Follow [services/AUTH.md](services/AUTH.md):
+Follow [services/auth.md](services/auth.md):
 
 - [ ] Choose auth method (magic link recommended)
 - [ ] Configure NextAuth
@@ -128,7 +128,7 @@ EMAIL_FROM=
 
 ## Phase 5: Documentation (15 min)
 
-### 5.1 Update HANDOFF.md
+### 5.1 Update handoff.md
 
 - [ ] Document all accounts created
 - [ ] Note who owns each account
@@ -136,7 +136,7 @@ EMAIL_FROM=
 
 ### 5.2 Update Rollout Page
 
-- [ ] Mark Phase 1 complete in `/deliverables/ROLLOUT.md`
+- [ ] Mark Phase 1 complete in `/deliverables/rollout.md`
 - [ ] Update any pending items
 
 ---

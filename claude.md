@@ -1,4 +1,4 @@
-# CLAUDE.md - Project Command Center
+# claude.md - Project Command Center
 
 **Start Here.** This file is the single source of truth for this project.
 
@@ -11,7 +11,7 @@ pnpm install
 pnpm run dev        # Starts on port 3000
 ```
 
-**First-time setup?** See [docs/SETUP_CHECKLIST.md](docs/SETUP_CHECKLIST.md) for the complete onboarding flow.
+**First-time setup?** See [docs/setup-checklist.md](docs/setup-checklist.md) for the complete onboarding flow.
 
 ---
 
@@ -19,36 +19,43 @@ pnpm run dev        # Starts on port 3000
 
 | Field | Value |
 |-------|-------|
-| **Project Name** | _[Set in docs/PROJECT_ORIGIN.md]_ |
-| **Client** | _[Set in docs/PROJECT_ORIGIN.md]_ |
-| **Domain** | _[Set in docs/HANDOFF.md]_ |
+| **Project Name** | _[Set in docs/project-origin.md]_ |
+| **Client** | _[Set in docs/project-origin.md]_ |
+| **Domain** | _[Set in docs/handoff.md]_ |
 | **Status** | Phase 1: Foundation |
 
-**What is this?** _[Brief 1-sentence description - set in docs/BUSINESS_CONTEXT.md]_
+**What is this?** _[Brief 1-sentence description - set in docs/business-context.md]_
 
 ---
 
 ## Directory Map
 
 ```
-/CLAUDE.md                    ← You are here (entry point)
+/claude.md                    ← You are here (entry point)
 /README.md                    ← GitHub README
 
 /docs/                        ← Developer documentation (internal)
-  ├── PROJECT_ORIGIN.md       ← Static: original brief, timeline, deal structure
-  ├── BUSINESS_CONTEXT.md     ← Living: business model, personas, workflows
-  ├── TECH_STACK.md           ← Architecture decisions, conventions
-  ├── HANDOFF.md              ← Account ownership, credentials, transfer checklist
-  ├── SETUP_CHECKLIST.md      ← First-time setup guide
+  ├── project-origin.md       ← Static: original brief, timeline, deal structure
+  ├── business-context.md     ← Living: business model, personas, workflows
+  ├── tech-stack.md           ← Architecture decisions, conventions
+  ├── handoff.md              ← Account ownership, credentials, transfer checklist
+  ├── setup-checklist.md      ← First-time setup guide
+  │
+  ├── business/               ← CEO layer deep-dives (create as needed)
+  │   ├── personas.md         ← Detailed user research
+  │   ├── competitive.md      ← Market analysis
+  │   ├── pricing.md          ← Revenue model
+  │   ├── kpis.md             ← Metric definitions
+  │   └── roadmap.md          ← Future planning
   │
   ├── services/               ← External service integrations
-  │   ├── DATABASE.md         ← PostgreSQL/Neon configuration
-  │   ├── AUTH.md             ← NextAuth setup
-  │   ├── EMAIL.md            ← Resend/transactional email
-  │   ├── STORAGE.md          ← File uploads (Vercel Blob/S3)
-  │   ├── PAYMENTS.md         ← Stripe integration (when needed)
-  │   ├── SMS.md              ← Twilio/SMS (when needed)
-  │   └── ANALYTICS.md        ← Analytics setup (when needed)
+  │   ├── database.md         ← PostgreSQL/Neon configuration
+  │   ├── auth.md             ← NextAuth setup
+  │   ├── email.md            ← Resend/transactional email
+  │   ├── storage.md          ← File uploads (Vercel Blob/S3)
+  │   ├── payments.md         ← Stripe integration (when needed)
+  │   ├── sms.md              ← Twilio/SMS (when needed)
+  │   └── analytics.md        ← Analytics setup (when needed)
   │
   ├── features/               ← Feature specifications
   │   └── README.md           ← Feature spec template
@@ -57,10 +64,10 @@ pnpm run dev        # Starts on port 3000
       └── README.md           ← Plan template
 
 /deliverables/                ← Client-facing documentation
-  ├── ROLLOUT.md              ← Public progress tracker (powers /rollout page)
-  ├── PROGRESS.md             ← Completed work log
-  ├── CHANGELOG.md            ← Release notes
-  └── CLIENT_UPDATE.txt       ← Latest message to send client
+  ├── rollout.md              ← Public progress tracker (powers /rollout page)
+  ├── progress.md             ← Completed work log
+  ├── changelog.md            ← Release notes
+  └── client-update.txt       ← Latest message to send client
 
 /.claude/commands/            ← Slash commands
   ├── update-client.md        ← Generate client WhatsApp/email update
@@ -106,10 +113,10 @@ Dev server runs on **port 3000** by default. If you need a different port, updat
 
 | Type | Location | Naming |
 |------|----------|--------|
-| Context docs | `/docs/` | UPPERCASE_SNAKE.md |
-| Service configs | `/docs/services/` | UPPERCASE.md |
+| Context docs | `/docs/` | lowercase-kebab.md |
+| Service configs | `/docs/services/` | lowercase.md |
 | Feature specs | `/docs/features/` | feature-name.md |
-| Client docs | `/deliverables/` | UPPERCASE.md |
+| Client docs | `/deliverables/` | lowercase.md |
 | Components | `/components/` | PascalCase.tsx |
 | Utilities | `/lib/` | camelCase.ts |
 | API routes | `/app/api/` | route.ts |
@@ -144,10 +151,10 @@ Dev server runs on **port 3000** by default. If you need a different port, updat
 
 ### Setting Up a New Service
 
-1. Read `/docs/services/SERVICE_NAME.md`
+1. Read `/docs/services/service-name.md`
 2. Follow the decision prompts
 3. Add credentials to `.env`
-4. Update `/docs/HANDOFF.md` with account info
+4. Update `/docs/handoff.md` with account info
 
 ### Deploying Changes
 
@@ -164,7 +171,7 @@ git push origin main
 | Command | Purpose |
 |---------|---------|
 | `/update-client` | Generate client update message |
-| `/update-rollout` | Sync ROLLOUT.md, PROGRESS.md, CHANGELOG.md |
+| `/update-rollout` | Sync rollout.md, progress.md, changelog.md |
 
 ---
 

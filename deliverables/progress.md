@@ -12,8 +12,8 @@ Detailed record of completed work, organized by date.
 - Set up version control
 
 ### Documentation
-- Filled out PROJECT_ORIGIN.md
-- Filled out BUSINESS_CONTEXT.md
+- Filled out project-origin.md
+- Filled out business-context.md
 - Created initial rollout plan
 
 ### Next Session

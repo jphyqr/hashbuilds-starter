@@ -8,15 +8,15 @@ This folder contains documentation meant for the client, not internal developmen
 
 | File | Purpose | Audience |
 |------|---------|----------|
-| [ROLLOUT.md](ROLLOUT.md) | Progress tracker (powers /rollout page) | Public |
-| [PROGRESS.md](PROGRESS.md) | Detailed completed work log | Client |
-| [CHANGELOG.md](CHANGELOG.md) | What's new in each release | Client |
-| [TRAINING.md](TRAINING.md) | How to use the admin/system | Client |
-| [CLIENT_UPDATE.txt](CLIENT_UPDATE.txt) | Latest message to send | Developer reference |
+| [rollout.md](rollout.md) | Progress tracker (powers /rollout page) | Public |
+| [progress.md](progress.md) | Detailed completed work log | Client |
+| [changelog.md](changelog.md) | What's new in each release | Client |
+| [training.md](training.md) | How to use the admin/system | Client |
+| [client-update.txt](client-update.txt) | Latest message to send | Developer reference |
 
 ---
 
-## ROLLOUT.md
+## rollout.md
 
 **Purpose:** High-level progress tracker shown on the `/rollout` page.
 
@@ -26,7 +26,7 @@ This folder contains documentation meant for the client, not internal developmen
 
 ---
 
-## PROGRESS.md
+## progress.md
 
 **Purpose:** Detailed log of what's been completed.
 
@@ -46,7 +46,7 @@ This folder contains documentation meant for the client, not internal developmen
 
 ---
 
-## CHANGELOG.md
+## changelog.md
 
 **Purpose:** User-friendly release notes.
 
@@ -68,7 +68,7 @@ This folder contains documentation meant for the client, not internal developmen
 
 ---
 
-## TRAINING.md
+## training.md
 
 **Purpose:** How-to guide for the client to use the system.
 
@@ -82,7 +82,7 @@ This folder contains documentation meant for the client, not internal developmen
 
 ---
 
-## CLIENT_UPDATE.txt
+## client-update.txt
 
 **Purpose:** Template for WhatsApp/email updates to client.
 
