@@ -4,17 +4,27 @@ Sync all deliverables documentation after completing work.
 
 ## Instructions
 
-Ask the user: "What did you complete in this session?"
+First, run a quick status check by scanning:
+- `.env` for configured services
+- `specs/` for feature status
+- `app/` for routes and components
+- `prisma/schema.prisma` for models
 
-Then update the following files:
+Then ask the user: "What did you complete in this session?"
+
+Update the following files:
 
 ## 1. Update rollout.md
 
 Open /deliverables/rollout.md and:
-- Mark completed tasks with [x]
+- Mark completed tasks with [x] based on actual project state:
+  - Database: Check if DATABASE_URL in .env
+  - Auth: Check if NEXTAUTH_SECRET in .env
+  - Email: Check if RESEND_API_KEY in .env
+  - Deployed: Check if production URL is set
 - Update phase status if needed (Not Started → In Progress → Complete)
-- Update the "Last Updated" date
-- Update "Next Steps" section
+- Update the "Last Updated" date to today
+- Update "Next Steps" section with logical next action
 
 ## 2. Update progress.md
 

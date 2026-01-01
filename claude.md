@@ -158,8 +158,18 @@ Follow the numbered files in order:
   └── client-update.txt       ← Message to send client
 
 /.claude/commands/            ← Slash commands
-  ├── update-client.md
-  └── update-rollout.md
+  ├── check-progress.md       ← Scan and report project status
+  ├── create-spec.md          ← Create feature specification
+  ├── implement-spec.md       ← Build from specification
+  ├── new-feature.md          ← Quick feature addition
+  ├── add-seo.md              ← Set up SEO system
+  ├── update-client.md        ← Generate client message
+  └── update-rollout.md       ← Sync deliverables
+
+/.claude/hooks/               ← Automation hooks
+  └── session-start.sh        ← Auto-shows status on new chat
+
+/.claude/settings.json        ← Hook configuration
 ```
 
 ---
@@ -214,12 +224,15 @@ Dev server runs on **port 3000**. Change in `package.json` if needed.
 
 | Command | Purpose |
 |---------|---------|
+| `/check-progress` | Scan project and show current status |
 | `/create-spec [name]` | Create detailed feature specification |
 | `/implement-spec [name]` | Build feature from spec |
 | `/new-feature [name]` | Quick feature (simple) or redirect to spec (complex) |
 | `/add-seo` | Set up Long-Tail SEO system |
 | `/update-client` | Generate client update message |
 | `/update-rollout` | Sync deliverables after work |
+
+**Note:** A session-start hook automatically shows project status when you start a new chat.
 
 ---
 

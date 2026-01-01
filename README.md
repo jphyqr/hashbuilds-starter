@@ -54,7 +54,10 @@ pnpm dev
 │   └── _TEMPLATE.md           # Blank spec template
 ├── deliverables/          # Client-facing documentation
 │   └── rollout.md             # Progress tracker
-├── .claude/commands/      # Claude Code slash commands
+├── .claude/
+│   ├── commands/              # Slash commands
+│   ├── hooks/                 # Automation hooks
+│   └── settings.json          # Hook configuration
 ├── app/                   # Next.js app directory
 ├── components/ui/         # shadcn/ui components
 ├── lib/                   # Utilities and helpers
@@ -74,12 +77,24 @@ pnpm dev
 
 | Command | Purpose |
 |---------|---------|
+| `/check-progress` | Scan project and show current status |
 | `/create-spec [name]` | Create detailed feature specification |
 | `/implement-spec [name]` | Build feature from spec |
 | `/new-feature [name]` | Quick feature or redirect to spec |
 | `/add-seo` | Set up Long-Tail SEO system |
 | `/update-rollout` | Sync progress documentation |
 | `/update-client` | Generate client update message |
+
+## Session Start Hook
+
+When you start a new Claude Code session, a hook automatically scans the project and shows:
+- Which docs are filled vs empty
+- Which services are configured
+- Feature spec status
+- Last session notes
+- Suggested next step
+
+This means Claude always knows where the project is at, no manual context needed.
 
 ## Development Workflow
 
