@@ -25,9 +25,9 @@ This file is reference documentation - update the Changelog section when stack c
 | **Language** | TypeScript | 5.x | Strict mode |
 | **Styling** | Tailwind CSS | 4.x | With CSS variables |
 | **UI Library** | shadcn/ui | Latest | Radix primitives |
-| **Database** | Prisma | 6.x | See [services/DATABASE.md](services/DATABASE.md) |
-| **Auth** | NextAuth.js | 4.x | See [services/AUTH.md](services/AUTH.md) |
-| **Email** | Resend | 4.x | See [services/EMAIL.md](services/EMAIL.md) |
+| **Database** | Prisma | 6.x | See [services/01-database.md](services/01-database.md) |
+| **Auth** | NextAuth.js | 4.x | See [services/02-auth.md](services/02-auth.md) |
+| **Email** | Resend | 4.x | See [services/03-email.md](services/03-email.md) |
 | **Animations** | Framer Motion | 12.x | For complex animations |
 | **Forms** | react-hook-form | 7.x | With Zod validation |
 | **Icons** | Lucide React | Latest | Tree-shakeable |

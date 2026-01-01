@@ -1,12 +1,12 @@
 # Business Deep-Dives
 
-**When to use this folder:** When the main [business-context.md](../business-context.md) isn't enough.
+**When to use this folder:** When the main [02-business-context.md](../02-business-context.md) isn't enough.
 
 ---
 
 ## Philosophy
 
-Start with **one file** (business-context.md). Split into deep-dives when:
+Start with **one file** (02-business-context.md). Split into deep-dives when:
 - A section exceeds ~50 lines
 - You need to reference something frequently
 - Multiple team members need to edit different sections
@@ -37,7 +37,7 @@ _For detailed persona research including jobs-to-be-done and interview quotes, s
 
 ```
 docs/
-├── business-context.md    ← Start here (CEO summary)
+├── 02-business-context.md ← Start here (CEO summary)
 └── business/              ← Deep-dives (create as needed)
     ├── README.md          ← You are here
     ├── personas.md

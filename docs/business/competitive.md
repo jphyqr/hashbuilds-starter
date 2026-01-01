@@ -1,6 +1,6 @@
 # competitive.md - Market Analysis Deep-Dive
 
-**Parent:** [business-context.md](../business-context.md)
+**Parent:** [02-business-context.md](../02-business-context.md)
 **Purpose:** Detailed competitive analysis when brief summaries aren't enough
 
 ---

@@ -1,6 +1,6 @@
 # roadmap.md - Future Planning Deep-Dive
 
-**Parent:** [business-context.md](../business-context.md)
+**Parent:** [02-business-context.md](../02-business-context.md)
 **Purpose:** Long-term planning when MVP scope isn't enough
 
 ---

@@ -97,6 +97,7 @@ Follow the numbered files in order:
 | 5 | [services/05-storage.md](docs/services/05-storage.md) | Sometimes |
 | 6 | [services/06-sms.md](docs/services/06-sms.md) | Rarely |
 | 7 | [services/07-analytics.md](docs/services/07-analytics.md) | Before launch |
+| 8 | [services/08-deployment.md](docs/services/08-deployment.md) | At launch |
 
 ### Phase 3: GTM (After MVP is Live)
 
@@ -137,7 +138,8 @@ Follow the numbered files in order:
   │   ├── 04-payments.md
   │   ├── 05-storage.md
   │   ├── 06-sms.md
-  │   └── 07-analytics.md
+  │   ├── 07-analytics.md
+  │   └── 08-deployment.md
   │
   ├── gtm/                    ← Go-to-market (after MVP)
   │   ├── 01-long-tail-seo.md
@@ -163,6 +165,9 @@ Follow the numbered files in order:
   ├── implement-spec.md       ← Build from specification
   ├── new-feature.md          ← Quick feature addition
   ├── add-seo.md              ← Set up SEO system
+  ├── setup.md                ← Guided initial project setup
+  ├── deploy.md               ← Deployment guide
+  ├── end-session.md          ← Wrap up and log session
   ├── update-client.md        ← Generate client message
   └── update-rollout.md       ← Sync deliverables
 
@@ -224,11 +229,14 @@ Dev server runs on **port 3000**. Change in `package.json` if needed.
 
 | Command | Purpose |
 |---------|---------|
+| `/setup` | Guided initial project setup (database, auth, email) |
 | `/check-progress` | Scan project and show current status |
 | `/create-spec [name]` | Create detailed feature specification |
 | `/implement-spec [name]` | Build feature from spec |
 | `/new-feature [name]` | Quick feature (simple) or redirect to spec (complex) |
 | `/add-seo` | Set up Long-Tail SEO system |
+| `/deploy` | Guide deployment to Vercel |
+| `/end-session` | Wrap up session and log progress |
 | `/update-client` | Generate client update message |
 | `/update-rollout` | Sync deliverables after work |
 

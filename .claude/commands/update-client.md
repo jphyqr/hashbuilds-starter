@@ -6,7 +6,7 @@ Generate a client-friendly update message for WhatsApp or email.
 
 1. Read /deliverables/progress.md to understand recent work
 2. Read /deliverables/rollout.md to understand current phase status
-3. Read /docs/project-origin.md to get client name and project name
+3. Read /docs/01-project-origin.md to get client name and project name
 
 ## Generate Message
 

@@ -77,11 +77,14 @@ pnpm dev
 
 | Command | Purpose |
 |---------|---------|
+| `/setup` | Guided initial project setup (database, auth, email) |
 | `/check-progress` | Scan project and show current status |
 | `/create-spec [name]` | Create detailed feature specification |
 | `/implement-spec [name]` | Build feature from spec |
 | `/new-feature [name]` | Quick feature or redirect to spec |
 | `/add-seo` | Set up Long-Tail SEO system |
+| `/deploy` | Guide deployment to Vercel |
+| `/end-session` | Wrap up session and log progress |
 | `/update-rollout` | Sync progress documentation |
 | `/update-client` | Generate client update message |
 
@@ -143,6 +146,7 @@ For simple features (< 1 hour):
 - **05-storage.md** - File uploads
 - **06-sms.md** - SMS integration
 - **07-analytics.md** - Analytics setup
+- **08-deployment.md** - Vercel deployment
 
 ### GTM Strategies (docs/gtm/)
 

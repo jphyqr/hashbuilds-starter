@@ -9,6 +9,20 @@ echo "📋 PROJECT STATUS (Auto-scanned)"
 echo "================================"
 echo ""
 
+# Check if this is a fresh clone (no .env)
+if [ ! -f ".env" ]; then
+  echo "⚠️  FRESH PROJECT DETECTED"
+  echo ""
+  echo "Run these commands to get started:"
+  echo "  cp .env.example .env"
+  echo "  pnpm install"
+  echo ""
+  echo "Then run /setup to configure the project."
+  echo ""
+  echo "---"
+  exit 0
+fi
+
 # Check Setup Docs
 echo "## Setup Docs"
 echo ""
@@ -48,38 +62,46 @@ echo ""
 echo "| Service | Status |"
 echo "|---------|--------|"
 
-if [ -f ".env" ]; then
-  if grep -q "DATABASE_URL" .env 2>/dev/null; then
-    echo "| Database | ✅ Configured |"
-  else
-    echo "| Database | ⬜ Not configured |"
-  fi
-
-  if grep -q "NEXTAUTH_SECRET" .env 2>/dev/null; then
-    echo "| Auth | ✅ Configured |"
-  else
-    echo "| Auth | ⬜ Not configured |"
-  fi
-
-  if grep -q "RESEND_API_KEY\|EMAIL_SERVER" .env 2>/dev/null; then
-    echo "| Email | ✅ Configured |"
-  else
-    echo "| Email | ⬜ Not configured |"
-  fi
-
-  if grep -q "STRIPE" .env 2>/dev/null; then
-    echo "| Payments | ✅ Configured |"
-  else
-    echo "| Payments | ⬜ Not needed yet |"
-  fi
+if grep -q "DATABASE_URL" .env 2>/dev/null; then
+  echo "| Database | ✅ Configured |"
 else
-  echo "| All | ⚠️ No .env file |"
+  echo "| Database | ⬜ Not configured |"
+fi
+
+if grep -q "NEXTAUTH_SECRET" .env 2>/dev/null; then
+  echo "| Auth | ✅ Configured |"
+else
+  echo "| Auth | ⬜ Not configured |"
+fi
+
+if grep -q "RESEND_API_KEY\|EMAIL_SERVER" .env 2>/dev/null; then
+  echo "| Email | ✅ Configured |"
+else
+  echo "| Email | ⬜ Not configured |"
+fi
+
+if grep -q "STRIPE" .env 2>/dev/null; then
+  echo "| Payments | ✅ Configured |"
+else
+  echo "| Payments | ⬜ Not needed yet |"
+fi
+
+if grep -q "BLOB_READ_WRITE_TOKEN" .env 2>/dev/null; then
+  echo "| Storage | ✅ Configured |"
+else
+  echo "| Storage | ⬜ Not needed yet |"
 fi
 echo ""
 
 # Check Specs
 echo "## Feature Specs"
 echo ""
+spec_count=0
+planning=0
+ready=0
+in_progress=0
+complete=0
+
 if [ -d "specs" ]; then
   spec_count=$(find specs -name "*.md" ! -name "README.md" ! -name "_TEMPLATE.md" 2>/dev/null | wc -l | tr -d ' ')
   if [ "$spec_count" -gt 0 ]; then
@@ -96,6 +118,16 @@ if [ -d "specs" ]; then
   fi
 else
   echo "No specs folder."
+fi
+echo ""
+
+# GTM Status
+echo "## GTM (Go-to-Market)"
+echo ""
+if grep -q "ANTHROPIC_API_KEY" .env 2>/dev/null && grep -q "CRON_SECRET" .env 2>/dev/null; then
+  echo "| SEO System | ✅ Configured |"
+else
+  echo "| SEO System | ⬜ Not set up (run /add-seo after MVP) |"
 fi
 echo ""
 
@@ -134,25 +166,43 @@ else
 fi
 echo ""
 
-# Suggest next step
+# Determine current phase and suggest next step
 echo "## Suggested Next Step"
 echo ""
 
-# Logic: empty docs → fill them, no services → configure, no specs → create spec
+# Phase detection logic
 if ! grep -q "DATABASE_URL" .env 2>/dev/null; then
+  echo "**Phase:** Foundation Setup"
   echo "→ Configure database: Read docs/services/01-database.md"
 elif ! grep -q "NEXTAUTH_SECRET" .env 2>/dev/null; then
+  echo "**Phase:** Services Setup"
   echo "→ Configure auth: Read docs/services/02-auth.md"
-elif [ "$spec_count" = "0" ] 2>/dev/null; then
+elif ! grep -q "RESEND_API_KEY\|EMAIL_SERVER" .env 2>/dev/null; then
+  echo "**Phase:** Services Setup"
+  echo "→ Configure email: Read docs/services/03-email.md"
+elif [ "$spec_count" = "0" ]; then
+  echo "**Phase:** Feature Development"
   echo "→ Create first feature spec: /create-spec [feature-name]"
-elif [ "$ready" -gt 0 ] 2>/dev/null; then
+elif [ "$ready" -gt 0 ]; then
+  echo "**Phase:** Feature Development"
   echo "→ Implement a ready spec: /implement-spec [name]"
+elif [ "$in_progress" -gt 0 ]; then
+  echo "**Phase:** Feature Development"
+  echo "→ Continue in-progress spec"
+elif [ "$routes" -gt 3 ]; then
+  if ! grep -q "ANTHROPIC_API_KEY" .env 2>/dev/null; then
+    echo "**Phase:** Go-to-Market"
+    echo "→ Set up SEO: /add-seo"
+  else
+    echo "**Phase:** Growth"
+    echo "→ Continue building or review /check-progress"
+  fi
 else
-  echo "→ Continue building or run /check-progress for details"
+  echo "→ Run /check-progress for detailed status"
 fi
 
 echo ""
 echo "---"
-echo "Run /check-progress for detailed status."
+echo "Commands: /check-progress | /create-spec | /end-session | /deploy"
 
 exit 0

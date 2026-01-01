@@ -1,6 +1,6 @@
 # personas.md - User Research Deep-Dive
 
-**Parent:** [business-context.md](../business-context.md)
+**Parent:** [02-business-context.md](../02-business-context.md)
 **Purpose:** Detailed user research when brief persona summaries aren't enough
 
 ---
