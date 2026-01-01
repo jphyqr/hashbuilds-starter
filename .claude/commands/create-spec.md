@@ -28,7 +28,7 @@ Before writing the spec, ask these questions ONE AT A TIME:
 
 ## After Discovery
 
-Create the spec file at `/specs/$ARGUMENTS.md` using this structure:
+Create the spec file at `/docs/product/$ARGUMENTS.md` using this structure:
 
 ```markdown
 # [Feature Name]
@@ -180,7 +180,7 @@ _Spec created: [DATE]_
 
 Tell the user:
 
-1. "✅ Spec created at `/specs/$ARGUMENTS.md`"
+1. "✅ Spec created at `/docs/product/$ARGUMENTS.md`"
 2. "Review the spec and refine any details"
 3. "When ready, run `/implement-spec $ARGUMENTS` to start building"
 

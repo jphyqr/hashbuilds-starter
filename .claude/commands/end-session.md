@@ -45,7 +45,7 @@ Add a new entry to `/deliverables/progress.md` with today's date:
 
 ### Step 3: Update Spec Status (If Applicable)
 
-If we were implementing a spec from `/specs/`:
+If we were implementing a spec from `/docs/product/`:
 1. Update the spec's `Status:` field (In Progress → Complete, or note progress)
 2. Add any implementation notes to the spec
 

@@ -32,7 +32,7 @@ Use the spec-first workflow for features:
 2. Review and refine the spec
 3. /implement-spec [feature-name] → Build from the spec
 
-Specs go in /specs/ folder.
+Specs go in /docs/product/ folder (VP of Product role-primed).
 
 ## GTM (Phase 7 - After MVP is Live)
 
@@ -124,14 +124,16 @@ Follow the numbered files in order:
   ├── 07-integration-test.md  ← Testing strategy
   ├── handoff.md              ← Account ownership, credentials
   │
-  ├── business/               ← CEO layer deep-dives
-  │   ├── personas.md
-  │   ├── competitive.md
-  │   ├── pricing.md
-  │   ├── kpis.md
-  │   └── roadmap.md
+  ├── business/               ← CEO strategy layer (Role: CEO/Founder)
+  │   └── README.md           ← Role-priming + deep-dive templates
   │
-  ├── services/               ← External integrations (numbered)
+  ├── product/                ← Feature specifications (Role: VP of Product)
+  │   ├── README.md           ← Role-priming + spec workflow
+  │   ├── _template.md        ← Blank spec template
+  │   └── [feature-name].md   ← Individual specs
+  │
+  ├── services/               ← External integrations (Role: DevOps)
+  │   ├── README.md           ← Role-priming
   │   ├── 01-database.md
   │   ├── 02-auth.md
   │   ├── 03-email.md
@@ -141,17 +143,11 @@ Follow the numbered files in order:
   │   ├── 07-analytics.md
   │   └── 08-deployment.md
   │
-  ├── gtm/                    ← Go-to-market (after MVP)
-  │   ├── 01-long-tail-seo.md
-  │   ├── 02-json-ld.md
-  │   └── 03-backlinks.md
-  │
-  └── plans/                  ← Implementation roadmaps
-
-/specs/                       ← Feature specifications
-  ├── README.md               ← Spec workflow guide
-  ├── _TEMPLATE.md            ← Blank spec template
-  └── [feature-name].md       ← Individual feature specs
+  └── gtm/                    ← Go-to-market (Role: Head of Growth)
+      ├── README.md           ← Role-priming
+      ├── 01-long-tail-seo.md
+      ├── 02-json-ld.md
+      └── 03-backlinks.md
 
 /prompts/                     ← Large system prompts
   ├── README.md               ← Prompt usage guide

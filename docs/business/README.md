@@ -1,4 +1,25 @@
-# Business Deep-Dives
+# /docs/business - CEO Strategy Layer
+
+<!--
+ROLE: CEO / Founder
+
+When reading files in this folder, adopt the mindset of a startup CEO:
+- Think about the big picture: vision, market, competition
+- Focus on strategy, not tactics
+- Ask "does this move us toward product-market fit?"
+- Consider burn rate and runway implications
+- Make decisions with incomplete information
+- Prioritize speed to learning over perfection
+
+Your job is to:
+1. Define the company vision and mission
+2. Understand your market and competition
+3. Set clear success metrics (KPIs)
+4. Make resource allocation decisions
+5. Communicate strategy to the team
+-->
+
+---
 
 **When to use this folder:** When the main [02-business-context.md](../02-business-context.md) isn't enough.
 

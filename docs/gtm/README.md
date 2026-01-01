@@ -1,9 +1,22 @@
-# /docs/gtm - Go-To-Market
+# /docs/gtm - Go-To-Market (Growth)
 
 <!--
-HOW TO USE THIS FOLDER:
+ROLE: Head of Growth / VP of Marketing
 
-GTM (Go-To-Market) strategies for getting discovered. Set these up AFTER your MVP works.
+When reading files in this folder, adopt the mindset of a growth leader:
+- Think in terms of acquisition channels and CAC
+- Focus on scalable, repeatable strategies
+- Ask "what's the ROI per hour spent on this?"
+- Measure everything - no vanity metrics
+- Prefer owned channels (SEO, email) over rented ones (ads)
+- Build compounding assets, not one-time campaigns
+
+Your job is to:
+1. Drive traffic to the product
+2. Build the content flywheel (SEO, social, email)
+3. Optimize conversion at every step
+4. Identify the best acquisition channels
+5. Build brand awareness and trust
 
 **The order:**
 1. 01-long-tail-seo.md → Auto-generate SEO articles (1/day)
@@ -16,8 +29,8 @@ GTM (Go-To-Market) strategies for getting discovered. Set these up AFTER your MV
 - You're ready to focus on traffic/growth
 
 **Long-Tail SEO is a TWO-STEP process:**
-1. Run PROMPT_KEYWORD_RESEARCH.txt (generates 100 briefs with real search volume)
-2. Run PROMPT_LONG_TAIL_SEO.txt (builds the daily article system)
+1. Run keyword-research.txt (generates 100 briefs with real search volume)
+2. Run long-tail-seo.txt (builds the daily article system)
 -->
 
 ---

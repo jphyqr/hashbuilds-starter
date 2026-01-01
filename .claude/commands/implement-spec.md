@@ -6,11 +6,11 @@ Implement a feature from its specification file.
 
 **Argument:** `$ARGUMENTS` (spec name, e.g., "user-authentication")
 
-If no argument provided, list available specs from `/specs/*.md` and ask which one to implement.
+If no argument provided, list available specs from `/docs/product/*.md` and ask which one to implement.
 
 ## Before Starting
 
-1. **Read the spec file:** `/specs/$ARGUMENTS.md`
+1. **Read the spec file:** `/docs/product/$ARGUMENTS.md`
 2. **Check status:** If status is "Planning", tell user to finalize the spec first
 3. **Review implementation steps:** Understand the full scope before coding
 
@@ -116,7 +116,7 @@ Before marking complete, verify:
 User: /implement-spec user-authentication
 
 Claude:
-1. Reads /specs/user-authentication.md
+1. Reads /docs/product/user-authentication.md
 2. Updates status to "In Progress"
 3. "Implementing Step 1: Adding Prisma models..."
    - Creates User, Account, Session models

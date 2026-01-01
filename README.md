@@ -46,12 +46,10 @@ pnpm dev
 │   ├── 05-coding-standards.md # Coding conventions
 │   ├── 06-auth-system.md      # Auth setup guide
 │   ├── 07-integration-test.md # Testing strategy
-│   ├── business/              # Deep-dive business docs
-│   ├── services/              # Service configuration
-│   └── gtm/                   # Go-to-market strategies
-├── specs/                 # Feature specifications
-│   ├── README.md              # Spec workflow guide
-│   └── _TEMPLATE.md           # Blank spec template
+│   ├── business/              # CEO strategy layer
+│   ├── product/               # Feature specifications (VP Product)
+│   ├── services/              # Service configuration (DevOps)
+│   └── gtm/                   # Go-to-market (Growth)
 ├── deliverables/          # Client-facing documentation
 │   └── rollout.md             # Progress tracker
 ├── .claude/
@@ -109,7 +107,7 @@ For complex features, use the spec-first workflow:
 # 1. Create a spec
 /create-spec user-authentication
 
-# 2. Review and refine the spec in /specs/user-authentication.md
+# 2. Review and refine the spec in /docs/product/user-authentication.md
 
 # 3. Implement from the spec
 /implement-spec user-authentication
