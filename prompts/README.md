@@ -8,8 +8,8 @@ This folder contains prompts that are too large to embed directly in command fil
 
 | File | Purpose | Size |
 |------|---------|------|
-| `PROMPT_KEYWORD_RESEARCH.txt` | SEO keyword research with Keywords Everywhere MCP | ~450 lines |
-| `PROMPT_LONG_TAIL_SEO.txt` | Complete SEO article generation system | ~3700 lines |
+| `keyword-research.txt` | SEO keyword research with Keywords Everywhere MCP | ~450 lines |
+| `long-tail-seo.txt` | Complete SEO article generation system | ~3700 lines |
 
 ---
 

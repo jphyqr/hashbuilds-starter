@@ -19,12 +19,12 @@ PROMPT: Long-Tail SEO auto-generates educational articles. This is a TWO-STEP pr
 
 **After prerequisites confirmed, guide user through:**
 
-1. STEP 1: Read and run `/prompts/PROMPT_KEYWORD_RESEARCH.txt`
+1. STEP 1: Read and run `/prompts/keyword-research.txt`
    - Generates 100 article briefs with real search volume data
    - Creates SEO_KEYWORDS.md memory file
    - Seeds SEOBrief database table
 
-2. STEP 2: Read and run `/prompts/PROMPT_LONG_TAIL_SEO.txt`
+2. STEP 2: Read and run `/prompts/long-tail-seo.txt`
    - Builds the daily article generation system
    - Sets up cron job, approval flow, article renderer
 
@@ -51,7 +51,7 @@ These prompts are large (40k+ tokens) so they live in `/prompts/`.
 
 ### Step 1: Keyword Research (Run Once)
 
-**Prompt File**: `/prompts/PROMPT_KEYWORD_RESEARCH.txt`
+**Prompt File**: `/prompts/keyword-research.txt`
 
 This prompt:
 1. Analyzes your BUSINESS-CONTEXT.md
@@ -67,7 +67,7 @@ This prompt:
 
 ### Step 2: System Build (Run Once)
 
-**Prompt File**: `/prompts/PROMPT_LONG_TAIL_SEO.txt`
+**Prompt File**: `/prompts/long-tail-seo.txt`
 
 This prompt builds:
 1. Database schema (SEOPillar, SEOBrief, SEOArticle, SEORule)
@@ -211,8 +211,8 @@ The system enforces these rules automatically:
 ## Getting the Prompts
 
 The prompts are included in this starter template:
-- `/prompts/PROMPT_KEYWORD_RESEARCH.txt`
-- `/prompts/PROMPT_LONG_TAIL_SEO.txt`
+- `/prompts/keyword-research.txt`
+- `/prompts/long-tail-seo.txt`
 
 Use `/add-seo` command to run through the full setup.
 
@@ -220,10 +220,10 @@ Use `/add-seo` command to run through the full setup.
 
 ## Testing
 
-1. Run keyword research: Have Claude Code read `/prompts/PROMPT_KEYWORD_RESEARCH.txt`
+1. Run keyword research: Have Claude Code read `/prompts/keyword-research.txt`
 2. Verify SEO_KEYWORDS.md created with 100 briefs
 3. Verify SEOBrief records in database
-4. Run system build: Have Claude Code read `/prompts/PROMPT_LONG_TAIL_SEO.txt`
+4. Run system build: Have Claude Code read `/prompts/long-tail-seo.txt`
 5. Test cron manually: `curl http://localhost:3000/api/cron/daily-content?secret=YOUR_CRON_SECRET`
 6. Check email for approval link
 7. Approve article, verify it appears on site
@@ -237,7 +237,7 @@ Use `/add-seo` command to run through the full setup.
 - Add to your Claude Code config
 
 ### "No briefs to generate from"
-- Run PROMPT_KEYWORD_RESEARCH.txt first
+- Run keyword-research.txt first
 - Check SEOBrief table has records with status="pending"
 
 ### "Approval email not arriving"
@@ -260,11 +260,11 @@ Use `/add-seo` command to run through the full setup.
 | BUSINESS-CONTEXT.md filled out | [ ] |
 | Keywords Everywhere MCP installed | [ ] |
 | **Step 1: Keyword Research** | |
-| PROMPT_KEYWORD_RESEARCH.txt run | [ ] |
+| keyword-research.txt run | [ ] |
 | SEO_KEYWORDS.md created | [ ] |
 | 100 SEOBrief records in database | [ ] |
 | **Step 2: System Build** | |
-| PROMPT_LONG_TAIL_SEO.txt run | [ ] |
+| long-tail-seo.txt run | [ ] |
 | Database schema applied | [ ] |
 | Cron job created | [ ] |
 | Article pages created | [ ] |

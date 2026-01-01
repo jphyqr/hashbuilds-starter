@@ -155,8 +155,8 @@ Follow the numbered files in order:
 
 /prompts/                     ← Large system prompts
   ├── README.md               ← Prompt usage guide
-  ├── PROMPT_KEYWORD_RESEARCH.txt  ← SEO keyword research
-  └── PROMPT_LONG_TAIL_SEO.txt     ← SEO article system
+  ├── keyword-research.txt    ← SEO keyword research
+  └── long-tail-seo.txt       ← SEO article system
 
 /deliverables/                ← Client-facing documentation
   ├── rollout.md              ← Public progress tracker

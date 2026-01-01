@@ -15,13 +15,13 @@ If any are missing, tell the user what to complete first.
 
 ## This is a TWO-STEP process
 
-**Step 1: Keyword Research** (`/prompts/PROMPT_KEYWORD_RESEARCH.txt`)
+**Step 1: Keyword Research** (`/prompts/keyword-research.txt`)
 - Uses Keywords Everywhere MCP for real search volume
 - Generates 100 article briefs (title, keyword, volume, intent)
 - Creates SEO_KEYWORDS.md memory file
 - Seeds SEOBrief database table
 
-**Step 2: System Build** (`/prompts/PROMPT_LONG_TAIL_SEO.txt`)
+**Step 2: System Build** (`/prompts/long-tail-seo.txt`)
 - Creates database schema (SEOPillar, SEOBrief, SEOArticle, SEORule)
 - Sets up daily cron job
 - Builds article renderer and approval flow
@@ -33,7 +33,7 @@ If prerequisites are met, run both steps in order.
 
 ### Step 1: Run Keyword Research
 
-1. Read `/prompts/PROMPT_KEYWORD_RESEARCH.txt`
+1. Read `/prompts/keyword-research.txt`
 2. Follow the prompt's instructions to:
    - Analyze 02-business-context.md
    - Ask discovery questions about pillars and future content
@@ -44,7 +44,7 @@ If prerequisites are met, run both steps in order.
 
 ### Step 2: Run System Build
 
-1. Read `/prompts/PROMPT_LONG_TAIL_SEO.txt`
+1. Read `/prompts/long-tail-seo.txt`
 2. Follow the prompt's instructions to:
    - Add Prisma models (SEOPillar, SEOBrief, SEOArticle, SEORule)
    - Create daily cron job
