@@ -1,7 +1,9 @@
-# 01-long-tail-seo.md - Automated Article Generation
+# 01-long-tail-seo.md - SEO Foundation Layer
 
 <!--
-PROMPT: Long-Tail SEO auto-generates educational articles. Ask me:
+PROMPT: Long-Tail SEO auto-generates educational articles. This is a TWO-STEP process.
+
+**Before we start, ask me:**
 
 1. Is your MVP deployed and working? (This is for growth, not launch)
    - Yes → Continue
@@ -11,193 +13,276 @@ PROMPT: Long-Tail SEO auto-generates educational articles. Ask me:
    - Yes → Continue
    - Not yet → Fill that out first
 
-3. What type of business is this?
-   - Local service (HVAC, plumbing, legal, dental)
-   - SaaS product
-   - Consultancy/agency
-   - E-commerce
-   - Marketplace
+3. Do you have Keywords Everywhere MCP installed? (Required for keyword research)
+   - Test: Call mcp__keywords-everywhere__get_credits
+   - If not installed: Get API key at keywordseverywhere.com
 
-4. Do you want to approve articles before they go live? (Recommended: Yes)
-   - Yes → We'll set up email approvals
-   - No → Articles auto-publish (risky)
+**After prerequisites confirmed, guide user through:**
 
-5. What email should receive article approvals?
+1. STEP 1: Copy and run PROMPT_KEYWORD_RESEARCH (from public/PROMPT_KEYWORD_RESEARCH.txt)
+   - Generates 100 article briefs with real search volume data
+   - Creates SEO_KEYWORDS.md memory file
+   - Seeds SEOBrief database table
 
-After you answer, I'll help you set up the auto-article generation system.
+2. STEP 2: Copy and run PROMPT_LONG_TAIL_SEO (from public/PROMPT_LONG_TAIL_SEO.txt)
+   - Builds the daily article generation system
+   - Sets up cron job, approval flow, article renderer
+
+These prompts are large (40k+ tokens) so they live in their own files.
 -->
 
 ---
 
 ## What This Does
 
-Generates 1 SEO-optimized article per day targeting long-tail keywords:
+**The SEO Foundation Layer** - autonomous article generation:
 
-- **How-to articles** - "How to [solve problem]"
-- **Comparison articles** - "[Your service] vs [competitor]"
-- **Explainer articles** - "What is [industry term]"
-- **Buying guides** - "Best [product category]"
+- Generates 1 SEO-optimized article per day
+- Uses Claude API with pre-researched keywords (not AI guessing)
+- Targets long-tail keywords with real search volume data
+- CEO reviews via email, one-click approve
+- Articles auto-publish after approval
 
-**Result**: 90 articles in 3 months, compounding organic traffic
-
----
-
-## How It Works
-
-1. **Reads your business context** from `/docs/02-business-context.md`
-2. **Generates article ideas** based on your industry and services
-3. **Writes articles** using Claude API (runs daily via cron)
-4. **Sends approval email** with preview link
-5. **CEO clicks approve** → Article appears in sitemap and search
+**Result**: 100 articles in ~3 months, compounding organic traffic
 
 ---
 
-## Required Infrastructure
+## Two-Step Workflow
 
-| Component | Purpose | File Location |
-|-----------|---------|---------------|
-| Article model | Store generated articles | `prisma/schema.prisma` |
-| Category model | Organize articles | `prisma/schema.prisma` |
-| Cron job | Daily generation | `app/api/cron/daily-content/route.ts` |
-| Article page | Display articles | `app/articles/[slug]/page.ts` |
-| Approval API | Handle approvals | `app/api/articles/approve/route.ts` |
+### Step 1: Keyword Research (Run Once)
+
+**Prompt File**: `public/PROMPT_KEYWORD_RESEARCH.txt`
+
+This prompt:
+1. Analyzes your BUSINESS-CONTEXT.md
+2. Uses Keywords Everywhere MCP for real search volume
+3. Generates 100 article briefs (title, keyword, volume, intent)
+4. Creates SEO_KEYWORDS.md memory file
+5. Seeds SEOBrief database table
+
+**Output**:
+- 4-8 content pillars based on your business type
+- 100 article briefs prioritized by search volume
+- Database seeded and ready for Step 2
+
+### Step 2: System Build (Run Once)
+
+**Prompt File**: `public/PROMPT_LONG_TAIL_SEO.txt`
+
+This prompt builds:
+1. Database schema (SEOPillar, SEOBrief, SEOArticle, SEORule)
+2. Daily cron job (generates from briefs, not AI guessing)
+3. Article renderer component
+4. Email approval flow (CEO reviews before publish)
+5. Sitemap integration
+6. /seo-debug admin dashboard
 
 ---
 
-## Environment Variables
+## Architecture Overview
 
-```env
-# For article generation
-ANTHROPIC_API_KEY="sk-ant-xxx"  # Get from console.anthropic.com
-
-# For approval emails
-RESEND_API_KEY="re_xxx"
-APPROVAL_EMAIL="ceo@yourdomain.com"
-```
-
----
-
-## Setup Steps
-
-### Step 1: Add Database Models
-
-Add to `prisma/schema.prisma`:
+### Database Models
 
 ```prisma
-model Article {
+model SEOPillar {
   id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  description String?
+  active      Boolean  @default(true)
+  briefs      SEOBrief[]
+  articles    SEOArticle[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model SEOBrief {
+  id              String   @id @default(cuid())
+  pillarId        String
+  pillar          SEOPillar @relation(fields: [pillarId], references: [id])
+  title           String
+  primaryKeyword  String
+  primaryVolume   Int
+  secondaryKeywords String[]
+  searchIntent    String
+  linkTargets     String[]
+  priority        Int      @default(50)
+  status          String   @default("pending") // pending | published | skipped
+  articleId       String?  @unique
+  article         SEOArticle? @relation(fields: [articleId], references: [id])
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([status])
+  @@index([priority])
+}
+
+model SEOArticle {
+  id          String   @id @default(cuid())
+  pillarId    String
+  pillar      SEOPillar @relation(fields: [pillarId], references: [id])
   title       String
   slug        String   @unique
   content     String   @db.Text
   excerpt     String?
   published   Boolean  @default(true)
   approved    Boolean  @default(false)
-  categoryId  String?
+  brief       SEOBrief?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  category    Category? @relation(fields: [categoryId], references: [id])
+  @@index([pillarId])
+  @@index([approved])
 }
 
-model Category {
-  id          String    @id @default(cuid())
-  name        String
-  slug        String    @unique
-  description String?
-  articles    Article[]
+model SEORule {
+  id          String   @id @default(cuid())
+  type        String   // "voice" | "format" | "link" | "avoid"
+  content     String
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 ```
 
-### Step 2: Create Article Generation Cron
+### Key Files Created
 
-The cron job runs daily and:
-1. Reads business context
-2. Picks article type (how-to, comparison, explainer, buying guide)
-3. Generates content via Claude API
-4. Sends approval email with preview link
-5. Stores as published=true, approved=false
-
-### Step 3: Create Approval Flow
-
-When CEO clicks approve:
-1. Sets approved=true
-2. Article appears in sitemap
-3. Article appears in category pages
-4. Google can now discover it
+| File | Purpose |
+|------|---------|
+| `app/api/cron/daily-content/route.ts` | Daily article generation cron |
+| `app/articles/[slug]/page.tsx` | Article display page |
+| `app/articles/category/[slug]/page.tsx` | Category listing |
+| `components/ArticleRenderer.tsx` | Article content renderer |
+| `lib/seo-article-generator.ts` | Article generation logic |
+| `app/(admin)/seo-debug/page.tsx` | Admin dashboard |
+| `SEO_KEYWORDS.md` | Memory file with all 100 briefs |
 
 ---
 
-## Content Categories
+## Environment Variables
 
-System auto-generates categories based on business type:
+```env
+# Required for article generation
+ANTHROPIC_API_KEY="sk-ant-xxx"
 
-### Local Service (e.g., HVAC)
-- Troubleshooting & DIY
-- Maintenance & Prevention
-- Buying Decisions
-- Seasonal Tips
-- Emergency Guides
+# Required for approval emails
+RESEND_API_KEY="re_xxx"
+ADMIN_EMAIL="ceo@yourdomain.com"
 
-### SaaS Product
-- Feature Tutorials
-- Use Cases
-- Integrations
-- Comparisons
-- Best Practices
+# Required for sitemap/canonical URLs
+NEXT_PUBLIC_BASE_URL="https://yourdomain.com"
 
-### Consultancy/Agency
-- When to Hire
-- Decision Frameworks
-- Industry Insights
-- Case Studies
-- Cost Guides
+# Required for cron authentication
+CRON_SECRET="random-secret-string"
+```
+
+---
+
+## How Daily Generation Works
+
+1. **Cron runs daily** (configured in vercel.json)
+2. **Picks next pending brief** by priority (lowest = first)
+3. **Generates article** using Claude API with brief's keywords/intent
+4. **Stores as published=true, approved=false**
+5. **Sends approval email** with preview link
+6. **CEO clicks approve** → Article appears in sitemap
+
+**Key insight**: Articles are accessible via direct URL immediately (for CEO review), but only approved articles appear in sitemap and category pages.
+
+---
+
+## Content Quality Rules (Built-In)
+
+The system enforces these rules automatically:
+
+**Never invents:**
+- Fictional case studies or testimonials
+- Made-up statistics
+- Fake scenarios presented as real
+
+**Always uses:**
+- Direct definitions ("X is a [thing] that [does Y]")
+- Factual explanations
+- Third-person educational tone
+- Answer search query in first paragraph
+
+---
+
+## Getting the Prompts
+
+**Option A: Copy from HashBuilds (Recommended)**
+
+Visit https://hashbuilds.com/claude-code-long-tail-seo (dev mode shows prompts)
+
+1. Copy PROMPT_KEYWORD_RESEARCH.txt
+2. Copy PROMPT_LONG_TAIL_SEO.txt
+
+**Option B: Create in your project**
+
+Create these files in `public/`:
+- `public/PROMPT_KEYWORD_RESEARCH.txt`
+- `public/PROMPT_LONG_TAIL_SEO.txt`
+
+The prompts are 40k+ tokens each with detailed instructions.
 
 ---
 
 ## Testing
 
-1. Run cron manually: `curl http://localhost:3000/api/cron/daily-content`
-2. Check database for new article
-3. Check email for approval request
-4. Click approve link
-5. Verify article appears on site
+1. Run keyword research: Paste PROMPT_KEYWORD_RESEARCH.txt into Claude Code
+2. Verify SEO_KEYWORDS.md created with 100 briefs
+3. Verify SEOBrief records in database
+4. Run system build: Paste PROMPT_LONG_TAIL_SEO.txt into Claude Code
+5. Test cron manually: `curl http://localhost:3000/api/cron/daily-content?secret=YOUR_CRON_SECRET`
+6. Check email for approval link
+7. Approve article, verify it appears on site
 
 ---
 
 ## Common Issues
 
-### "Article generation failed"
-- Check ANTHROPIC_API_KEY is valid
-- Ensure /docs/02-business-context.md is filled out
-- Check API rate limits
+### "Keywords Everywhere MCP not found"
+- Install the MCP: Get API key at keywordseverywhere.com
+- Add to your Claude Code config
+
+### "No briefs to generate from"
+- Run PROMPT_KEYWORD_RESEARCH.txt first
+- Check SEOBrief table has records with status="pending"
 
 ### "Approval email not arriving"
 - Verify RESEND_API_KEY is correct
 - Check domain is verified in Resend
-- Verify APPROVAL_EMAIL is correct
+- Verify ADMIN_EMAIL is correct
 
-### "Articles not appearing in search"
+### "Articles not in Google"
 - Articles must be approved (not just published)
-- Check sitemap includes approved articles
+- Check sitemap at /sitemap.xml includes article
 - Submit sitemap to Google Search Console
 
 ---
 
-## Status
+## Status Checklist
 
-| Item | Status |
+| Step | Status |
 |------|--------|
-| Business context filled out | [ ] |
-| Article model added to Prisma | [ ] |
-| Category model added to Prisma | [ ] |
-| Database migrated | [ ] |
+| **Prerequisites** | |
+| BUSINESS-CONTEXT.md filled out | [ ] |
+| Keywords Everywhere MCP installed | [ ] |
+| **Step 1: Keyword Research** | |
+| PROMPT_KEYWORD_RESEARCH.txt run | [ ] |
+| SEO_KEYWORDS.md created | [ ] |
+| 100 SEOBrief records in database | [ ] |
+| **Step 2: System Build** | |
+| PROMPT_LONG_TAIL_SEO.txt run | [ ] |
+| Database schema applied | [ ] |
 | Cron job created | [ ] |
-| Article page created | [ ] |
-| Approval API created | [ ] |
-| ANTHROPIC_API_KEY added | [ ] |
-| Test article generated | [ ] |
+| Article pages created | [ ] |
+| Email approval working | [ ] |
+| **Post-Setup** | |
+| First article generated | [ ] |
 | Approval flow tested | [ ] |
+| /seo-debug dashboard working | [ ] |
 
 ---
 
-_This is the "SEO Foundation Layer" - boring but essential content that builds organic traffic over time._
+_This is the "SEO Foundation Layer" - boring but essential content that compounds over time._

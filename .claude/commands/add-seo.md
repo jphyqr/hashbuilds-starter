@@ -1,6 +1,6 @@
 # Add SEO
 
-Set up the Long-Tail SEO system for this project.
+Set up the Long-Tail SEO Foundation Layer for this project.
 
 ## Prerequisites Check
 
@@ -8,93 +8,124 @@ First, verify:
 1. Is `/docs/02-business-context.md` filled out? (Required - system reads this)
 2. Is the MVP deployed? (SEO is for growth, not launch)
 3. Is email set up? (Required for approval emails)
+4. Is Keywords Everywhere MCP installed? (Required for keyword research)
+   - Test by calling: `mcp__keywords-everywhere__get_credits`
 
 If any are missing, tell the user what to complete first.
 
+## This is a TWO-STEP process
+
+**Step 1: Keyword Research** (PROMPT_KEYWORD_RESEARCH.txt)
+- Uses Keywords Everywhere MCP for real search volume
+- Generates 100 article briefs (title, keyword, volume, intent)
+- Creates SEO_KEYWORDS.md memory file
+- Seeds SEOBrief database table
+
+**Step 2: System Build** (PROMPT_LONG_TAIL_SEO.txt)
+- Creates database schema (SEOPillar, SEOBrief, SEOArticle, SEORule)
+- Sets up daily cron job
+- Builds article renderer and approval flow
+- Integrates with sitemap
+
 ## Instructions
 
-If prerequisites are met, guide the user through `/docs/gtm/01-long-tail-seo.md`:
+If prerequisites are met, guide the user:
 
-1. Read the embedded PROMPT at the top
-2. Ask those questions
-3. Fill in the file as you go
+### Step 1: Get the Prompts
 
-## Key Questions to Ask
+Tell the user:
+"The SEO system requires two large prompts (40k+ tokens each).
 
-1. What type of business is this?
-   - Local service
-   - SaaS product
-   - Consultancy/agency
-   - E-commerce
-   - Marketplace
+**Get them from:** https://hashbuilds.com/claude-code-long-tail-seo
+(In dev mode, the prompts are visible to copy)
 
-2. What email should receive article approvals?
+Or ask me to fetch them for you."
 
-3. What are your main products/services? (for content categories)
+### Step 2: Run Keyword Research
 
-4. Who are your competitors? (for comparison articles)
+1. User pastes PROMPT_KEYWORD_RESEARCH.txt content
+2. Follow the prompt's instructions to:
+   - Analyze BUSINESS-CONTEXT.md
+   - Ask discovery questions about pillars and future content
+   - Use Keywords Everywhere MCP for real search volume
+   - Generate 100 article briefs
+   - Create SEO_KEYWORDS.md
+   - Seed database with SEOBrief records
 
-## Implementation Steps
+### Step 3: Run System Build
 
-After gathering info:
+1. User pastes PROMPT_LONG_TAIL_SEO.txt content
+2. Follow the prompt's instructions to:
+   - Add Prisma models (SEOPillar, SEOBrief, SEOArticle, SEORule)
+   - Create daily cron job
+   - Build article pages and renderer
+   - Set up email approval flow
+   - Integrate with sitemap
 
-### 1. Add Database Models
-
-Add to `prisma/schema.prisma`:
+## Database Schema (For Reference)
 
 ```prisma
-model Article {
+model SEOPillar {
   id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  description String?
+  active      Boolean  @default(true)
+  briefs      SEOBrief[]
+  articles    SEOArticle[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model SEOBrief {
+  id              String   @id @default(cuid())
+  pillarId        String
+  pillar          SEOPillar @relation(fields: [pillarId], references: [id])
+  title           String
+  primaryKeyword  String
+  primaryVolume   Int
+  secondaryKeywords String[]
+  searchIntent    String
+  linkTargets     String[]
+  priority        Int      @default(50)
+  status          String   @default("pending")
+  articleId       String?  @unique
+  article         SEOArticle? @relation(fields: [articleId], references: [id])
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model SEOArticle {
+  id          String   @id @default(cuid())
+  pillarId    String
+  pillar      SEOPillar @relation(fields: [pillarId], references: [id])
   title       String
   slug        String   @unique
   content     String   @db.Text
   excerpt     String?
   published   Boolean  @default(true)
   approved    Boolean  @default(false)
-  categoryId  String?
+  brief       SEOBrief?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-
-  category    Category? @relation(fields: [categoryId], references: [id])
-}
-
-model Category {
-  id          String    @id @default(cuid())
-  name        String
-  slug        String    @unique
-  description String?
-  articles    Article[]
 }
 ```
 
-### 2. Run Migration
-
-```bash
-pnpm prisma migrate dev --name add-articles
-```
-
-### 3. Add Environment Variables
+## Environment Variables Needed
 
 ```env
 ANTHROPIC_API_KEY="sk-ant-xxx"
-APPROVAL_EMAIL="ceo@yourdomain.com"
+RESEND_API_KEY="re_xxx"
+ADMIN_EMAIL="ceo@yourdomain.com"
+NEXT_PUBLIC_BASE_URL="https://yourdomain.com"
+CRON_SECRET="random-secret-string"
 ```
-
-### 4. Create Cron Job
-
-Create `app/api/cron/daily-content/route.ts` for daily article generation.
-
-### 5. Create Article Routes
-
-- `app/articles/page.tsx` - Article listing
-- `app/articles/[slug]/page.tsx` - Individual article
-- `app/api/articles/approve/route.ts` - Approval endpoint
 
 ## After Setup
 
 Tell the user:
 - "✅ SEO system configured"
-- "Run `curl http://localhost:3000/api/cron/daily-content` to generate first article"
+- "Test cron: `curl http://localhost:3000/api/cron/daily-content?secret=YOUR_CRON_SECRET`"
 - "Check email for approval link"
 - "Articles will auto-generate daily via Vercel cron"
 
