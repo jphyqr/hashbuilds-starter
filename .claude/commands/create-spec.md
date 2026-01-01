@@ -4,9 +4,23 @@ Create a detailed feature specification before implementation.
 
 ## Instructions
 
-**Argument:** `$ARGUMENTS` (feature name in kebab-case, e.g., "user-authentication")
+**Argument:** `$ARGUMENTS` (feature name in kebab-case, or backlog ID like "#3")
 
 If no argument provided, ask: "What feature do you want to spec out?"
+
+## Step 0: Check Backlog Integration
+
+First, read `/docs/product/backlog.md`:
+
+**If argument is a backlog ID (e.g., "#3" or "3"):**
+- Find that item in the backlog
+- Use its description as the starting point
+- Will link the spec back to the backlog entry
+
+**If argument is a new feature name:**
+- Check if it exists in backlog
+- If yes, confirm: "This matches backlog #[ID]. Use that?"
+- If no, will add to backlog after spec creation
 
 ## Discovery Questions
 
@@ -178,11 +192,27 @@ _Spec created: [DATE]_
 
 ## After Creating
 
-Tell the user:
+### Update the Backlog
 
-1. "✅ Spec created at `/docs/product/$ARGUMENTS.md`"
-2. "Review the spec and refine any details"
-3. "When ready, run `/implement-spec $ARGUMENTS` to start building"
+1. If this was from a backlog item:
+   - Update the Spec column with link: `[spec-name.md](spec-name.md)`
+   - Change Status from "idea" or "scored" → "spec-ready"
+
+2. If this was a new feature:
+   - Add a new row to backlog with status "spec-ready"
+   - Include the spec link
+
+### Tell the User
+
+```
+✅ Spec created at `/docs/product/$ARGUMENTS.md`
+
+Backlog updated: #[ID] - [feature] → status: spec-ready
+
+Next steps:
+1. Review the spec and refine any details
+2. When ready, run `/implement-spec $ARGUMENTS` to start building
+```
 
 ## Tips for Good Specs
 

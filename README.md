@@ -75,51 +75,56 @@ pnpm dev
 
 | Command | Purpose |
 |---------|---------|
-| `/setup` | Guided initial project setup (database, auth, email) |
-| `/check-progress` | Scan project and show current status |
-| `/create-spec [name]` | Create detailed feature specification |
+| `/add-idea [description]` | Capture idea to backlog |
+| `/prioritize` | Score and rank all backlog items |
+| `/new-feature [name]` | Build feature (routes through backlog) |
+| `/create-spec [name]` | Create detailed spec for complex feature |
 | `/implement-spec [name]` | Build feature from spec |
-| `/new-feature [name]` | Quick feature or redirect to spec |
+| `/setup` | Guided initial project setup |
+| `/check-progress` | Scan project and show current status |
 | `/add-seo` | Set up Long-Tail SEO system |
 | `/deploy` | Guide deployment to Vercel |
 | `/end-session` | Wrap up session and log progress |
-| `/update-rollout` | Sync progress documentation |
-| `/update-client` | Generate client update message |
 
 ## Session Start Hook
 
 When you start a new Claude Code session, a hook automatically scans the project and shows:
 - Which docs are filled vs empty
 - Which services are configured
+- Product backlog status and top priorities
 - Feature spec status
-- Last session notes
 - Suggested next step
 
 This means Claude always knows where the project is at, no manual context needed.
 
 ## Development Workflow
 
-### Spec-First Development
+### Backlog-First Development
 
-For complex features, use the spec-first workflow:
+All ideas go through the product backlog:
 
 ```bash
-# 1. Create a spec
+# 1. Capture an idea
+/add-idea user authentication
+
+# 2. Score and prioritize
+/prioritize
+
+# 3a. For simple features (S/M size):
+/new-feature user-auth
+
+# 3b. For complex features (L size):
 /create-spec user-authentication
-
-# 2. Review and refine the spec in /docs/product/user-authentication.md
-
-# 3. Implement from the spec
+# Then implement:
 /implement-spec user-authentication
 ```
 
-### Quick Features
+### Product Setup (Do Once)
 
-For simple features (< 1 hour):
+Before prioritizing, configure your product strategy:
 
-```bash
-/new-feature add-contact-form
-```
+1. `docs/product/north-star.md` - Define your ONE success metric
+2. `docs/product/framework.md` - Choose prioritization method (ICE/RICE/etc)
 
 ## Documentation
 

@@ -93,6 +93,47 @@ else
 fi
 echo ""
 
+# Check Product Backlog
+echo "## Product Backlog"
+echo ""
+
+if [ -f "docs/product/backlog.md" ]; then
+  # Count backlog items by status
+  ideas=$(grep -c "| idea |" docs/product/backlog.md 2>/dev/null || echo "0")
+  scored=$(grep -c "| scored |" docs/product/backlog.md 2>/dev/null || echo "0")
+  spec_ready=$(grep -c "| spec-ready |" docs/product/backlog.md 2>/dev/null || echo "0")
+  in_prog=$(grep -c "| in-progress |" docs/product/backlog.md 2>/dev/null || echo "0")
+
+  total=$((ideas + scored + spec_ready + in_prog))
+
+  if [ "$total" -gt 0 ]; then
+    echo "| Status | Count |"
+    echo "|--------|-------|"
+    echo "| Ideas (unscored) | $ideas |"
+    echo "| Scored | $scored |"
+    echo "| Spec Ready | $spec_ready |"
+    echo "| In Progress | $in_prog |"
+    echo ""
+
+    # Show top 3 scored items
+    echo "**Top priorities:**"
+    # Extract top items (this is approximate - full parsing needs Claude)
+    grep -E "^\| [0-9]+ \|" docs/product/backlog.md | grep -v "| ? |" | head -3 | while read line; do
+      id=$(echo "$line" | cut -d'|' -f2 | tr -d ' ')
+      idea=$(echo "$line" | cut -d'|' -f3 | tr -d ' ' | cut -c1-40)
+      score=$(echo "$line" | cut -d'|' -f5 | tr -d ' ')
+      if [ -n "$id" ] && [ -n "$idea" ]; then
+        echo "- #$id: $idea... (Score: $score)"
+      fi
+    done
+  else
+    echo "Backlog empty. Use /add-idea to capture ideas."
+  fi
+else
+  echo "No backlog yet. Run /add-idea to start."
+fi
+echo ""
+
 # Check Specs
 echo "## Feature Specs"
 echo ""
@@ -103,7 +144,7 @@ in_progress=0
 complete=0
 
 if [ -d "docs/product" ]; then
-  spec_count=$(find docs/product -name "*.md" ! -name "README.md" ! -name "_template.md" 2>/dev/null | wc -l | tr -d ' ')
+  spec_count=$(find docs/product -name "*.md" ! -name "README.md" ! -name "_template.md" ! -name "backlog.md" ! -name "north-star.md" ! -name "framework.md" 2>/dev/null | wc -l | tr -d ' ')
   if [ "$spec_count" -gt 0 ]; then
     planning=$(grep -l "Status.*Planning" docs/product/*.md 2>/dev/null | wc -l | tr -d ' ')
     ready=$(grep -l "Status.*Ready" docs/product/*.md 2>/dev/null | wc -l | tr -d ' ')
@@ -180,9 +221,12 @@ elif ! grep -q "NEXTAUTH_SECRET" .env 2>/dev/null; then
 elif ! grep -q "RESEND_API_KEY\|EMAIL_SERVER" .env 2>/dev/null; then
   echo "**Phase:** Services Setup"
   echo "→ Configure email: Read docs/services/03-email.md"
-elif [ "$spec_count" = "0" ]; then
+elif [ "$spec_count" = "0" ] && [ "$total" = "0" ]; then
   echo "**Phase:** Feature Development"
-  echo "→ Create first feature spec: /create-spec [feature-name]"
+  echo "→ Capture your first idea: /add-idea [description]"
+elif [ "$ideas" -gt 0 ]; then
+  echo "**Phase:** Feature Development"
+  echo "→ Prioritize backlog: /prioritize"
 elif [ "$ready" -gt 0 ]; then
   echo "**Phase:** Feature Development"
   echo "→ Implement a ready spec: /implement-spec [name]"
@@ -203,6 +247,6 @@ fi
 
 echo ""
 echo "---"
-echo "Commands: /check-progress | /create-spec | /end-session | /deploy"
+echo "Commands: /add-idea | /prioritize | /create-spec | /check-progress | /end-session"
 
 exit 0

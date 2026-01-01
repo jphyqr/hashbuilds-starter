@@ -27,12 +27,17 @@ Set up services in /docs/services/:
 
 ## Feature Development (Phase 6)
 
-Use the spec-first workflow for features:
-1. /create-spec [feature-name] → Create detailed specification
-2. Review and refine the spec
-3. /implement-spec [feature-name] → Build from the spec
+Use the backlog-first workflow for features:
+1. /add-idea [description] → Capture idea to backlog
+2. /prioritize → Score and rank all ideas
+3. Small/Medium: /new-feature [name] → Build directly
+4. Large: /create-spec [name] → Spec first, then /implement-spec
 
-Specs go in /docs/product/ folder (VP of Product role-primed).
+All ideas go through /docs/product/backlog.md (VP of Product role-primed).
+
+**Product Setup (do once):**
+1. docs/product/north-star.md → Define your ONE success metric
+2. docs/product/framework.md → Choose prioritization method (ICE/RICE/etc)
 
 ## GTM (Phase 7 - After MVP is Live)
 
@@ -127,10 +132,13 @@ Follow the numbered files in order:
   ├── business/               ← CEO strategy layer (Role: CEO/Founder)
   │   └── README.md           ← Role-priming + deep-dive templates
   │
-  ├── product/                ← Feature specifications (Role: VP of Product)
-  │   ├── README.md           ← Role-priming + spec workflow
+  ├── product/                ← Product management (Role: VP of Product)
+  │   ├── README.md           ← Role-priming + workflow guide
+  │   ├── north-star.md       ← ONE metric that defines success
+  │   ├── framework.md        ← Prioritization method (ICE/RICE/etc)
+  │   ├── backlog.md          ← ALL ideas with scores (source of truth)
   │   ├── _template.md        ← Blank spec template
-  │   └── [feature-name].md   ← Individual specs
+  │   └── [feature-name].md   ← Individual specs (L-sized features)
   │
   ├── services/               ← External integrations (Role: DevOps)
   │   ├── README.md           ← Role-priming
@@ -228,18 +236,33 @@ Dev server runs on **port 3000**. Change in `package.json` if needed.
 
 ## Slash Commands
 
+### Product Management
+| Command | Purpose |
+|---------|---------|
+| `/add-idea [description]` | Capture idea to backlog |
+| `/prioritize` | Score and rank all backlog items |
+| `/new-feature [name]` | Build feature (routes through backlog) |
+| `/create-spec [name or #ID]` | Create detailed spec for complex feature |
+| `/implement-spec [name]` | Build from existing spec |
+
+### Project Setup & Status
 | Command | Purpose |
 |---------|---------|
 | `/setup` | Guided initial project setup (database, auth, email) |
 | `/check-progress` | Scan project and show current status |
-| `/create-spec [name]` | Create detailed feature specification |
-| `/implement-spec [name]` | Build feature from spec |
-| `/new-feature [name]` | Quick feature (simple) or redirect to spec (complex) |
-| `/add-seo` | Set up Long-Tail SEO system |
 | `/deploy` | Guide deployment to Vercel |
+
+### Session Management
+| Command | Purpose |
+|---------|---------|
 | `/end-session` | Wrap up session and log progress |
 | `/update-client` | Generate client update message |
 | `/update-rollout` | Sync deliverables after work |
+
+### Growth
+| Command | Purpose |
+|---------|---------|
+| `/add-seo` | Set up Long-Tail SEO system |
 
 **Note:** A session-start hook automatically shows project status when you start a new chat.
 

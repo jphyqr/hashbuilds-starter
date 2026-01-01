@@ -1,59 +1,118 @@
 # New Feature
 
-Quick feature addition with optional spec-first workflow.
+Quick feature addition that integrates with the product backlog.
 
 ## Instructions
 
-**Argument:** `$ARGUMENTS` (feature name in kebab-case)
+**Argument:** `$ARGUMENTS` (feature name or description)
 
 If no argument provided, ask: "What feature do you want to add?"
 
-## Determine Complexity
+## Step 1: Check the Backlog
 
-Ask the user: "Is this a simple feature (< 1 hour) or complex feature (> 1 hour)?"
+First, read `/docs/product/backlog.md` and check if this idea already exists.
 
-### For Simple Features
+**If it exists:**
+```
+This is already in the backlog as #[ID]: [idea]
 
-Skip the spec and implement directly:
+Current status: [status]
+Score: [score]
 
-1. Confirm what needs to be built
-2. Implement the feature
-3. Test it works
-4. Tell user it's done
+Would you like to:
+1. Work on it now
+2. Update it
+3. Add a different idea
+```
 
-### For Complex Features
+**If it doesn't exist:**
+Continue to Step 2.
 
-Redirect to spec-first workflow:
+## Step 2: Quick Triage
 
-"This sounds like a complex feature. Let's create a spec first to ensure nothing is missed."
+Ask: "How complex is this?"
+- **Small (S)** - < 1 hour, no database changes, straightforward
+- **Medium (M)** - 1-4 hours, may need new components or API
+- **Large (L)** - > 4 hours, needs a full spec
 
-Then run `/create-spec $ARGUMENTS`
+## Step 3: Route by Size
 
----
+### Small Features (S)
 
-## Quick Feature Checklist
+1. Add to backlog with high score (since we're doing it now)
+2. Implement directly
+3. Update backlog status to "done"
+4. Move to "Recently Completed"
 
-For simple features, use this mental checklist:
+```
+✅ Added and completed: #[ID] - [feature]
 
-- [ ] Database changes needed?
-- [ ] API routes needed?
-- [ ] Auth required?
-- [ ] What components?
-- [ ] Any edge cases?
+What was done:
+- [list of changes]
 
----
+Updated backlog.md
+```
+
+### Medium Features (M)
+
+1. Add to backlog
+2. Quick confirmation: "This will take 1-4 hours. Build now or add to backlog for later?"
+
+**If build now:**
+- Implement directly
+- Update backlog to "done"
+
+**If later:**
+- Leave in backlog with status "idea"
+- Suggest running `/prioritize`
+
+### Large Features (L)
+
+1. Add to backlog with status "idea"
+2. Redirect to spec workflow:
+
+```
+This is a larger feature that needs a spec.
+
+Added to backlog: #[ID] - [feature]
+
+Next: Run /create-spec [ID] to create the specification.
+```
+
+## Quick Implementation Checklist
+
+For S/M features being built immediately:
+
+- [ ] Database changes needed? (If yes, add migration)
+- [ ] API routes needed? (Add to app/api/)
+- [ ] Auth required? (Check permissions)
+- [ ] What components? (Add to components/)
+- [ ] Any edge cases? (Handle errors, empty states)
 
 ## After Implementation
 
-Tell the user:
-- "✅ Feature added: [description]"
-- What was created/modified
-- How to test it
+Update the backlog:
 
----
+1. Change status from "idea" → "done"
+2. Move row to "Recently Completed" section
+3. Update Quick Stats counts
+
+Tell the user:
+```
+✅ Feature complete: #[ID] - [feature]
+
+Changes:
+- [file 1]
+- [file 2]
+
+Test at: [URL or action]
+
+Backlog updated.
+```
 
 ## Related Commands
 
-- `/create-spec [name]` - Create detailed spec first
+- `/add-idea [description]` - Just capture, don't build
+- `/create-spec [name]` - Create detailed spec for complex features
 - `/implement-spec [name]` - Implement from existing spec
-- `/add-seo` - Add SEO system
+- `/prioritize` - Score and rank backlog items
