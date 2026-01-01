@@ -1,4 +1,24 @@
-# PAYMENTS.md - Payment Processing Configuration
+# 04-payments.md - Payment Processing Configuration
+
+<!--
+PROMPT: Payments are optional - skip if not needed for MVP. Ask me:
+
+1. Do you need to accept payments for MVP?
+   - Yes → Continue
+   - Not yet → Skip this file, come back later
+
+2. What payment model do you need?
+   - One-time (e-commerce, services)
+   - Subscriptions (SaaS, memberships)
+   - Marketplace (take commission - complex)
+   - Invoicing (B2B, services)
+
+3. Have you created a Stripe account? (If not, go to stripe.com now)
+
+4. What products/prices will you offer? (e.g., "Pro Plan $29/mo")
+
+After you answer, I'll help you set up Stripe Checkout and webhooks.
+-->
 
 ---
 

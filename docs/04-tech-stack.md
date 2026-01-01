@@ -1,4 +1,17 @@
-# TECH_STACK.md - Architecture & Conventions
+# 04-tech-stack.md - Architecture & Conventions
+
+<!--
+PROMPT: This file is mostly pre-configured. Just confirm a few things:
+
+1. Are you using the default stack? (Next.js 15, Tailwind 4, shadcn/ui, Prisma, NextAuth)
+2. Any additional packages you know you'll need? (e.g., Stripe, specific UI libraries)
+3. Will you need real-time features? (WebSockets, Pusher, etc.)
+4. Any specific coding conventions your team follows?
+
+This file is reference documentation - update the Changelog section when stack changes.
+-->
+
+---
 
 **This file documents the technical architecture and coding conventions.**
 

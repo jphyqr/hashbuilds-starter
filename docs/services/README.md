@@ -1,48 +1,51 @@
 # /docs/services - External Service Integrations
 
-This folder contains configuration and setup documentation for all external services.
+<!--
+HOW TO USE THIS FOLDER:
+
+Services are numbered in setup order. Each file has an embedded PROMPT.
+Claude Code will ask you questions and help configure each service.
+
+**Required services:**
+1. 01-database.md → Everything depends on this
+2. 02-auth.md → Most features need user context
+3. 03-email.md → Auth needs this for magic links
+
+**Optional services (skip if not needed for MVP):**
+4. 04-payments.md → Only if charging users
+5. 05-storage.md → Only if users upload files
+6. 06-sms.md → Rarely needed (email usually suffices)
+7. 07-analytics.md → Set up before launch
+-->
 
 ---
 
 ## Service Status
 
-| Service | File | Status | Required? |
-|---------|------|--------|-----------|
-| Database | [database.md](database.md) | Decision needed | Yes |
-| Authentication | [auth.md](auth.md) | Decision needed | Yes |
-| Email | [email.md](email.md) | Decision needed | Usually |
-| File Storage | [storage.md](storage.md) | Not started | Sometimes |
-| Payments | [payments.md](payments.md) | Not started | Sometimes |
-| SMS | [sms.md](sms.md) | Not started | Rarely |
-| Analytics | [analytics.md](analytics.md) | Not started | Nice-to-have |
+| # | Service | File | Required? | Status |
+|---|---------|------|-----------|--------|
+| 1 | Database | [01-database.md](01-database.md) | Yes | [ ] Not started |
+| 2 | Authentication | [02-auth.md](02-auth.md) | Yes | [ ] Not started |
+| 3 | Email | [03-email.md](03-email.md) | Usually | [ ] Not started |
+| 4 | Payments | [04-payments.md](04-payments.md) | Sometimes | [ ] Not started |
+| 5 | File Storage | [05-storage.md](05-storage.md) | Sometimes | [ ] Not started |
+| 6 | SMS | [06-sms.md](06-sms.md) | Rarely | [ ] Not started |
+| 7 | Analytics | [07-analytics.md](07-analytics.md) | Before launch | [ ] Not started |
 
 ---
 
 ## How Each File Works
 
-Every service file follows this structure:
+Every service file has:
 
-1. **What It Does** - Brief explanation
-2. **When You Need It** - Scenarios that require this service
-3. **Decision Point** - Choices you need to make
-4. **Recommended Setup** - Our default recommendations
+1. **Embedded PROMPT** - Claude Code asks you questions
+2. **What It Does** - Brief explanation
+3. **When You Need It** - Scenarios requiring this service
+4. **Decision Points** - Choices you need to make
 5. **Setup Instructions** - Step-by-step guide
 6. **Environment Variables** - Required `.env` additions
 7. **Testing** - How to verify it works
-8. **Troubleshooting** - Common issues
-
----
-
-## Setup Order
-
-**Recommended order for new projects:**
-
-1. **database.md** - Set up database first (everything depends on it)
-2. **auth.md** - Set up auth (most features need user context)
-3. **email.md** - Set up email (auth needs it for magic links)
-4. **storage.md** - When you need file uploads
-5. **payments.md** - When you need to charge users
-6. **analytics.md** - Before launch
+8. **Status Checklist** - Track your progress
 
 ---
 
@@ -50,10 +53,11 @@ Every service file follows this structure:
 
 When you need a service not listed here:
 
-1. Create `service-name.md` in this folder
-2. Follow the template structure above
-3. Add to the status table in this README
-4. Update `handoff.md` with account ownership
+1. Create `0X-service-name.md` (pick next number)
+2. Add embedded PROMPT at top
+3. Follow the existing file structure
+4. Add to the status table above
+5. Update [handoff.md](../handoff.md) with account ownership
 
 ---
 
@@ -66,4 +70,4 @@ All service accounts should be documented in [/docs/handoff.md](../handoff.md) w
 
 ---
 
-_Services are the building blocks. Each file is a mini-guide._
+_Go through files 01 → 07 in order. Skip optional ones you don't need._

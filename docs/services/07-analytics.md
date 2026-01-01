@@ -1,4 +1,26 @@
-# ANALYTICS.md - Analytics Configuration
+# 07-analytics.md - Analytics Configuration
+
+<!--
+PROMPT: Analytics should be set up before launch. Ask me:
+
+1. What level of analytics do you need?
+   - Basic (Vercel Analytics - free, simple traffic)
+   - Product (PostHog - user behavior, funnels)
+   - Marketing (Google Analytics 4 - SEO, campaigns)
+   - All-in-one (PostHog - most complete)
+
+2. Is your app deployed on Vercel? (Vercel Analytics is automatic)
+
+3. Do you need session recordings? (PostHog provides this)
+
+4. What key events should we track?
+   - signed_up, logged_in
+   - feature_used
+   - checkout_started, purchase_completed
+   - subscription_started, subscription_cancelled
+
+After you answer, I'll help you configure analytics tracking.
+-->
 
 ---
 

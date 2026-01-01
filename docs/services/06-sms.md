@@ -1,4 +1,24 @@
-# SMS.md - SMS/Text Messaging Configuration
+# 06-sms.md - SMS/Text Messaging Configuration
+
+<!--
+PROMPT: SMS is optional - most apps can use email instead. Ask me:
+
+1. Do you truly need SMS capabilities?
+   - Yes → Continue (2FA, urgent alerts, delivery updates)
+   - No → Skip this file, email usually suffices
+
+2. What will you use SMS for?
+   - Two-factor authentication codes
+   - Urgent alerts (time-sensitive)
+   - Delivery updates (order tracking)
+   - Appointment reminders
+
+3. Have you created a Twilio account? (If not, go to twilio.com)
+
+4. Are you ready to buy a phone number? ($1/month)
+
+Note: SMS costs money per message. Use sparingly.
+-->
 
 ---
 

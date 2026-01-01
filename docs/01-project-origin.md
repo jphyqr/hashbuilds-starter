@@ -1,6 +1,28 @@
-# project-origin.md - Static Project Record
+# 01-project-origin.md - START HERE
 
-**This file is STATIC.** Once filled out, it should never change. It's the historical record of how this project started.
+<!--
+PROMPT: This is the first file to fill out. Ask me these questions:
+
+1. What's the project name?
+2. What domain will it live on? (or TBD)
+3. Who's the client? (name, company, contact info)
+4. What's their timezone?
+5. Can you paste the original brief or request? (their exact words if possible)
+6. In your own words, what problem is this solving?
+7. What's the deal structure? (fixed price, hourly, retainer, equity?)
+8. What's the budget and payment terms?
+9. What's the timeline?
+10. What are the MVP features? (list 3-5 core features)
+11. What's explicitly OUT of scope for MVP?
+12. Any key decisions already made? (auth type, design direction, etc.)
+13. Any reference materials? (Figma, competitor sites, inspiration)
+
+After I answer, fill in the sections below. This file is STATIC - never update it after initial setup.
+-->
+
+---
+
+**This file is STATIC.** Once filled out, it never changes. It's the historical record of how this project started.
 
 ---
 
@@ -107,7 +129,7 @@ _Any other context that's important to remember:_
 
 ---
 
-**Remember:** This file is a historical record. Don't update it as the project evolves - that's what business-context.md is for.
+**Next:** After filling this out, move to [02-business-context.md](02-business-context.md)
 
 ---
 

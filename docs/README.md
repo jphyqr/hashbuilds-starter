@@ -1,98 +1,89 @@
 # /docs - Developer Documentation
 
-This folder contains all internal developer documentation. These files are NOT client-facing.
+<!--
+HOW TO USE THIS FOLDER:
+
+Files are numbered in the order you should complete them.
+Each file has a PROMPT section at the top - Claude Code will ask you questions and fill in the answers.
+
+**The order:**
+1. 01-project-origin.md → Who's the client? What are we building?
+2. 02-business-context.md → Business model, personas, workflows
+3. 03-design-system.md → Colors, fonts, aesthetic
+4. 04-tech-stack.md → Confirm/customize the stack (usually just confirm)
+
+**Then services (in /services folder):**
+1. 01-database.md → Set up Neon/PostgreSQL
+2. 02-auth.md → Set up NextAuth
+3. 03-email.md → Set up Resend
+4. 04-payments.md → (Optional) Set up Stripe
+5. 05-storage.md → (Optional) Set up file uploads
+6. 06-sms.md → (Optional) Set up Twilio
+7. 07-analytics.md → Set up before launch
+
+**Skip files you don't need.** Come back to optional ones later.
+-->
 
 ---
 
-## Core Context Files
+## Core Files (In Order)
 
-| File | Type | Purpose |
-|------|------|---------|
-| [project-origin.md](project-origin.md) | Static | Original brief, client info, timeline, deal structure. **Never changes after initial setup.** |
-| [business-context.md](business-context.md) | Living | Business model, user personas, workflows. Updates as understanding evolves. |
-| [tech-stack.md](tech-stack.md) | Living | Architecture decisions, conventions, dependencies. |
-| [handoff.md](handoff.md) | Living | Account ownership, credentials, transfer checklist. |
-| [setup-checklist.md](setup-checklist.md) | Reference | First-time setup guide for new developers. |
+| # | File | Purpose | Type |
+|---|------|---------|------|
+| 1 | [01-project-origin.md](01-project-origin.md) | Client info, brief, deal structure | Static (never changes) |
+| 2 | [02-business-context.md](02-business-context.md) | Business model, personas, workflows | Living |
+| 3 | [03-design-system.md](03-design-system.md) | Colors, fonts, aesthetic | Living |
+| 4 | [04-tech-stack.md](04-tech-stack.md) | Architecture, conventions | Reference |
 
 ---
 
-## Subfolders
+## Services (In Order)
+
+See [services/README.md](services/README.md) for details.
+
+| # | File | Required? | Purpose |
+|---|------|-----------|---------|
+| 1 | [01-database.md](services/01-database.md) | Yes | PostgreSQL (Neon) |
+| 2 | [02-auth.md](services/02-auth.md) | Yes | NextAuth.js |
+| 3 | [03-email.md](services/03-email.md) | Usually | Resend (for magic links) |
+| 4 | [04-payments.md](services/04-payments.md) | Sometimes | Stripe |
+| 5 | [05-storage.md](services/05-storage.md) | Sometimes | Vercel Blob |
+| 6 | [06-sms.md](services/06-sms.md) | Rarely | Twilio |
+| 7 | [07-analytics.md](services/07-analytics.md) | Before launch | Vercel Analytics |
+
+---
+
+## Other Folders
 
 ### `/business/` - CEO Layer Deep-Dives
 
-Detailed business documentation when summaries aren't enough. See [business/README.md](business/README.md).
+Create these when you need more detail than `02-business-context.md` provides:
 
 | File | When to Create |
 |------|----------------|
-| [personas.md](business/personas.md) | Detailed user research, jobs-to-be-done |
-| [competitive.md](business/competitive.md) | Market analysis, feature comparisons |
-| [pricing.md](business/pricing.md) | Revenue model, unit economics |
-| [kpis.md](business/kpis.md) | Metric definitions, tracking |
-| [roadmap.md](business/roadmap.md) | Future planning beyond MVP |
-
-### `/services/` - External Integrations
-
-Configuration and setup docs for each external service. Each file includes:
-- What the service does
-- When you need it
-- Decision prompts for opinionated choices
-- Setup instructions
-- Troubleshooting
-
-| File | Service | Status |
-|------|---------|--------|
-| [database.md](services/database.md) | PostgreSQL (Neon/Supabase) | Decision needed |
-| [auth.md](services/auth.md) | NextAuth.js | Decision needed |
-| [email.md](services/email.md) | Resend | Decision needed |
-| [storage.md](services/storage.md) | Vercel Blob / S3 | Decision needed |
-| [payments.md](services/payments.md) | Stripe | Not started |
-| [sms.md](services/sms.md) | Twilio | Not started |
-| [analytics.md](services/analytics.md) | Vercel Analytics / PostHog | Not started |
+| [personas.md](business/personas.md) | Detailed user research |
+| [competitive.md](business/competitive.md) | Market analysis |
+| [pricing.md](business/pricing.md) | Revenue model details |
+| [kpis.md](business/kpis.md) | Metric definitions |
+| [roadmap.md](business/roadmap.md) | Future planning |
 
 ### `/features/` - Feature Specifications
 
-Detailed specs for each feature. Use the template in [features/README.md](features/README.md).
+Detailed specs for complex features.
 
 ### `/plans/` - Implementation Roadmaps
 
-Phase-based implementation plans. Use the template in [plans/README.md](plans/README.md).
+Phase-based implementation plans.
 
 ---
 
-## How to Use This Folder
+## Handoff
 
-### When Starting the Project
-1. Fill out `project-origin.md` with client info
-2. Fill out `business-context.md` with what you're building
-3. Go through `setup-checklist.md` to set up services
-
-### When Adding a Service
-1. Open the relevant `/services/*.md` file
-2. Follow the decision prompts
-3. Add credentials to `.env`
-4. Update `handoff.md` with account ownership
-
-### When Adding a Feature
-1. Create a spec in `/features/feature-name.md`
-2. Reference the spec while implementing
-3. Update the spec with any changes
-
-### When Handing Off the Project
-1. Review `handoff.md` for account transfer list
-2. Ensure all credentials are documented
-3. Update `tech-stack.md` with final architecture
+When ready to hand off the project, see [handoff.md](handoff.md) for:
+- Account ownership
+- Credential locations
+- Transfer checklist
 
 ---
 
-## File Naming Conventions
-
-| Type | Convention | Example |
-|------|------------|---------|
-| Core context | lowercase-kebab.md | business-context.md |
-| Service docs | lowercase.md | database.md |
-| Feature specs | lowercase-kebab.md | user-authentication.md |
-| Plan docs | phase-name.md | mvp-phase1.md |
-
----
-
-_All files in /docs are for developer reference only. Client-facing docs go in /deliverables._
+_All files in /docs are for developer reference. Client-facing docs go in /deliverables._

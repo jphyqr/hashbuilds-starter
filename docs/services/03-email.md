@@ -1,4 +1,25 @@
-# EMAIL.md - Transactional Email Configuration
+# 03-email.md - Transactional Email Configuration
+
+<!--
+PROMPT: Email is needed for auth magic links and notifications. Ask me:
+
+1. Do you have a custom domain? (e.g., yourdomain.com)
+   - Yes → We'll verify it in Resend for production
+   - No → We'll use Resend's test domain (limited to verified emails)
+
+2. What "from" address do you want? (e.g., noreply@yourdomain.com, hello@yourdomain.com)
+
+3. Have you created a Resend account? (If not, go to resend.com now)
+
+4. What types of emails will you send?
+   - Magic links (for auth)
+   - Welcome emails
+   - Notifications
+   - Receipts/invoices
+   - Weekly digests
+
+After you answer, I'll help you configure Resend and verify your domain.
+-->
 
 ---
 

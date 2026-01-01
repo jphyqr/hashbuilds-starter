@@ -1,4 +1,26 @@
-# STORAGE.md - File Storage Configuration
+# 05-storage.md - File Storage Configuration
+
+<!--
+PROMPT: Storage is optional - skip if you don't need file uploads. Ask me:
+
+1. Do you need file uploads for MVP?
+   - Yes → Continue
+   - Not yet → Skip this file, come back later
+
+2. What types of files will users upload?
+   - Profile photos
+   - Content images (listings, products)
+   - Documents (PDFs, contracts)
+   - Media (audio, video)
+
+3. What's your preferred storage provider?
+   - Vercel Blob (simplest, good for Vercel projects)
+   - Cloudflare R2 (cheapest at scale, no egress fees)
+   - AWS S3 (enterprise, full control)
+   - Uploadthing (simplest API)
+
+After you answer, I'll help you configure file uploads.
+-->
 
 ---
 

@@ -1,4 +1,25 @@
-# AUTH.md - Authentication Configuration
+# 02-auth.md - Authentication Configuration
+
+<!--
+PROMPT: Auth depends on Database being set up. Ask me:
+
+1. How should users authenticate?
+   - Email Magic Link (recommended - no passwords, low friction)
+   - Email + Password (when users expect passwords)
+   - Social OAuth (Google, GitHub - fast onboarding)
+   - All of the above
+
+2. What user roles do you need?
+   - Single role (all users equal)
+   - Admin + User (most common)
+   - Custom roles (ADMIN, TEAM, USER)
+
+3. Have you set up Email (03-email.md) yet? (Magic links require email)
+
+4. Do you need any protected routes right away? (e.g., /dashboard, /admin)
+
+After you answer, I'll configure NextAuth with your choices.
+-->
 
 ---
 

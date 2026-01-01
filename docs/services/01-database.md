@@ -1,4 +1,22 @@
-# DATABASE.md - PostgreSQL Configuration
+# 01-database.md - PostgreSQL Configuration
+
+<!--
+PROMPT: Database is foundational - we set this up first. Ask me:
+
+1. Which database provider do you want? (Neon recommended for free tier)
+   - Neon (serverless, auto-scaling, free 10GB)
+   - Supabase (Postgres + Auth + Storage bundle)
+   - Railway (simple, predictable pricing)
+   - Vercel Postgres (tight Vercel integration)
+
+2. Have you created a Neon account? (If not, go to neon.tech now)
+
+3. What's your Neon project name? (Usually your app name)
+
+4. What region are you targeting? (us-west-2 for West Coast, us-east-1 for East)
+
+After you answer, I'll help you get the connection strings and configure Prisma.
+-->
 
 ---
 

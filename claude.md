@@ -1,6 +1,30 @@
 # claude.md - Project Command Center
 
-**Start Here.** This file is the single source of truth for this project.
+<!--
+CLAUDE CODE: This is your entry point for new projects.
+
+When starting a new project, follow the numbered files in /docs/:
+1. Read and fill out 01-project-origin.md (ask the embedded prompt questions)
+2. Read and fill out 02-business-context.md (ask the embedded prompt questions)
+3. Read and fill out 03-design-system.md (ask the embedded prompt questions)
+4. Confirm/customize 04-tech-stack.md
+
+Then set up services in /docs/services/:
+1. 01-database.md → Required
+2. 02-auth.md → Required
+3. 03-email.md → Usually required (for magic links)
+4. 04-payments.md → Optional
+5. 05-storage.md → Optional
+6. 06-sms.md → Optional
+7. 07-analytics.md → Before launch
+
+After MVP is live, set up GTM in /docs/gtm/:
+1. 01-long-tail-seo.md → Auto-generate SEO articles
+2. 02-json-ld.md → Get found by AI assistants
+3. 03-backlinks.md → Build domain authority
+
+Each file has an embedded PROMPT at the top - ask those questions to the user and fill in the answers.
+-->
 
 ---
 
@@ -11,7 +35,7 @@ pnpm install
 pnpm run dev        # Starts on port 3000
 ```
 
-**First-time setup?** See [docs/setup-checklist.md](docs/setup-checklist.md) for the complete onboarding flow.
+**Starting a new project?** Go to [docs/01-project-origin.md](docs/01-project-origin.md) and follow the embedded prompt.
 
 ---
 
@@ -19,12 +43,47 @@ pnpm run dev        # Starts on port 3000
 
 | Field | Value |
 |-------|-------|
-| **Project Name** | _[Set in docs/project-origin.md]_ |
-| **Client** | _[Set in docs/project-origin.md]_ |
+| **Project Name** | _[Set in docs/01-project-origin.md]_ |
+| **Client** | _[Set in docs/01-project-origin.md]_ |
 | **Domain** | _[Set in docs/handoff.md]_ |
 | **Status** | Phase 1: Foundation |
 
-**What is this?** _[Brief 1-sentence description - set in docs/business-context.md]_
+**What is this?** _[Set in docs/02-business-context.md]_
+
+---
+
+## Workflow: New Project Setup
+
+Follow the numbered files in order:
+
+### Phase 1: Context (Do First)
+
+| # | File | Purpose |
+|---|------|---------|
+| 1 | [01-project-origin.md](docs/01-project-origin.md) | Client info, brief, timeline |
+| 2 | [02-business-context.md](docs/02-business-context.md) | Business model, personas |
+| 3 | [03-design-system.md](docs/03-design-system.md) | Colors, fonts, aesthetic |
+| 4 | [04-tech-stack.md](docs/04-tech-stack.md) | Confirm the stack |
+
+### Phase 2: Services (Set Up Infrastructure)
+
+| # | File | Required? |
+|---|------|-----------|
+| 1 | [services/01-database.md](docs/services/01-database.md) | Yes |
+| 2 | [services/02-auth.md](docs/services/02-auth.md) | Yes |
+| 3 | [services/03-email.md](docs/services/03-email.md) | Usually |
+| 4 | [services/04-payments.md](docs/services/04-payments.md) | Sometimes |
+| 5 | [services/05-storage.md](docs/services/05-storage.md) | Sometimes |
+| 6 | [services/06-sms.md](docs/services/06-sms.md) | Rarely |
+| 7 | [services/07-analytics.md](docs/services/07-analytics.md) | Before launch |
+
+### Phase 3: GTM (After MVP is Live)
+
+| # | File | Purpose |
+|---|------|---------|
+| 1 | [gtm/01-long-tail-seo.md](docs/gtm/01-long-tail-seo.md) | Auto-generate articles |
+| 2 | [gtm/02-json-ld.md](docs/gtm/02-json-ld.md) | AI discoverability |
+| 3 | [gtm/03-backlinks.md](docs/gtm/03-backlinks.md) | Domain authority |
 
 ---
 
@@ -32,53 +91,54 @@ pnpm run dev        # Starts on port 3000
 
 ```
 /claude.md                    ← You are here (entry point)
-/README.md                    ← GitHub README
 
-/docs/                        ← Developer documentation (internal)
-  ├── project-origin.md       ← Static: original brief, timeline, deal structure
-  ├── business-context.md     ← Living: business model, personas, workflows
-  ├── tech-stack.md           ← Architecture decisions, conventions
-  ├── handoff.md              ← Account ownership, credentials, transfer checklist
-  ├── setup-checklist.md      ← First-time setup guide
+/docs/                        ← Developer documentation
+  ├── 01-project-origin.md    ← Static: client, brief, deal
+  ├── 02-business-context.md  ← Living: business model, personas
+  ├── 03-design-system.md     ← Living: colors, fonts, aesthetic
+  ├── 04-tech-stack.md        ← Reference: architecture
+  ├── handoff.md              ← Account ownership, credentials
   │
-  ├── business/               ← CEO layer deep-dives (create as needed)
-  │   ├── personas.md         ← Detailed user research
-  │   ├── competitive.md      ← Market analysis
-  │   ├── pricing.md          ← Revenue model
-  │   ├── kpis.md             ← Metric definitions
-  │   └── roadmap.md          ← Future planning
+  ├── business/               ← CEO layer deep-dives
+  │   ├── personas.md
+  │   ├── competitive.md
+  │   ├── pricing.md
+  │   ├── kpis.md
+  │   └── roadmap.md
   │
-  ├── services/               ← External service integrations
-  │   ├── database.md         ← PostgreSQL/Neon configuration
-  │   ├── auth.md             ← NextAuth setup
-  │   ├── email.md            ← Resend/transactional email
-  │   ├── storage.md          ← File uploads (Vercel Blob/S3)
-  │   ├── payments.md         ← Stripe integration (when needed)
-  │   ├── sms.md              ← Twilio/SMS (when needed)
-  │   └── analytics.md        ← Analytics setup (when needed)
+  ├── services/               ← External integrations (numbered)
+  │   ├── 01-database.md
+  │   ├── 02-auth.md
+  │   ├── 03-email.md
+  │   ├── 04-payments.md
+  │   ├── 05-storage.md
+  │   ├── 06-sms.md
+  │   └── 07-analytics.md
+  │
+  ├── gtm/                    ← Go-to-market (after MVP)
+  │   ├── 01-long-tail-seo.md
+  │   ├── 02-json-ld.md
+  │   └── 03-backlinks.md
   │
   ├── features/               ← Feature specifications
-  │   └── README.md           ← Feature spec template
-  │
   └── plans/                  ← Implementation roadmaps
-      └── README.md           ← Plan template
 
 /deliverables/                ← Client-facing documentation
-  ├── rollout.md              ← Public progress tracker (powers /rollout page)
+  ├── rollout.md              ← Public progress tracker
   ├── progress.md             ← Completed work log
   ├── changelog.md            ← Release notes
-  └── client-update.txt       ← Latest message to send client
+  └── client-update.txt       ← Message to send client
 
 /.claude/commands/            ← Slash commands
-  ├── update-client.md        ← Generate client WhatsApp/email update
-  └── update-rollout.md       ← Sync deliverables after completing work
+  ├── update-client.md
+  └── update-rollout.md
 ```
 
 ---
 
 ## Critical Rules
 
-### Database Safety (IMPORTANT)
+### Database Safety
 
 ```
 NEVER run:
@@ -86,7 +146,7 @@ NEVER run:
 - prisma db push --force-reset
 - Any command that drops tables
 
-WHY: We often share dev/prod database. One wrong command = data loss.
+WHY: We often share dev/prod database.
 ```
 
 **Safe migration pattern:**
@@ -99,27 +159,11 @@ WHY: We often share dev/prod database. One wrong command = data loss.
 ```
 Use ONE .env file only.
 Never: .env.local, .env.development, .env.production
-Why: Reduces confusion, single source of truth.
 ```
 
 ### Port Convention
 
-Dev server runs on **port 3000** by default. If you need a different port, update `package.json`:
-```json
-"dev": "next dev --port 3006"
-```
-
-### File Organization
-
-| Type | Location | Naming |
-|------|----------|--------|
-| Context docs | `/docs/` | lowercase-kebab.md |
-| Service configs | `/docs/services/` | lowercase.md |
-| Feature specs | `/docs/features/` | feature-name.md |
-| Client docs | `/deliverables/` | lowercase.md |
-| Components | `/components/` | PascalCase.tsx |
-| Utilities | `/lib/` | camelCase.ts |
-| API routes | `/app/api/` | route.ts |
+Dev server runs on **port 3000**. Change in `package.json` if needed.
 
 ---
 
@@ -129,40 +173,12 @@ Dev server runs on **port 3000** by default. If you need a different port, updat
 |-------|------------|--------|
 | Framework | Next.js 15 (App Router) | Installed |
 | Styling | Tailwind CSS 4 | Installed |
-| UI Components | shadcn/ui (Radix) | Installed |
-| Database | Prisma + PostgreSQL | Template ready |
-| Auth | NextAuth.js | Template ready |
-| Email | Resend | Template ready |
-| Storage | Vercel Blob | Template ready |
+| UI | shadcn/ui (Radix) | Installed |
+| Database | Prisma + PostgreSQL | Ready |
+| Auth | NextAuth.js | Ready |
+| Email | Resend | Ready |
+| Storage | Vercel Blob | Ready |
 | Animations | Framer Motion | Installed |
-
-**Decision needed?** See individual `/docs/services/*.md` files for setup guidance.
-
----
-
-## Common Workflows
-
-### Adding a New Feature
-
-1. Create spec in `/docs/features/feature-name.md`
-2. Implement the feature
-3. Run `/update-rollout` to sync progress
-4. Run `/update-client` to notify client
-
-### Setting Up a New Service
-
-1. Read `/docs/services/service-name.md`
-2. Follow the decision prompts
-3. Add credentials to `.env`
-4. Update `/docs/handoff.md` with account info
-
-### Deploying Changes
-
-```bash
-git add . && git commit -m "feat: description"
-git push origin main
-# Vercel auto-deploys from main
-```
 
 ---
 
@@ -171,28 +187,15 @@ git push origin main
 | Command | Purpose |
 |---------|---------|
 | `/update-client` | Generate client update message |
-| `/update-rollout` | Sync rollout.md, progress.md, changelog.md |
+| `/update-rollout` | Sync deliverables after work |
 
 ---
 
 ## Links
 
-- **Progress Tracker:** `/rollout` (public page)
+- **Progress Tracker:** `/rollout`
 - **Design Patterns:** https://hashbuilds.com/patterns
 - **Starter Templates:** https://hashbuilds.com/claude-code-starter
-
----
-
-## Getting Help
-
-**Stuck on a decision?** Each `/docs/services/*.md` file includes:
-- What this service does
-- When you need it
-- Recommended providers
-- Setup instructions
-- Decision prompts for opinionated choices
-
-**Need a feature spec?** Copy the template from `/docs/features/README.md`
 
 ---
 

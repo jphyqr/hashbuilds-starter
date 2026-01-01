@@ -1,4 +1,23 @@
-# business-context.md - CEO Layer
+# 02-business-context.md - CEO Layer
+
+<!--
+PROMPT: This is the business strategy file. Ask me these questions:
+
+1. What's your one-liner? (What is this in one sentence?)
+2. Who is your target user? (Primary persona - be specific)
+3. What problem are you solving? (The core pain point)
+4. How do you solve it? (Your solution in 2-3 sentences)
+5. What's your business model? (How do you make money?)
+6. What's your north star metric? (The ONE number that matters most)
+7. What's your vision? (The world you're trying to create - aspirational)
+8. What's your mission? (How you'll get there - actionable)
+9. Who are your competitors? (List 2-3, including "status quo")
+10. What's your unfair advantage? (Why you win against each competitor)
+
+After I answer, fill in the sections below. This file is LIVING - update it as the business evolves.
+-->
+
+---
 
 **This is the living business documentation.** It answers: What are we building, for whom, and why?
 
