@@ -100,10 +100,16 @@ echo ""
 
 if [ -f "docs/product/backlog.md" ]; then
   # Count backlog items by status
-  ideas=$(grep -c "| idea |" docs/product/backlog.md 2>/dev/null || echo "0")
-  scored=$(grep -c "| scored |" docs/product/backlog.md 2>/dev/null || echo "0")
-  spec_ready=$(grep -c "| spec-ready |" docs/product/backlog.md 2>/dev/null || echo "0")
-  in_prog=$(grep -c "| in-progress |" docs/product/backlog.md 2>/dev/null || echo "0")
+  ideas=$(grep -c "| idea |" docs/product/backlog.md 2>/dev/null | tr -d '\n' || echo "0")
+  scored=$(grep -c "| scored |" docs/product/backlog.md 2>/dev/null | tr -d '\n' || echo "0")
+  spec_ready=$(grep -c "| spec-ready |" docs/product/backlog.md 2>/dev/null | tr -d '\n' || echo "0")
+  in_prog=$(grep -c "| in-progress |" docs/product/backlog.md 2>/dev/null | tr -d '\n' || echo "0")
+
+  # Ensure we have numeric values
+  ideas=${ideas:-0}
+  scored=${scored:-0}
+  spec_ready=${spec_ready:-0}
+  in_prog=${in_prog:-0}
 
   total=$((ideas + scored + spec_ready + in_prog))
 

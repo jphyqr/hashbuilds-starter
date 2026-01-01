@@ -47,7 +47,7 @@ app/
 └── lib/                       # Utilities, helpers, types
 
 docs/                          # Developer documentation
-specs/                         # Feature specifications
+docs/product/                  # Feature specifications
 prisma/                        # Database schema
 public/                        # Static assets
 ```
@@ -61,7 +61,7 @@ public/                        # Static assets
 | API routes | lowercase | `app/api/users/route.ts` |
 | Utilities | camelCase | `lib/formatDate.ts` |
 | Types | PascalCase | `types/User.ts` |
-| Specs | kebab-case | `specs/user-authentication.md` |
+| Specs | kebab-case | `docs/product/user-authentication.md` |
 
 ---
 
