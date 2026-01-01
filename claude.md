@@ -58,7 +58,13 @@ pnpm install
 pnpm run dev        # Starts on port 3000
 ```
 
-**Starting a new project?** Go to [docs/01-project-origin.md](docs/01-project-origin.md) and follow the embedded prompt.
+**First time here?** Run `/help` to get guided to the right starting point.
+
+**Paths:**
+- **Full setup** → `/help` (choose path A)
+- **Tech-first** → `/setup` (database, auth, email)
+- **Business-first** → Start with [docs/01-project-origin.md](docs/01-project-origin.md)
+- **Already running** → `/check-progress` or `/add-idea`
 
 ---
 
@@ -169,12 +175,15 @@ Follow the numbered files in order:
   └── client-update.txt       ← Message to send client
 
 /.claude/commands/            ← Slash commands
-  ├── check-progress.md       ← Scan and report project status
+  ├── help.md                 ← Smart router (start here)
+  ├── setup.md                ← Guided initial project setup
+  ├── add-idea.md             ← Capture idea to backlog
+  ├── prioritize.md           ← Score and rank backlog
+  ├── new-feature.md          ← Quick feature addition
   ├── create-spec.md          ← Create feature specification
   ├── implement-spec.md       ← Build from specification
-  ├── new-feature.md          ← Quick feature addition
+  ├── check-progress.md       ← Scan and report project status
   ├── add-seo.md              ← Set up SEO system
-  ├── setup.md                ← Guided initial project setup
   ├── deploy.md               ← Deployment guide
   ├── end-session.md          ← Wrap up and log session
   ├── update-client.md        ← Generate client message
@@ -248,6 +257,7 @@ Dev server runs on **port 3000**. Change in `package.json` if needed.
 ### Project Setup & Status
 | Command | Purpose |
 |---------|---------|
+| `/help` | Smart router - guides to right starting point |
 | `/setup` | Guided initial project setup (database, auth, email) |
 | `/check-progress` | Scan project and show current status |
 | `/deploy` | Guide deployment to Vercel |

@@ -17,7 +17,8 @@ if [ ! -f ".env" ]; then
   echo "  cp .env.example .env"
   echo "  pnpm install"
   echo ""
-  echo "Then run /setup to configure the project."
+  echo "Then run /help to get guided to the right starting point."
+  echo "(Or /setup if you know what you're doing)"
   echo ""
   echo "---"
   exit 0
@@ -247,6 +248,6 @@ fi
 
 echo ""
 echo "---"
-echo "Commands: /add-idea | /prioritize | /create-spec | /check-progress | /end-session"
+echo "Commands: /help | /add-idea | /prioritize | /create-spec | /check-progress | /end-session"
 
 exit 0

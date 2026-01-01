@@ -64,23 +64,25 @@ pnpm dev
 
 ## Setup Guide
 
-1. **Read claude.md** - Understand the project structure
-2. **Fill out docs/01-project-origin.md** - Document what you're building
-3. **Fill out docs/02-business-context.md** - Define business model
-4. **Configure docs/03-design-system.md** - Set up your aesthetic
-5. **Follow docs/services/** - Set up database, email, auth
-6. **Start building!**
+**New here?** Run `/help` to get guided to the right starting point based on your situation.
+
+**Paths:**
+- **Full guided tour** → `/help` (path A)
+- **Tech-first** → `/setup` (just database, auth, email)
+- **Business-first** → Start with `docs/01-project-origin.md`
+- **Already know the template** → `/add-idea` or `/check-progress`
 
 ## Slash Commands
 
 | Command | Purpose |
 |---------|---------|
+| `/help` | Smart router - guides to right starting point |
+| `/setup` | Guided initial project setup (tech services) |
 | `/add-idea [description]` | Capture idea to backlog |
 | `/prioritize` | Score and rank all backlog items |
 | `/new-feature [name]` | Build feature (routes through backlog) |
 | `/create-spec [name]` | Create detailed spec for complex feature |
 | `/implement-spec [name]` | Build feature from spec |
-| `/setup` | Guided initial project setup |
 | `/check-progress` | Scan project and show current status |
 | `/add-seo` | Set up Long-Tail SEO system |
 | `/deploy` | Guide deployment to Vercel |
