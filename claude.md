@@ -3,13 +3,20 @@
 <!--
 CLAUDE CODE: This is your entry point for new projects.
 
-When starting a new project, follow the numbered files in /docs/:
+## New Project Setup (Phases 1-4)
+
+Follow the numbered files in /docs/:
 1. Read and fill out 01-project-origin.md (ask the embedded prompt questions)
 2. Read and fill out 02-business-context.md (ask the embedded prompt questions)
 3. Read and fill out 03-design-system.md (ask the embedded prompt questions)
 4. Confirm/customize 04-tech-stack.md
+5. Review 05-coding-standards.md (coding conventions)
+6. Set up auth using 06-auth-system.md (when needed)
+7. Set up testing using 07-integration-test.md
 
-Then set up services in /docs/services/:
+## Services Setup (Phase 5)
+
+Set up services in /docs/services/:
 1. 01-database.md → Required
 2. 02-auth.md → Required
 3. 03-email.md → Usually required (for magic links)
@@ -18,8 +25,19 @@ Then set up services in /docs/services/:
 6. 06-sms.md → Optional
 7. 07-analytics.md → Before launch
 
-After MVP is live, set up GTM in /docs/gtm/:
-1. 01-long-tail-seo.md → Auto-generate SEO articles
+## Feature Development (Phase 6)
+
+Use the spec-first workflow for features:
+1. /create-spec [feature-name] → Create detailed specification
+2. Review and refine the spec
+3. /implement-spec [feature-name] → Build from the spec
+
+Specs go in /specs/ folder.
+
+## GTM (Phase 7 - After MVP is Live)
+
+Set up go-to-market in /docs/gtm/:
+1. 01-long-tail-seo.md → Auto-generate SEO articles (TWO-STEP PROCESS)
 2. 02-json-ld.md → Get found by AI assistants
 3. 03-backlinks.md → Build domain authority
 
@@ -64,6 +82,9 @@ Follow the numbered files in order:
 | 2 | [02-business-context.md](docs/02-business-context.md) | Business model, personas |
 | 3 | [03-design-system.md](docs/03-design-system.md) | Colors, fonts, aesthetic |
 | 4 | [04-tech-stack.md](docs/04-tech-stack.md) | Confirm the stack |
+| 5 | [05-coding-standards.md](docs/05-coding-standards.md) | Coding conventions |
+| 6 | [06-auth-system.md](docs/06-auth-system.md) | Auth setup guide |
+| 7 | [07-integration-test.md](docs/07-integration-test.md) | Testing strategy |
 
 ### Phase 2: Services (Set Up Infrastructure)
 
@@ -97,6 +118,9 @@ Follow the numbered files in order:
   ├── 02-business-context.md  ← Living: business model, personas
   ├── 03-design-system.md     ← Living: colors, fonts, aesthetic
   ├── 04-tech-stack.md        ← Reference: architecture
+  ├── 05-coding-standards.md  ← Coding conventions
+  ├── 06-auth-system.md       ← Auth setup guide
+  ├── 07-integration-test.md  ← Testing strategy
   ├── handoff.md              ← Account ownership, credentials
   │
   ├── business/               ← CEO layer deep-dives
@@ -120,8 +144,12 @@ Follow the numbered files in order:
   │   ├── 02-json-ld.md
   │   └── 03-backlinks.md
   │
-  ├── features/               ← Feature specifications
   └── plans/                  ← Implementation roadmaps
+
+/specs/                       ← Feature specifications
+  ├── README.md               ← Spec workflow guide
+  ├── _TEMPLATE.md            ← Blank spec template
+  └── [feature-name].md       ← Individual feature specs
 
 /deliverables/                ← Client-facing documentation
   ├── rollout.md              ← Public progress tracker
@@ -186,6 +214,10 @@ Dev server runs on **port 3000**. Change in `package.json` if needed.
 
 | Command | Purpose |
 |---------|---------|
+| `/create-spec [name]` | Create detailed feature specification |
+| `/implement-spec [name]` | Build feature from spec |
+| `/new-feature [name]` | Quick feature (simple) or redirect to spec (complex) |
+| `/add-seo` | Set up Long-Tail SEO system |
 | `/update-client` | Generate client update message |
 | `/update-rollout` | Sync deliverables after work |
 

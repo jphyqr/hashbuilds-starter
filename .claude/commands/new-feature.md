@@ -1,87 +1,59 @@
 # New Feature
 
-Create a feature specification and scaffold the implementation.
+Quick feature addition with optional spec-first workflow.
 
 ## Instructions
 
-Ask the user: "What feature do you want to add?"
+**Argument:** `$ARGUMENTS` (feature name in kebab-case)
 
-Then gather details:
-1. What problem does this solve for users?
-2. What's the user flow? (step by step)
-3. Does this need new database models?
-4. Does this need new API routes?
-5. Does this need authentication/authorization?
-6. What's the priority? (MVP, Phase 2, Nice-to-have)
+If no argument provided, ask: "What feature do you want to add?"
 
-## Create Feature Spec
+## Determine Complexity
 
-After gathering info, create `/docs/features/[feature-name].md`:
+Ask the user: "Is this a simple feature (< 1 hour) or complex feature (> 1 hour)?"
 
-```markdown
-# [Feature Name]
+### For Simple Features
 
-**Status:** Planning
-**Priority:** [MVP/Phase 2/Nice-to-have]
-**Added:** [TODAY'S DATE]
+Skip the spec and implement directly:
 
----
+1. Confirm what needs to be built
+2. Implement the feature
+3. Test it works
+4. Tell user it's done
 
-## Problem
+### For Complex Features
 
-[What problem this solves]
+Redirect to spec-first workflow:
+
+"This sounds like a complex feature. Let's create a spec first to ensure nothing is missed."
+
+Then run `/create-spec $ARGUMENTS`
 
 ---
 
-## User Flow
+## Quick Feature Checklist
 
-1. User [action]
-2. System [response]
-3. User sees [result]
+For simple features, use this mental checklist:
 
----
-
-## Technical Requirements
-
-### Database Models
-
-[List any new Prisma models needed]
-
-### API Routes
-
-| Method | Route | Purpose |
-|--------|-------|---------|
-| [GET/POST/etc] | /api/... | [Description] |
-
-### Components
-
-- [ ] [Component name] - [Purpose]
+- [ ] Database changes needed?
+- [ ] API routes needed?
+- [ ] Auth required?
+- [ ] What components?
+- [ ] Any edge cases?
 
 ---
 
-## Implementation Steps
-
-1. [ ] Add database models
-2. [ ] Create API routes
-3. [ ] Build UI components
-4. [ ] Test flow
-5. [ ] Update /deliverables/rollout.md
-
----
-
-## Edge Cases
-
-- [Edge case 1]
-- [Edge case 2]
-
----
-
-_Spec created: [DATE]_
-```
-
-## After Creating Spec
+## After Implementation
 
 Tell the user:
-- "✅ Feature spec created at /docs/features/[name].md"
-- "Ready to start implementation?"
-- If yes, begin with the first implementation step
+- "✅ Feature added: [description]"
+- What was created/modified
+- How to test it
+
+---
+
+## Related Commands
+
+- `/create-spec [name]` - Create detailed spec first
+- `/implement-spec [name]` - Implement from existing spec
+- `/add-seo` - Add SEO system

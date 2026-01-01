@@ -39,13 +39,21 @@ pnpm dev
 ```
 ├── claude.md              # Start here - project command center
 ├── docs/                  # Developer documentation
-│   ├── project-origin.md  # Static project brief
-│   ├── business-context.md # Business model (CEO layer)
-│   ├── setup-checklist.md # First-time setup guide
-│   ├── business/          # Deep-dive business docs
-│   └── services/          # Service configuration guides
+│   ├── 01-project-origin.md   # Static project brief
+│   ├── 02-business-context.md # Business model (CEO layer)
+│   ├── 03-design-system.md    # Colors, fonts, aesthetic
+│   ├── 04-tech-stack.md       # Architecture reference
+│   ├── 05-coding-standards.md # Coding conventions
+│   ├── 06-auth-system.md      # Auth setup guide
+│   ├── 07-integration-test.md # Testing strategy
+│   ├── business/              # Deep-dive business docs
+│   ├── services/              # Service configuration
+│   └── gtm/                   # Go-to-market strategies
+├── specs/                 # Feature specifications
+│   ├── README.md              # Spec workflow guide
+│   └── _TEMPLATE.md           # Blank spec template
 ├── deliverables/          # Client-facing documentation
-│   └── rollout.md         # Progress tracker (powers /rollout)
+│   └── rollout.md             # Progress tracker
 ├── .claude/commands/      # Claude Code slash commands
 ├── app/                   # Next.js app directory
 ├── components/ui/         # shadcn/ui components
@@ -56,33 +64,83 @@ pnpm dev
 ## Setup Guide
 
 1. **Read claude.md** - Understand the project structure
-2. **Fill out docs/project-origin.md** - Document what you're building
-3. **Follow docs/setup-checklist.md** - Set up database, email, auth
-4. **Start building!**
+2. **Fill out docs/01-project-origin.md** - Document what you're building
+3. **Fill out docs/02-business-context.md** - Define business model
+4. **Configure docs/03-design-system.md** - Set up your aesthetic
+5. **Follow docs/services/** - Set up database, email, auth
+6. **Start building!**
 
-## Included Slash Commands
+## Slash Commands
 
 | Command | Purpose |
 |---------|---------|
+| `/create-spec [name]` | Create detailed feature specification |
+| `/implement-spec [name]` | Build feature from spec |
+| `/new-feature [name]` | Quick feature or redirect to spec |
+| `/add-seo` | Set up Long-Tail SEO system |
 | `/update-rollout` | Sync progress documentation |
 | `/update-client` | Generate client update message |
 
+## Development Workflow
+
+### Spec-First Development
+
+For complex features, use the spec-first workflow:
+
+```bash
+# 1. Create a spec
+/create-spec user-authentication
+
+# 2. Review and refine the spec in /specs/user-authentication.md
+
+# 3. Implement from the spec
+/implement-spec user-authentication
+```
+
+### Quick Features
+
+For simple features (< 1 hour):
+
+```bash
+/new-feature add-contact-form
+```
+
 ## Documentation
 
-Each service has its own setup guide in `/docs/services/`:
+### Core Docs (docs/)
 
-- **database.md** - PostgreSQL setup (Neon recommended)
-- **auth.md** - NextAuth configuration
-- **email.md** - Resend setup
-- **storage.md** - File uploads
-- **payments.md** - Stripe integration
-- **analytics.md** - Analytics setup
+| File | Purpose |
+|------|---------|
+| 01-project-origin.md | Client info, brief, timeline |
+| 02-business-context.md | Business model, personas |
+| 03-design-system.md | Colors, fonts, aesthetic |
+| 04-tech-stack.md | Architecture reference |
+| 05-coding-standards.md | Coding conventions |
+| 06-auth-system.md | Auth setup guide |
+| 07-integration-test.md | Testing strategy |
+
+### Service Guides (docs/services/)
+
+- **01-database.md** - PostgreSQL setup (Neon recommended)
+- **02-auth.md** - NextAuth configuration
+- **03-email.md** - Resend setup
+- **04-payments.md** - Stripe integration
+- **05-storage.md** - File uploads
+- **06-sms.md** - SMS integration
+- **07-analytics.md** - Analytics setup
+
+### GTM Strategies (docs/gtm/)
+
+- **01-long-tail-seo.md** - Auto-generate SEO articles
+- **02-json-ld.md** - AI discoverability
+- **03-backlinks.md** - Domain authority
 
 ## Why This Template?
 
 Built from experience building 50+ client projects with Claude Code:
 
 - **Organized context** - Claude knows where everything is
+- **Spec-first workflow** - Better features through specifications
 - **Decision prompts** - Guides through opinionated choices
 - **Client communication** - Built-in progress tracking
 - **Production ready** - Not a toy, ships to real users
