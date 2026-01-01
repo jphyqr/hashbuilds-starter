@@ -47,7 +47,7 @@ Questions? Just reply here!
 ## Example Output
 
 ```
-Hey Sarah! Quick update on Vancouver Sublets:
+Hey Sarah! Quick update on [Project Name]:
 
 ✅ COMPLETED:
 - Login system is working - you can sign in with your email
@@ -61,7 +61,7 @@ Hey Sarah! Quick update on Vancouver Sublets:
 - Search and filter for renters
 - Contact form for inquiries
 
-You can track progress at: vancouversublets.ca/rollout
+You can track progress at: [production-url]/rollout
 
 Questions? Just reply here!
 ```

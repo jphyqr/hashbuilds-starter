@@ -1,0 +1,3767 @@
+I want to add an SEO Foundation Layer to my app - a system that auto-generates educational articles based on my business type.
+
+---
+**🔄 TWO MODES: Brief-Based (Recommended) vs AI-Guessing (Legacy)**
+
+This system supports two modes:
+
+**Mode A: Brief-Based (RECOMMENDED)**
+- Run PROMPT_KEYWORD_RESEARCH.txt FIRST to generate 100 pre-mapped briefs
+- Creates SEO_KEYWORDS.md memory file + SEOBrief database table
+- Daily cron executes briefs in priority order (no guessing)
+- Better content: real keywords, accurate search volume, planned topics
+
+**Mode B: AI-Guessing (Legacy)**
+- AI generates queue ideas daily based on business context
+- Uses SEOQueue table for pending article ideas
+- Less accurate: AI invents keywords without search volume data
+
+**CHECK WHICH MODE TO USE:**
+1. Does SEO_KEYWORDS.md exist? → Use Brief-Based Mode
+2. Does SEOBrief table have records? → Use Brief-Based Mode
+3. Neither exists? → Run PROMPT_KEYWORD_RESEARCH.txt first (RECOMMENDED)
+   - Or proceed with AI-Guessing mode (not recommended)
+
+---
+**🚨 CRITICAL NEXT.JS ARCHITECTURE RULE (READ BEFORE CODING)**
+
+**The #1 bug you WILL hit**: "Functions cannot be passed directly to Client Components"
+
+**THE RULE**: Never pass functions as props from Server Components to Client Components.
+Client Components must import Server Actions themselves.
+
+```tsx
+// ❌ WRONG - Will break at runtime:
+// page.tsx (Server)
+import { myAction } from './actions'
+export default function Page() {
+  return <ClientButton action={myAction} />  // BREAKS!
+}
+
+// ✅ CORRECT - Client imports action directly:
+// ClientButton.tsx
+'use client'
+import { myAction } from './actions'  // Import HERE
+export default function ClientButton() {
+  return <button onClick={() => myAction()}>Click</button>
+}
+```
+
+Apply this pattern to ALL interactive components (buttons, forms, modals).
+
+---
+**🔗 CRITICAL SEO RULE: Canonical URLs on ALL Pages**
+
+Every page you create MUST have a canonical URL in its metadata:
+
+```typescript
+export async function generateMetadata(): Promise<Metadata> {
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://yourdomain.com'
+
+  return {
+    title: 'Page Title',
+    description: 'Page description...',
+    alternates: {
+      canonical: `${baseUrl}/your-page-path`,  // ← REQUIRED on every page
+    },
+  }
+}
+```
+
+**Why**: Without canonical URLs, Google may index duplicate URLs (with/without trailing slashes, query params, etc.) which dilutes SEO authority.
+
+Apply to: /articles, /articles/[slug], /articles/category/[slug], and any other pages created.
+
+---
+**🚨 CRITICAL CONTENT QUALITY RULES (ANTI-HALLUCINATION)**
+
+These rules are MANDATORY for ALL article generation. They cannot be overridden by user-defined SEORule entries.
+
+**NEVER INVENT:**
+❌ Fictional case studies ("A coach named Mike discovered...")
+❌ Made-up statistics ("Teams saw a 23% improvement...")
+❌ Invented scenarios ("Your team looked perfect last season...")
+❌ Fake testimonials or quotes
+❌ Hypothetical success stories presented as real
+
+**NEVER USE NEWSLETTER VOICE:**
+❌ Personal narrative ("The missing piece wasn't...")
+❌ Dramatic hooks ("What if I told you...")
+❌ Second-person assumptions ("You've been struggling with...")
+❌ Cliffhanger storytelling
+❌ Story-style openings that build up to the answer
+
+**ALWAYS USE INFORMATIONAL AUTHORITY VOICE:**
+✅ Direct definitions ("X is a [thing] that [does Y]")
+✅ Factual explanations ("This works by...")
+✅ General truths ("Studies suggest...", "Research indicates...")
+✅ Conditional guidance ("When implementing X, consider...")
+✅ Third-person educational tone
+
+**CONTENT STRUCTURE:**
+1. Answer the search query directly in first paragraph (no story buildup)
+2. Explain the concept factually
+3. Provide actionable guidance based on general best practices
+4. Link to cornerstone content for deeper expertise
+
+If you cannot write factually about a topic, say so. Do not invent.
+
+---
+
+**STEP 1: CHECK REQUIRED MEMORY FILES**
+
+First, check if these memory files exist in my codebase:
+1. BUSINESS-CONTEXT.md (REQUIRED - for SEO strategy)
+2. TECH-STACK.md (RECOMMENDED - for database/email setup)
+3. DESIGN-SYSTEM.md (RECOMMENDED - for article styling)
+4. AUTH-SYSTEM.md (OPTIONAL - for admin route protection)
+
+Show me which files exist and which are missing.
+
+**If any REQUIRED or RECOMMENDED files are missing:**
+
+Tell me:
+"⚠️ Missing Memory Files
+
+I found:
+- [X] BUSINESS-CONTEXT.md ✓
+- [ ] TECH-STACK.md (missing)
+- [ ] DESIGN-SYSTEM.md (missing)
+- [X] AUTH-SYSTEM.md ✓
+
+**Why this matters:**
+- BUSINESS-CONTEXT.md → Auto-generates SEO strategy tailored to your business
+- TECH-STACK.md → Knows your database (Prisma/Drizzle), email provider, hosting setup
+- DESIGN-SYSTEM.md → Matches article renderer styling to your brand
+- AUTH-SYSTEM.md → Protects /seo-debug admin routes correctly
+
+**Create missing files:**
+Visit: https://hashbuilds.com/ai-strategy-for-businesses#patch-in-prompts
+
+Each prompt scans your codebase, asks questions, and generates the memory file.
+
+Recommended order:
+1. BUSINESS-CONTEXT.md (5 min)
+2. TECH-STACK.md (3 min)
+3. DESIGN-SYSTEM.md (5 min)
+4. AUTH-SYSTEM.md (optional, 3 min)
+
+After creating files, run this prompt again."
+
+**If all REQUIRED files exist (BUSINESS-CONTEXT.md):**
+
+Proceed to Step 2. If TECH-STACK.md or DESIGN-SYSTEM.md are missing, warn me:
+"⚠️ Optional files missing: TECH-STACK.md, DESIGN-SYSTEM.md
+
+I can proceed without these, but I'll have to:
+- Ask you manual questions about database/email setup (instead of reading TECH-STACK.md)
+- Use generic article styling (instead of matching your DESIGN-SYSTEM.md)
+
+Continue anyway? Or create these files first for better auto-configuration."
+
+**STEP 2: COLLECT REQUIRED CONFIGURATION**
+
+**1. Admin Email Address** (REQUIRED):
+- First, check BUSINESS-CONTEXT.md for email address
+- Look for patterns like: "Contact: admin@example.com" or "Email: john@company.com"
+- If found in BUSINESS-CONTEXT.md, use it
+- If NOT found, ask: "What email address should receive article review notifications?"
+- This is where daily article review emails will be sent
+- Store in: ADMIN_EMAIL environment variable
+
+**2. Domain** (REQUIRED):
+- First, check BUSINESS-CONTEXT.md for domain/website
+- Look for patterns like: "Website: example.com" or "Domain: mysite.com"
+- If found in BUSINESS-CONTEXT.md, use it (remove https://, just domain)
+- If NOT found, ask: "What is your production domain?"
+- Used for: Approval links in emails, sitemap URLs, canonical URLs
+- Example: example.com (without https://)
+
+Then analyze BUSINESS-CONTEXT.md for current state:
+- **Business Type**: Local service? SaaS? Consultancy? E-commerce?
+- **Geographic Scope**: Local (specific cities) or global?
+- **Services/Products**: What do you currently offer?
+- **Competitors**: Who are your main competitors?
+- **Target Audience**: Who are you trying to reach?
+
+**3. Future Vision Discovery** (REQUIRED - Ask user):
+
+After reading BUSINESS-CONTEXT.md, ask these discovery questions:
+
+"To design the best SEO strategy, I need to understand where you're headed:
+
+**A) Future Offerings (12-month horizon)**:
+What new services, products, or features do you plan to launch in the next year?
+(Example: 'Adding commercial HVAC', 'Launching a SaaS tier', 'Expanding to 3 new cities')
+
+**B) Rich Content Plans**:
+Are you planning any cornerstone content that articles should link TO?
+- Ultimate guides (e.g., 'Complete Guide to Furnace Maintenance')
+- Data resources (e.g., 'Regina Heating Cost Calculator')
+- Tools or calculators
+- Video series or courses
+- Case study library
+
+**C) Authority Topics**:
+What topics do you want to be THE authority on?
+(These become your content pillars - could be 3, could be 8, depends on your scope)
+
+**D) Content You'll Never Write About**:
+Any topics that are off-limits or outside your expertise?
+(These help me avoid generating irrelevant articles)"
+
+**After user responds**, update BUSINESS-CONTEXT.md with a new section:
+
+```markdown
+## Future Plans (12-Month Vision)
+
+### Planned Offerings
+- [List from user response]
+
+### Cornerstone Content Planned
+- [List from user response]
+
+### Authority Topics (SEO Pillars)
+- [List from user response]
+
+### Topics to Avoid
+- [List from user response]
+```
+
+Tell me what you found AND what the user shared about future plans, then proceed to Step 3.
+
+**STEP 3: PROPOSE CONTENT STRATEGY**
+
+Based on current business context + future vision, propose an SEO content strategy.
+
+**⚠️ IMPORTANT: Pillars Are NOT Fixed at 4**
+
+The number of pillars depends on the business's scope:
+- **Narrow focus** (single service, one location): 2-3 pillars
+- **Moderate scope** (few services, regional): 4-5 pillars
+- **Broad scope** (many services, national/global): 6-8 pillars
+- **Platform/Marketplace**: 8-12 pillars
+
+**Each pillar should have a clear purpose:**
+- Tied to a current OR planned service/product
+- Supports a cornerstone content piece (if planned)
+- Targets a distinct keyword cluster
+- Has enough depth for 15-30 articles
+
+---
+
+**🚨 CRITICAL: LLM Content Capability Check**
+
+**AI (Claude/GPT) writes GREAT content for:**
+✅ Educational explainers ("What is X?", "How does X work?")
+✅ Comparison guides ("X vs Y", "Best X for Y")
+✅ How-to tutorials (step-by-step instructions)
+✅ Buying guides ("How to choose X")
+✅ FAQ-style content (common questions)
+✅ Cost/pricing guides ("How much does X cost?")
+✅ Beginner guides ("X for beginners")
+✅ Problem/solution content ("Why is my X not working?")
+
+**AI writes POOR content for (AVOID these pillars):**
+❌ Highly technical/specialized knowledge (detailed X's and O's, proprietary systems)
+❌ Personal experience/opinion pieces ("My journey with X")
+❌ Current events/news (outdated quickly)
+❌ Hyper-local knowledge (specific neighborhood details)
+❌ Proprietary methodology deep-dives (your secret sauce)
+❌ Advanced practitioner content (content for experts BY experts)
+❌ Real-time data dependent content (stock picks, live scores)
+❌ Content requiring original research/data
+
+**The Test: Can a well-read generalist write this?**
+- YES → Good pillar for AI
+- NO, requires deep domain expertise → Bad pillar, flag it
+
+**If a topic is too nuanced:**
+1. DON'T create a pillar for it
+2. Instead, note it as "Cornerstone Content (Human-Written)"
+3. AI articles can LINK TO this human content, but not replace it
+
+**Example - Football Analytics Site:**
+```
+❌ BAD PILLAR: "Advanced X's and O's Breakdowns"
+   → Too nuanced, AI will produce generic/wrong content
+   → Experts will see through it immediately
+
+✅ GOOD PILLAR: "Football Concepts Explained"
+   → "What is a Cover 2 defense?" (educational)
+   → "Zone vs Man Coverage: Key Differences" (comparison)
+   → "How to Read a Defense as a Beginner" (how-to)
+
+✅ GOOD PILLAR: "Fantasy Football Strategy"
+   → "How to evaluate RB workload" (how-to)
+   → "What is target share?" (explainer)
+   → "PPR vs Standard scoring differences" (comparison)
+
+🔶 HUMAN-WRITTEN CORNERSTONE: "Advanced Film Study: Breaking Down the 49ers Offense"
+   → AI articles link TO this, but humans write it
+```
+
+---
+
+**Pillar Design Framework:**
+
+For each pillar, define:
+1. **Name**: Clear category name
+2. **Business Value**: How it drives leads/revenue
+3. **Target Articles**: How many (based on keyword opportunity)
+4. **Keyword Theme**: Primary search intent
+5. **Cornerstone Link**: What rich content it should link TO (if any)
+6. **AI Suitability**: ✅ Good / 🔶 Moderate / ❌ Avoid (with reason)
+
+**For any pillar marked 🔶 Moderate or ❌ Avoid:**
+- Explain WHY it's risky for AI
+- Suggest an alternative pillar that captures similar intent
+- Or recommend it as human-written cornerstone content instead
+
+---
+
+**Example: Local HVAC Business (5 pillars)**
+- Business Type: Local Service
+- Location: Regina, Saskatchewan
+- Current: Furnace repair/replacement
+- Future: Adding AC service next summer
+
+**Proposed Strategy: 5 pillars (110 articles total)**
+
+| Pillar | AI Fit | Articles | Why AI Works Here |
+|--------|--------|----------|-------------------|
+| Furnace Troubleshooting | ✅ | 30 | How-to, problem/solution content |
+| Repair vs Replacement | ✅ | 25 | Comparison, cost guides |
+| Energy Efficiency | ✅ | 20 | Educational explainers |
+| AC & Cooling (Future) | ✅ | 20 | Same patterns as furnace |
+| Choosing a Provider | ✅ | 15 | Buying guides |
+
+**Human-Written Cornerstone Content (NOT AI pillars):**
+- "Complete Furnace Guide" - requires local expertise
+- "Regina Heating Cost Calculator" - needs real data
+
+---
+
+**Example: SaaS with Multiple Products (5 pillars)**
+- Business Type: SaaS Product
+- Current: Analytics dashboard
+- Future: Adding AI features, marketplace integrations
+
+**Proposed Strategy: 5 pillars (130 articles total)**
+
+| Pillar | AI Fit | Articles | Why AI Works Here |
+|--------|--------|----------|-------------------|
+| Getting Started | ✅ | 25 | How-to tutorials |
+| Feature Explainers | ✅ | 30 | Educational content |
+| Integrations | ✅ | 25 | Setup guides, comparisons |
+| vs Competitors | ✅ | 20 | Comparison guides |
+| Industry Use Cases | ✅ | 30 | "X for [industry]" guides |
+
+**NOT a pillar (too nuanced for AI):**
+- ❌ "Advanced Analytics Deep-Dives" → Power users will spot generic content
+- Instead: Human writes "Analytics Playbook", AI links TO it
+
+---
+
+**Example: Football Analytics Site (3 pillars + human content)**
+- Business Type: Sports content
+- Current: Game analysis, highlights
+- Future: Premium membership, betting content
+
+**Proposed Strategy: 3 pillars (75 articles total)**
+
+| Pillar | AI Fit | Articles | Why AI Works Here |
+|--------|--------|----------|-------------------|
+| Football Concepts Explained | ✅ | 30 | "What is X?" explainers |
+| Fantasy Football Strategy | ✅ | 25 | How-to, beginner guides |
+| Betting Basics | ✅ | 20 | Educational, comparison |
+
+**NOT AI pillars (require domain expertise):**
+- ❌ "X's and O's Film Breakdowns" → Too technical, experts see through it
+- ❌ "Weekly Game Predictions" → Requires current data, opinion
+- ❌ "Advanced Scheme Analysis" → Practitioner-level content
+
+**Human-Written Cornerstone Content:**
+- "Breaking Down the 49ers Offense" (film study)
+- "2024 Draft Class Deep Dive" (original analysis)
+- AI articles LINK TO these, driving traffic to premium content
+
+---
+
+**Example: Consultancy (3 pillars)**
+- Business Type: Solo consultant
+- Current: Claude Code consulting
+- Future: Course launch, bolt-on library
+
+**Proposed Strategy: 3 pillars (60 articles total)**
+
+| Pillar | AI Fit | Articles | Why AI Works Here |
+|--------|--------|----------|-------------------|
+| Claude Code Mastery | ✅ | 25 | Tutorials, how-to guides |
+| Bolt-On Features | ✅ | 20 | Feature explainers, setup guides |
+| AI Strategy | ✅ | 15 | Beginner guides, comparisons |
+
+---
+
+**Your Proposal Format:**
+
+Present your strategy as:
+
+"Based on [business type] with [current offerings] and [future plans]:
+
+**Recommended: [X] pillars ([Y] articles total)**
+
+| Pillar | AI Fit | Articles | Content Types |
+|--------|--------|----------|---------------|
+| ... | ✅/🔶/❌ | ... | explainers, how-to, etc. |
+
+**AI Suitability Notes:**
+- [For each pillar, explain why AI can/can't write it well]
+- [Flag any 🔶 Moderate pillars with caveats]
+- [Explain any topics NOT included and why]
+
+**Human-Written Content (Not AI Pillars):**
+- [List cornerstone content that requires human expertise]
+- [These become Link Targets for AI articles]
+
+**Why this structure:**
+- [Explain why this number of pillars makes sense]
+- [How it supports current + future business]
+- [Which pillars can start now vs. later]
+
+**Phasing recommendation:**
+- Phase 1 (now): [which pillars to seed first]
+- Phase 2 (3 months): [expand to...]
+- Phase 3 (6+ months): [future pillars when ready]"
+
+Show me your recommended strategy, then proceed to Step 4.
+
+**STEP 4: CHECK TECHNICAL DEPENDENCIES & CONFIGURE ANTHROPIC**
+
+Confirm my project has:
+1. Database with ORM (Prisma/Drizzle)
+2. Email sending capability (Resend, SendGrid, etc.)
+3. Next.js App Router
+4. Vercel deployment (for cron) OR Railway/other with cron support
+5. Anthropic API key available
+
+**CRITICAL: Anthropic Model Configuration (Dynamic Selection)**
+
+**IMPORTANT**: Model names change as Anthropic releases new versions. Follow this process:
+
+**Step 1: Test Current Model Availability**
+
+Before hardcoding the model, test if claude-sonnet-4-20250514 works:
+
+Create a test route first to verify the model:
+- /app/api/seo/test-anthropic/route.ts
+- Try creating a simple message with claude-sonnet-4-20250514
+- If it works, use it
+- If it throws a model error, try claude-3-5-sonnet-20241022 as fallback
+
+**Step 2: Fallback Strategy**
+
+If claude-sonnet-4-20250514 doesn't work (model deprecated or unavailable):
+
+1. Check the user's existing codebase for working Anthropic API calls
+2. Look for patterns like: model: 'claude-sonnet-4-*'
+3. Use the model that's already working in their app
+4. Ask the user: "What Anthropic model are you currently using successfully?"
+
+**Step 3: Recommended Models (as of Jan 2025)**
+
+**For Queue Generation** (File #6: /app/api/seo/generate-queue/route.ts):
+- **Primary**: claude-sonnet-4-20250514 (if available)
+- **Fallback**: claude-3-5-sonnet-20241022
+- Max tokens: 4000
+- Temperature: 0.8 (creative variety)
+
+**For Article Generation** (File #7: /app/api/seo/generate-article/route.ts):
+- **Primary**: claude-sonnet-4-20250514 (if available)
+- **Fallback**: claude-3-5-sonnet-20241022
+- Max tokens: 8000
+- Temperature: 0.7 (balanced quality + variety)
+
+**Step 4: Verify After Creation**
+
+After creating the API routes, test them:
+- Run: curl -X POST http://localhost:3000/api/seo/generate-queue
+
+If you get a model error, update to a newer/working model.
+
+**DO NOT USE**:
+- ❌ claude-3-opus-* (too expensive)
+- ❌ claude-2-* (outdated)
+- ❌ Generic "claude-sonnet-4" without date
+- ❌ Any model that throws errors (update to working version)
+
+**Environment Variable Setup** (CRITICAL - Must add to production!):
+
+In `.env` (same file for dev and production):
+```
+ANTHROPIC_API_KEY=sk-ant-api03-...
+NEXT_PUBLIC_BASE_URL=http://localhost:3000
+EMAIL_SERVER_PASSWORD=re_... (Resend API key)
+ADMIN_EMAIL=your@email.com
+```
+
+**⚠️ IMPORTANT**: After setup, you MUST add these same environment variables to your production deployment (Vercel/Railway/etc). The system will fail in production without them.
+
+**Anthropic SDK Initialization**:
+
+```typescript
+import Anthropic from '@anthropic-ai/sdk'
+
+const anthropic = new Anthropic({
+  apiKey: process.env.ANTHROPIC_API_KEY!
+})
+
+// For queue generation
+const queueResponse = await anthropic.messages.create({
+  model: 'claude-sonnet-4-20250514',
+  max_tokens: 4000,
+  temperature: 0.8,
+  messages: [{ role: 'user', content: queuePrompt }]
+})
+
+// For article generation
+const articleResponse = await anthropic.messages.create({
+  model: 'claude-sonnet-4-20250514',
+  max_tokens: 8000,
+  temperature: 0.7,
+  messages: [{ role: 'user', content: articlePrompt }]
+})
+```
+
+**Cost Estimate** (using Sonnet 4 for both):
+- Queue generation: ~$0.01 per batch of 10 ideas
+- Article generation: ~$0.06 per 1500-word article
+- Total: ~$6.30 for 90 articles (90 queue batches + 90 articles)
+
+Tell me what you found and recommend options for anything missing.
+
+**STEP 5: GENERATE SYSTEM FILES**
+
+**🚨 CRITICAL FILES CHECKLIST - ALL MUST BE CREATED**
+
+Before you can say "complete", ALL of these files must exist and work. Track your progress:
+
+```
+INFRASTRUCTURE (Create First):
+[ ] /lib/db.ts (or /lib/prisma.ts) - Serverless database client
+[ ] /lib/seo-strategy-templates.ts - Business type templates
+[ ] prisma/schema.prisma - Updated with SEO models
+
+API ROUTES (Create Second):
+[ ] /app/api/seo/detect-strategy/route.ts - Strategy detection
+[ ] /app/api/seo/generate-queue/route.ts - Queue generation
+[ ] /app/api/seo/generate-article/route.ts - Article generation
+[ ] /app/api/seo/approve-article/route.ts - Approval actions
+[ ] /app/api/cron/daily-content/route.ts - Daily cron
+[ ] /app/api/cron/refresh-sitemap/route.ts - Sitemap freshness
+[ ] /app/api/cron/index-articles/route.ts - Auto-indexing
+
+PAGES (Create Third):
+[ ] /app/articles/page.tsx - Articles listing
+[ ] /app/articles/[slug]/page.tsx - Article renderer
+[ ] /app/articles/category/[slug]/page.tsx - Category pages
+[ ] /app/seo-debug/page.tsx - Debug dashboard (PROTECTED)
+[ ] /app/seo-debug/actions.ts - Server actions (includes test cron actions, regenerate, delete)
+[ ] /app/seo-debug/ActionButtons.tsx - Client component (imports server actions directly)
+[ ] /app/seo-debug/TestCronButtons.tsx - Cron testing (DEV ONLY, rich output display)
+[ ] /app/seo-debug/ArticleActions.tsx - Per-article buttons (regenerate, reject, delete)
+
+SEO FILES (Create Fourth):
+[ ] /app/sitemap.ts - Dynamic sitemap
+[ ] /app/robots.ts - Robots.txt
+
+CONFIG & SCRIPTS (Create Fifth):
+[ ] /scripts/setup-seo-system.ts - Database seeding
+[ ] vercel.json - Cron configuration (or update existing)
+```
+
+**⚠️ DO NOT skip the seo-debug page** - It's the primary tool for:
+- Testing article generation before production
+- Managing content rules and link targets
+- Reviewing indexing timeline
+- **Testing crons locally** (buttons with rich output display)
+- Catching issues before they go live
+
+**⚠️ seo-debug MUST be protected** - Add auth middleware or check:
+- If AUTH-SYSTEM.md exists, follow its pattern
+- If no auth, add basic admin check (ADMIN_EMAIL env var match)
+- At minimum: only allow in development mode OR authenticated admins
+
+After I approve the strategy, create:
+
+1. **/lib/db.ts** (CRITICAL - Serverless Database Client)
+   - Singleton PrismaClient with connection timeout for serverless cold starts
+   - **MUST USE THIS** in all API routes instead of `new PrismaClient()`
+   - Prevents Neon/serverless database connection failures in cron jobs
+
+   ```typescript
+   import { PrismaClient } from '@prisma/client'
+
+   const globalForPrisma = globalThis as unknown as {
+     prisma: PrismaClient | undefined
+   }
+
+   // Append connection timeout for Neon serverless cold starts
+   function getDatabaseUrl() {
+     const baseUrl = process.env.DATABASE_URL || ''
+     if (!baseUrl) return baseUrl
+     if (baseUrl.includes('connect_timeout')) return baseUrl
+     const separator = baseUrl.includes('?') ? '&' : '?'
+     return `${baseUrl}${separator}connect_timeout=15`
+   }
+
+   export const db = globalForPrisma.prisma ?? new PrismaClient({
+     log: process.env.NODE_ENV === 'development' ? ['error', 'warn'] : ['error'],
+     datasources: {
+       db: {
+         url: getDatabaseUrl(),
+       },
+     },
+   })
+
+   globalForPrisma.prisma = db
+   ```
+
+   **Why This Matters (Neon + Vercel Cron Fix)**:
+   - Neon suspends inactive databases after ~5 minutes
+   - Cron jobs run at low-traffic times (2-3 AM) when DB is likely suspended
+   - Default Prisma timeout (~5s) isn't enough for Neon to wake up
+   - `connect_timeout=15` gives Neon time to wake from cold start
+   - Singleton pattern prevents connection exhaustion in serverless
+   - **NO `$disconnect()` calls** - let serverless runtime manage connections
+
+   **In ALL API routes**:
+   ```typescript
+   // ❌ DON'T do this
+   import { PrismaClient } from '@prisma/client'
+   const prisma = new PrismaClient()
+   // ... code ...
+   await prisma.$disconnect() // Also wrong in serverless
+
+   // ✅ DO this
+   import { db } from '@/lib/db'
+   // ... use db instead of prisma ...
+   // NO $disconnect() call
+   ```
+
+2. **/lib/seo-strategy-templates.ts**
+   - Business type detection functions
+   - Auto-strategy generation based on business type
+   - Templates for 5 business types (local_service, saas, consultancy, ecommerce, marketplace)
+
+3. **/app/api/seo/detect-strategy/route.ts**
+   - Reads BUSINESS-CONTEXT.md
+   - Auto-detects business type and generates strategy
+   - Returns recommended categories
+
+4. **Prisma schema updates** (or Drizzle)
+
+   **SEOPillar model** (categories with keywords, targets, priorities):
+   - **CRITICAL**: Must include `slug` field (String, unique) for category page URLs
+   - Generate slugs from name: `name.toLowerCase().replace(/[^a-z0-9]+/g, '-')`
+
+   **SEOArticle model** (title, slug, content, meta, scheduling, status):
+   - **CRITICAL**: Must include timestamp fields for freshness tracking:
+     - `createdAt DateTime @default(now())` - When article was first created
+     - `updatedAt DateTime @updatedAt` - Auto-updates on any edit
+     - `publishedAt DateTime?` - When article was published
+   - **CRITICAL**: Must include auto-indexing fields (3-day delay system):
+     - `scheduledIndexAt DateTime` - When article will be indexed (createdAt + 3 days)
+     - `indexedAt DateTime?` - When actually added to sitemap (null until indexed)
+   - **CRITICAL**: Must include soft-delete and review fields:
+     - `isRejected Boolean @default(false)` - Soft delete (keeps in DB for audit)
+     - `needsFixing Boolean @default(false)` - Pauses indexing until fixed
+     - `rejectedAt DateTime?` - When article was rejected
+     - `rejectionReason String? @db.Text` - Why article was rejected
+   - Keep existing: `status`, `approved`, `approvalToken`, `approvedAt` for legacy compatibility
+
+   **SEOQueue model** (upcoming article ideas with search intent)
+   - Only used in AI-Guessing mode (legacy)
+   - Skip if using Brief-Based mode
+
+   **SEOBrief model** (RECOMMENDED - Pre-researched article briefs):
+   ```prisma
+   model SEOBrief {
+     id                String   @id @default(cuid())
+     pillarId          String
+     pillar            SEOPillar @relation(fields: [pillarId], references: [id])
+     title             String   // Article title from keyword research
+     primaryKeyword    String   // Main keyword (e.g., "pipeline coverage")
+     primaryVolume     Int      // Monthly search volume (e.g., 4400)
+     secondaryKeywords String[] // Related keywords to include
+     searchIntent      String   // What searcher wants to learn
+     linkTargets       String[] // URLs to link to (cornerstone content)
+     priority          Int      @default(50) // Lower = publish first (1-100)
+     status            String   @default("pending") // pending | published | skipped
+     articleId         String?  @unique // Links to generated SEOArticle
+     article           SEOArticle? @relation(fields: [articleId], references: [id])
+     createdAt         DateTime @default(now())
+     updatedAt         DateTime @updatedAt
+
+     @@index([status])
+     @@index([priority])
+   }
+   ```
+
+   **Why SEOBrief**: Pre-researched briefs with real keyword data replace AI-guessing.
+   - Keyword research done upfront (PROMPT_KEYWORD_RESEARCH.txt)
+   - 100 briefs mapped to pillars with accurate search volume
+   - Daily cron picks next pending brief by priority
+   - No more AI inventing keywords without data
+
+   **Also update SEOPillar** to have briefs relation:
+   ```prisma
+   model SEOPillar {
+     // ... existing fields ...
+     briefs    SEOBrief[]
+   }
+   ```
+
+   **Also update SEOArticle** to have brief relation:
+   ```prisma
+   model SEOArticle {
+     // ... existing fields ...
+     briefId   String?  @unique
+     brief     SEOBrief? @relation(fields: [briefId], references: [id])
+   }
+   ```
+
+   **SEORule model** (NEW - User-defined content rules):
+   ```prisma
+   model SEORule {
+     id          String   @id @default(cuid())
+     rule        String   @db.Text  // "Never use word X", "Always mention Y"
+     importance  String   @default("medium") // low, medium, high, critical
+     isActive    Boolean  @default(true)
+     isDefault   Boolean  @default(false)  // true = system-provided anti-hallucination rules
+     createdAt   DateTime @default(now())
+     updatedAt   DateTime @updatedAt
+
+     @@index([isActive])
+   }
+   ```
+
+   **SEOLinkTarget model** (NEW - Internal linking registry for products/services/tools):
+   ```prisma
+   model SEOLinkTarget {
+     id          String   @id @default(cuid())
+     title       String   // "Emergency Furnace Repair", "Pricing Calculator"
+     url         String   // "/services/emergency-repair", "/tools/calculator"
+     description String   @db.Text // Brief description for AI context
+     keywords    String[] // ["emergency", "urgent", "same-day"] - triggers for linking
+     type        String   // service, product, tool, resource
+     priority    Int      @default(5) // 1-10, higher = more important to link
+     isActive    Boolean  @default(true)
+     createdAt   DateTime @default(now())
+     updatedAt   DateTime @updatedAt
+
+     @@index([isActive])
+     @@index([priority])
+   }
+   ```
+
+   **Why SEORule**: Users can add content rules like "Never use the word 'steroids'" or "Always mention our 24/7 service" without editing the base prompt. Rules are injected at generation time.
+
+   **Why SEOLinkTarget**: Users register their key products, services, and tools. The AI knows about these and naturally links to them in articles when relevant.
+
+   Run migration after adding all models.
+
+5. **/app/articles/[slug]/page.tsx** (CRITICAL - Must be Server Component for ISR)
+   - **MUST BE SERVER COMPONENT** - DO NOT add 'use client'
+   - SEO-optimized article renderer
+   - **CRITICAL ISR CONFIG**:
+     - dynamicParams = true (allows new slugs without rebuild)
+     - revalidate = 3600 (1 hour cache)
+     - **NO filtering by status** - ALL articles are accessible at /articles/[slug]
+     - Why: Articles generated by cron must be immediately viewable for review
+   - Approval banner for unapproved articles (shows at top of article)
+   - Structured data (schema.org Article)
+
+   **SEO Metadata with Canonical (REQUIRED)**:
+   ```typescript
+   import { Metadata } from 'next'
+
+   export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
+     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://yourdomain.com'
+     const article = await prisma.sEOArticle.findUnique({
+       where: { slug: params.slug },
+       include: { pillar: true }
+     })
+
+     if (!article) return { title: 'Article Not Found' }
+
+     return {
+       title: article.title,
+       description: article.metaDescription,
+       alternates: {
+         canonical: `${baseUrl}/articles/${article.slug}`,  // ← REQUIRED
+       },
+       openGraph: {
+         title: article.title,
+         description: article.metaDescription,
+         url: `${baseUrl}/articles/${article.slug}`,
+         type: 'article',
+         publishedTime: article.publishedAt?.toISOString(),
+         modifiedTime: article.updatedAt?.toISOString(),
+         section: article.pillar?.name,
+       },
+       twitter: {
+         card: 'summary_large_image',
+         title: article.title,
+         description: article.metaDescription,
+       },
+     }
+   }
+   ```
+
+   - **BREADCRUMBS (MANDATORY - All links must be clickable)**:
+     - Home (link to /)
+     - Articles (link to /articles)
+     - **Category Name (link to /articles/category/[pillar.slug])** ← CRITICAL: Must be a Link, not a span!
+     - Article Title (current page, not linked)
+   - Include pillar relation in query: `include: { pillar: { select: { name: true, slug: true } } }`
+
+   **🚨 CRITICAL: Display "Updated At" Timestamp (Content Freshness)**
+
+   Articles MUST show when they were last updated to signal freshness to users and Google.
+
+   ```tsx
+   {/* Display updated date prominently - MANDATORY */}
+   <div className="text-sm text-gray-600 mb-6">
+     Last updated: {new Date(article.updatedAt).toLocaleDateString('en-US', {
+       month: 'long',
+       day: 'numeric',
+       year: 'numeric'
+     })}
+   </div>
+
+   {/* Freshness badge for recently updated articles */}
+   {(() => {
+     const thirtyDaysAgo = new Date()
+     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
+     return new Date(article.updatedAt) > thirtyDaysAgo
+   })() && (
+     <div className="inline-block px-3 py-1 bg-green-100 text-green-800 text-xs font-bold uppercase tracking-wider border-2 border-green-600 mb-4">
+       ✓ Recently Updated
+     </div>
+   )}
+
+   {/* Schema.org markup - use updatedAt for dateModified */}
+   <script type="application/ld+json">
+     {JSON.stringify({
+       "@context": "https://schema.org",
+       "@type": "Article",
+       "headline": article.title,
+       "datePublished": article.publishedAt,
+       "dateModified": article.updatedAt,  // ← CRITICAL: Shows Google content is fresh
+       "author": { "@type": "Organization", "name": "Your Company" }
+     })}
+   </script>
+   ```
+
+   **Why This Matters**:
+   - Google uses dateModified to determine content freshness
+   - Users trust content more when they see recent update dates
+   - Prevents perception of outdated information
+   - Dynamic timestamp avoids hardcoded years in content
+
+   **IMPORTANT**: Articles have TWO states:
+   - status: Always "published" (makes URL accessible)
+   - approved: true/false (controls sitemap visibility only)
+   - New articles: status="published", approved=false
+   - After approval: status="published", approved=true
+   - This prevents 404 errors when reviewing new articles
+
+   **ARCHITECTURE: How to Build Approval Button (CRITICAL)**
+
+   ❌ **WRONG - DO NOT DO THIS** (Client component breaks ISR):
+   ```tsx
+   'use client' // ❌ BREAKS ISR!
+
+   export default function ArticlePage({ params }) {
+     const handleApprove = () => { /* ... */ } // ❌ Server components can't have onClick
+
+     return (
+       <button onClick={handleApprove}>Approve</button> // ❌ ERROR!
+     )
+   }
+   ```
+
+   ✅ **CORRECT - Use Link to API Route** (Server component, ISR-compatible):
+   ```tsx
+   import Link from 'next/link'
+
+   export default async function ArticlePage({ params }) {
+     const article = await prisma.sEOArticle.findUnique({
+       where: { slug: params.slug }
+     })
+
+     // Calculate days until indexing
+     const now = new Date()
+     const scheduledDate = article.scheduledIndexAt ? new Date(article.scheduledIndexAt) : null
+     const daysUntilIndex = scheduledDate
+       ? Math.max(0, Math.ceil((scheduledDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)))
+       : null
+
+     return (
+       <div>
+         {/* BANNER 1: Rejected Article (dev/debug only - never shown to public) */}
+         {article.isRejected && (
+           <div className="mb-4 p-4 bg-red-50 border-3 border-red-600">
+             <div className="font-['Courier_New'] text-sm text-red-900 font-bold mb-2">
+               🚫 REJECTED
+             </div>
+             <p className="text-sm text-red-800 mb-4">
+               This article was rejected on {new Date(article.rejectedAt).toLocaleDateString()}.
+               {article.rejectionReason && ` Reason: ${article.rejectionReason}`}
+             </p>
+             <p className="text-xs text-red-700">
+               Kept for audit. Not visible in sitemap or listings.
+             </p>
+           </div>
+         )}
+
+         {/* BANNER 2: Needs Fixing (paused for review) */}
+         {article.needsFixing && !article.isRejected && (
+           <div className="mb-4 p-4 bg-orange-50 border-3 border-orange-600">
+             <div className="font-['Courier_New'] text-sm text-orange-900 font-bold mb-2">
+               ⚠️ NEEDS FIXING
+             </div>
+             <p className="text-sm text-orange-800 mb-4">
+               This article is on hold. Indexing paused until issues are resolved.
+             </p>
+             <Link
+               href={`/api/seo/approve-article?token=${article.approvalToken}&action=approve`}
+               className="inline-block px-6 py-3 bg-orange-600 text-white font-bold"
+             >
+               ✓ Approve & Restart 3-Day Countdown
+             </Link>
+           </div>
+         )}
+
+         {/* BANNER 3: Indexing Countdown (in 3-day window) */}
+         {!article.indexedAt && !article.isRejected && !article.needsFixing && daysUntilIndex !== null && (
+           <div className="mb-4 p-4 bg-blue-50 border-3 border-blue-600">
+             <div className="font-['Courier_New'] text-sm text-blue-900 font-bold mb-2">
+               ⏳ INDEXING IN {daysUntilIndex} DAY{daysUntilIndex !== 1 ? 'S' : ''}
+             </div>
+             <p className="text-sm text-blue-800 mb-4">
+               This article will be added to sitemap on {scheduledDate?.toLocaleDateString()}.
+               Review now - you can reject or flag issues before indexing.
+             </p>
+             <div className="flex gap-3">
+               <Link
+                 href={`/api/seo/approve-article?token=${article.approvalToken}&action=reject`}
+                 className="inline-block px-4 py-2 bg-red-600 text-white font-bold text-sm"
+               >
+                 Reject
+               </Link>
+               <Link
+                 href={`/api/seo/approve-article?token=${article.approvalToken}&action=needs-fixing`}
+                 className="inline-block px-4 py-2 bg-orange-600 text-white font-bold text-sm"
+               >
+                 Needs Fixing
+               </Link>
+             </div>
+           </div>
+         )}
+
+         {/* BANNER 4: Successfully Indexed (optional - for confirmation) */}
+         {article.indexedAt && !article.isRejected && (
+           <div className="mb-4 p-4 bg-green-50 border-3 border-green-600">
+             <div className="font-['Courier_New'] text-sm text-green-900 font-bold">
+               ✓ INDEXED
+             </div>
+             <p className="text-xs text-green-700">
+               Added to sitemap on {new Date(article.indexedAt).toLocaleDateString()}
+             </p>
+           </div>
+         )}
+
+         {/* Article content */}
+       </div>
+     )
+   }
+   ```
+
+   **Banner States Summary**:
+   - 🔴 **REJECTED**: Red banner, kept for audit, never indexed
+   - 🟠 **NEEDS FIXING**: Orange banner, paused indexing, waiting for fix
+   - 🔵 **INDEXING IN X DAYS**: Blue banner, countdown with reject/needs-fixing buttons
+   - 🟢 **INDEXED**: Green banner (optional), confirms article is in sitemap
+
+   **Why This Pattern Works**:
+   - ✅ Server Component (ISR works perfectly)
+   - ✅ No client-side JavaScript needed
+   - ✅ Link navigates to API route which handles approval
+   - ✅ API route redirects back to article with success message
+   - ✅ Simple, no state management, no loading spinners needed
+
+   **CRITICAL: Article Content Formatting (Typography)**
+
+   The AI generates HTML content (h2, h3, p, ul, ol, blockquote, code, pre tags).
+   You MUST style these elements or articles will look broken (no spacing, no hierarchy).
+
+   ✅ **CORRECT - Use Tailwind's [&>element] Pattern**:
+   ```tsx
+   <div
+     className="article-content
+       [&>h2]:text-3xl [&>h2]:font-bold [&>h2]:mt-16 [&>h2]:mb-8 [&>h2]:border-b-2 [&>h2]:border-gray-200 [&>h2]:pb-4
+       [&>h3]:text-2xl [&>h3]:font-bold [&>h3]:mt-12 [&>h3]:mb-6
+       [&>p]:text-lg [&>p]:leading-relaxed [&>p]:mb-6
+       [&>p+p]:mt-6
+       [&>ul]:my-8 [&>ul]:space-y-3 [&>ul]:list-disc [&>ul]:pl-8
+       [&>ol]:my-8 [&>ol]:space-y-3 [&>ol]:list-decimal [&>ol]:pl-8
+       [&>li]:text-lg [&>li]:leading-relaxed
+       [&>blockquote]:border-l-4 [&>blockquote]:border-gray-400 [&>blockquote]:pl-6 [&>blockquote]:my-8 [&>blockquote]:italic
+       [&>code]:bg-gray-100 [&>code]:px-2 [&>code]:py-1 [&>code]:rounded [&>code]:text-sm
+       [&>pre]:bg-black [&>pre]:text-white [&>pre]:p-6 [&>pre]:my-8 [&>pre]:overflow-x-auto [&>pre]:rounded
+       [&>a]:text-blue-600 [&>a]:underline hover:[&>a]:text-blue-800"
+     dangerouslySetInnerHTML={{ __html: article.content }}
+   />
+   ```
+
+   **Essential Typography Rules**:
+   1. **H2 headings**: Large (3xl), bold, top margin (mt-16), bottom margin (mb-8), optional border-bottom
+   2. **H3 headings**: Medium (2xl), bold, top margin (mt-12), bottom margin (mb-6)
+   3. **Paragraphs**: Readable size (lg/xl), generous line-height (leading-relaxed), bottom margin (mb-6)
+   4. **Paragraph spacing**: Add extra top margin between consecutive paragraphs ([&>p+p]:mt-6)
+   5. **Lists**: Top/bottom margin (my-8), space between items (space-y-3), proper indentation (pl-8)
+   6. **Blockquotes**: Left border (border-l-4), padding-left (pl-6), italic, margins (my-8)
+   7. **Inline code**: Background color, padding, rounded corners
+   8. **Code blocks**: Dark background, light text, padding, margins, overflow handling
+   9. **Links**: Color, underline, hover state
+
+   ❌ **WRONG - No Styling**:
+   ```tsx
+   <div dangerouslySetInnerHTML={{ __html: article.content }} />
+   {/* Articles will look terrible: no spacing, no hierarchy, hard to read */}
+   ```
+
+   **Why This Matters**:
+   - Without styling: Wall of text, no visual hierarchy, unprofessional
+   - With styling: Readable, scannable, professional article layout
+   - SEO impact: Better user engagement metrics (time on page, bounce rate)
+
+   **MANDATORY: Use marked Library for Markdown Conversion**
+
+   Since the AI generates Markdown (not HTML), you MUST convert it with marked:
+
+   ```tsx
+   import { marked } from 'marked'
+
+   {/* ✅ CORRECT - Convert Markdown to HTML with marked */}
+   <div
+     className="article-content [&>h2]:text-3xl [&>h2]:font-bold ..."
+     dangerouslySetInnerHTML={{ __html: marked(article.content) as string }}
+   />
+
+   {/* ❌ WRONG - Do NOT render Markdown directly */}
+   dangerouslySetInnerHTML={{ __html: article.content }}
+   ```
+
+   **MUST DO**:
+   - ✅ Install marked library: `pnpm add marked`
+   - ✅ Import at top of file: `import { marked } from 'marked'`
+   - ✅ Convert in render: `marked(article.content) as string`
+   - ❌ Do NOT write custom regex converters (use marked library)
+
+   **WHY**: The AI generates Markdown. marked library converts it to HTML reliably.
+
+6. **/app/articles/page.tsx** (CRITICAL - Main articles listing page)
+   - **MANDATORY**: This page MUST exist or breadcrumbs will 404
+   - Main articles hub showing all approved articles grouped by pillar
+   - Lists pillars in priority order with 6 most recent articles each
+   - "View all X" link to category page for each pillar
+   - ISR config: revalidate = 3600
+   - Breadcrumbs: Home → Articles
+   - Structured data (schema.org CollectionPage)
+
+   **SEO Metadata with Canonical (REQUIRED)**:
+   ```typescript
+   import { Metadata } from 'next'
+
+   export async function generateMetadata(): Promise<Metadata> {
+     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://yourdomain.com'
+
+     return {
+       title: 'Articles | Your Site Name',
+       description: 'Browse our educational articles on [topic]...',
+       alternates: {
+         canonical: `${baseUrl}/articles`,  // ← REQUIRED
+       },
+       openGraph: {
+         title: 'Articles | Your Site Name',
+         description: 'Browse our educational articles...',
+         url: `${baseUrl}/articles`,
+         type: 'website',
+       },
+     }
+   }
+   ```
+
+   **Why**: Breadcrumbs link to /articles. Without this page, navigation breaks.
+
+   **/app/articles/category/[slug]/page.tsx** (CRITICAL - Category pages for each pillar)
+   - Category landing pages (one per pillar)
+   - Shows all APPROVED articles in that category
+   - ISR config: revalidate = 3600, dynamicParams = true
+   - Grid of articles with titles, meta descriptions, read time, publish date
+   - Breadcrumbs: Home → Articles → [Category Name]
+   - "Explore Other Categories" section linking back to /articles
+   - Structured data (schema.org CollectionPage)
+   - Internal links to related categories
+
+   **SEO Metadata with Canonical (REQUIRED)**:
+   ```typescript
+   import { Metadata } from 'next'
+
+   export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
+     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://yourdomain.com'
+     const pillar = await prisma.sEOPillar.findUnique({ where: { slug: params.slug } })
+
+     if (!pillar) return { title: 'Category Not Found' }
+
+     return {
+       title: `${pillar.name} Articles | Your Site Name`,
+       description: pillar.description,
+       alternates: {
+         canonical: `${baseUrl}/articles/category/${params.slug}`,  // ← REQUIRED
+       },
+       openGraph: {
+         title: `${pillar.name} Articles`,
+         description: pillar.description,
+         url: `${baseUrl}/articles/category/${params.slug}`,
+         type: 'website',
+       },
+     }
+   }
+   ```
+
+   **Why**: Google needs category pages to crawl article hierarchy. Without this, articles are orphaned.
+
+   **Breadcrumb Strategy** (MANDATORY - Non-Negotiable):
+   - Every page MUST have working breadcrumbs
+   - Breadcrumb links MUST go to real pages (not 404s)
+   - Structure: Home → Articles → Category → Article
+   - All intermediate pages (/articles, /articles/category/[slug]) MUST exist
+   - Use consistent styling: text-sm font-mono with hover:underline
+   - Test all breadcrumb links after setup (click each one!)
+
+   **CRITICAL**: If you skip /articles page, breadcrumbs will break!
+
+7. **/app/api/seo/generate-queue/route.ts**
+   - AI generates 10 article ideas across MULTIPLE pillars (round-robin)
+   - **CRITICAL**: Distribute ideas across pillars (2-3 per pillar) instead of focusing on one pillar
+   - Why round-robin approach:
+     - Better content variety (no repetitive topics)
+     - Balanced SEO coverage (all categories grow together)
+     - Natural publishing cadence (mix of different topics)
+     - Prevents content fatigue (readers see diverse articles)
+   - Algorithm:
+     1. Find all pillars with gaps (target not met)
+     2. Sort by priority, then by lowest completion percentage
+     3. Calculate ideas per pillar: Math.max(2, Math.floor(10 / pillarCount))
+     4. Select top pillars (up to 5 pillars for 10 ideas)
+     5. Loop through each pillar, generate 2-3 ideas
+     6. Collect all ideas and insert as batch
+   - Includes search intent (how-to, comparison, explainer, buying-guide)
+   - Token-optimized (condenses last 20 articles to 150 chars)
+   - Smart queue refill (when < 5 items)
+
+8. **/app/api/seo/generate-article/route.ts**
+   - AI article generation with format variety:
+     - How-to format (800-1200 words, step-by-step)
+     - Comparison format (1200-1500 words, pros/cons)
+     - Explainer format (1000-1400 words, definitions)
+     - Buying guide format (1500-1800 words, recommendations)
+   - Quality scoring (targets 85+)
+   - Anti-AI content rules (no generic phrases, no emoji bullets)
+   - **ALWAYS creates articles with scheduledIndexAt = now + 3 days**
+
+   **🚨 CRITICAL: User Rules & Link Targets Injection**
+
+   Before building the AI prompt, fetch and inject user-defined content:
+
+   ```typescript
+   // 1. Fetch user-defined rules (injected at TOP of prompt)
+   const userRules = await db.sEORule.findMany({
+     where: { isActive: true },
+     orderBy: [
+       { importance: 'desc' }, // critical > high > medium > low
+       { createdAt: 'asc' }
+     ]
+   });
+
+   const rulesSection = userRules.length > 0 ? `
+   **🚨 USER-DEFINED RULES (MUST FOLLOW)**:
+   ${userRules.map(r => `- [${r.importance.toUpperCase()}] ${r.rule}`).join('\n')}
+
+   These rules override default behavior. Follow them exactly.
+   ` : '';
+
+   // 2. Fetch internal link targets (products, services, tools to link to)
+   const linkTargets = await db.sEOLinkTarget.findMany({
+     where: { isActive: true },
+     orderBy: { priority: 'desc' }
+   });
+
+   const linkTargetsSection = linkTargets.length > 0 ? `
+   **INTERNAL LINKING TARGETS (Link to these when relevant)**:
+   ${linkTargets.map(t => `- ${t.title} (${t.url}): ${t.description} [Keywords: ${t.keywords.join(', ')}] [Type: ${t.type}]`).join('\n')}
+
+   When writing, naturally incorporate 1-3 links to these pages where contextually appropriate.
+   Prioritize higher-priority targets. Only link when the topic genuinely relates.
+   ` : '';
+
+   // 3. Build prompt with MANDATORY anti-hallucination rules FIRST, then user rules
+   const prompt = \`You are an expert content writer creating factual, educational content.
+
+   **🚨 MANDATORY CONTENT RULES (Cannot be overridden):**
+   - NEVER invent case studies, statistics, or fictional scenarios
+   - NEVER use newsletter storytelling voice (no dramatic hooks, no story buildups)
+   - ALWAYS answer the search query directly in the first paragraph
+   - ALWAYS use informational authority tone (third-person, educational)
+   - If you cannot write factually about a topic, say so - do not invent
+
+   \${rulesSection}
+
+   # Content Pillar
+   ...
+
+   \${linkTargetsSection}
+
+   # Available Internal Links (existing articles)
+   ...
+
+   # Your Task
+   Write a \${format} article about: "\${queueItem.keyword}"
+
+   Answer the implicit search query directly and factually. Do not invent examples or case studies.
+   \`;
+   ```
+
+   **🚨 CRITICAL: 3-Day Indexing Delay**
+
+   When creating articles, set `scheduledIndexAt` to 3 days from now:
+
+   ```typescript
+   // Calculate scheduled indexing date (3 days from now)
+   const scheduledIndexAt = new Date();
+   scheduledIndexAt.setDate(scheduledIndexAt.getDate() + 3);
+
+   // Create article with auto-indexing fields
+   article = await db.sEOArticle.create({
+     data: {
+       title: articleData.title,
+       slug,
+       content: articleData.content,
+       metaDescription: articleData.metaDescription,
+       keyword: queueItem.keyword,
+       pillarId: queueItem.pillarId,
+       readingTime: calculateReadingTime(articleData.wordCount),
+       wordCount: articleData.wordCount,
+       internalLinks: articleData.internalLinks || [],
+       qualityScore: articleData.qualityScore,
+
+       // Auto-indexing system (NEW)
+       scheduledIndexAt,        // Will be indexed in 3 days
+       indexedAt: null,         // Not indexed yet
+       isRejected: false,
+       needsFixing: false,
+
+       // Legacy fields (keep for compatibility)
+       status: 'published',     // URL accessible immediately
+       approved: false,         // Legacy - use indexedAt instead
+       approvalToken,
+       publishedAt: new Date(),
+     },
+   });
+   ```
+
+   **Why 3-Day Delay**: Gives users time to review before Google indexes. Each day they receive an email showing what's being indexed soon.
+
+   **🚨 CRITICAL: Date & Year Management (Evergreen Content)**
+
+   Articles MUST NOT use years in slugs or titles. This prevents content from looking outdated.
+
+   **Smart Year Detection**:
+   ```typescript
+   // Calculate target year for content (Q4 forward-looking)
+   const now = new Date()
+   const currentYear = now.getFullYear()
+   const currentMonth = now.getMonth() + 1 // 1-12
+
+   // If Q4 (Oct-Dec), target next year for forward-looking content
+   const contentTargetYear = currentMonth >= 10 ? currentYear + 1 : currentYear
+
+   // Add to AI prompt context
+   const temporalContext = \`
+   **TEMPORAL CONTEXT FOR CONTENT GENERATION**:
+   - Current date: \${now.toISOString().split('T')[0]}
+   - Target year for content: \${contentTargetYear}
+   - Use "\${contentTargetYear}" ONLY when citing specific data/research
+   - For all other references, use evergreen language
+   - NEVER use years in titles or slugs
+   \`
+   ```
+
+   **AI Prompt MUST Include These Date Rules**:
+   ```markdown
+   **CRITICAL: Date References (NEVER Use Years in Titles/Slugs)**
+
+   ❌ WRONG:
+   - Title: "2024 Guide to X" → Looks old in 2025
+   - Slug: "2024-guide-to-x" → URL becomes obsolete
+   - Content: "In 2024, experts recommend..." → Feels dated
+   - Content: "As of 2024, the best approach is..."
+
+   ✅ CORRECT:
+   - Title: "Complete Guide to X" (evergreen)
+   - Slug: "guide-to-x" (no year, permanent URL)
+   - Content: "Current expert recommendations include..."
+   - Content: "Modern best practices suggest..."
+   - Content: "Recent trends indicate..."
+
+   **When Statistics Require Years**:
+   - Use relative time: "Recent {contentTargetYear} studies show..." (acceptable for research citations)
+   - Always note: "(Last updated: {current month/year})" after statistics
+   - NEVER in titles or slugs
+
+   **For Time-Sensitive Content**:
+   - Use quarters: "Q4 {contentTargetYear} data shows..." (acceptable for data)
+   - Add update schedule: "This article is reviewed quarterly"
+   ```
+
+   **MANDATORY: AI Output Format (Markdown, NOT HTML)**
+
+   The AI prompt MUST include this EXACT output format specification:
+
+   ```typescript
+   # Output Format
+   Return a JSON object with:
+   {
+     "title": "Exact article title (55-65 chars)",
+     "content": "Full article content in Markdown format (use ##, ###, **, *, -, backticks for code)",
+     "metaDescription": "Natural 150-160 char description with keyword",
+     "qualityScore": 85-100 (self-assessment),
+     "wordCount": actual word count
+   }
+   ```
+
+   **KEY REQUIREMENTS**:
+   - ✅ AI generates Markdown: ##, ###, **, *, -, backticks
+   - ❌ AI does NOT generate HTML tags: <h2>, <p>, etc.
+   - ✅ Install marked library: `pnpm add marked` (or npm/yarn)
+   - ✅ Import in renderer: `import { marked } from 'marked'`
+   - ✅ Article renderer converts to HTML: `dangerouslySetInnerHTML={{ __html: marked(article.content) as string }}`
+
+   **Why Markdown instead of HTML**:
+   - LLMs trained on billions of Markdown files (more natural for AI)
+   - Simpler prompting: "Use ##" vs explaining HTML structure
+   - Human-readable in database (no HTML entities)
+   - More reliable generation (fewer malformed outputs)
+   - Industry standard (Ghost, Notion, Contentful, Strapi all use Markdown)
+   - One small dependency (marked: 50kb, battle-tested) is worth the benefits
+
+   **🔍 POST-GENERATION QUALITY CHECKS**
+
+   After AI generates the article, run these validation checks BEFORE saving to database:
+
+   **1. Semantic Duplicate Detection**
+   Compare new article against recent articles to catch semantic duplicates:
+
+   ```typescript
+   // Fetch last 20 articles for comparison
+   const recentArticles = await db.sEOArticle.findMany({
+     where: { pillarId: pillar.id },
+     orderBy: { createdAt: 'desc' },
+     take: 20,
+     select: { title: true, keyword: true, slug: true }
+   });
+
+   // Simple semantic similarity check (title + keyword overlap)
+   const newTitleWords = new Set(articleData.title.toLowerCase().split(/\s+/));
+   const newKeywordWords = new Set(brief.primaryKeyword.toLowerCase().split(/\s+/));
+
+   for (const existing of recentArticles) {
+     const existingTitleWords = new Set(existing.title.toLowerCase().split(/\s+/));
+     const existingKeywordWords = new Set(existing.keyword.toLowerCase().split(/\s+/));
+
+     // Calculate word overlap
+     const titleOverlap = [...newTitleWords].filter(w => existingTitleWords.has(w)).length;
+     const keywordOverlap = [...newKeywordWords].filter(w => existingKeywordWords.has(w)).length;
+
+     const titleSimilarity = titleOverlap / Math.max(newTitleWords.size, existingTitleWords.size);
+     const keywordSimilarity = keywordOverlap / Math.max(newKeywordWords.size, existingKeywordWords.size);
+
+     // Flag if >70% title overlap OR >80% keyword overlap
+     if (titleSimilarity > 0.7 || keywordSimilarity > 0.8) {
+       console.warn(`⚠️ Potential duplicate: "${articleData.title}" overlaps with "${existing.title}"`);
+       // Option 1: Skip this brief, try next one
+       // Option 2: Add flag for manual review
+       // Option 3: Regenerate with different angle
+     }
+   }
+   ```
+
+   **2. Readability Score (Simple Flesch-Kincaid)**
+   Target reading level: Grade 8-12 (accessible but not dumbed down)
+
+   ```typescript
+   function calculateReadability(content: string): number {
+     const words = content.split(/\s+/).length;
+     const sentences = content.split(/[.!?]+/).filter(s => s.trim()).length;
+     const syllables = countSyllables(content); // Helper function
+
+     // Flesch Reading Ease: 0-100 (higher = easier)
+     const score = 206.835 - 1.015 * (words / sentences) - 84.6 * (syllables / words);
+     return Math.round(score);
+   }
+
+   function countSyllables(text: string): number {
+     // Simplified syllable counter (vowel groups)
+     return text.toLowerCase().split(/\s+/)
+       .map(word => word.match(/[aeiouy]+/gi)?.length || 1)
+       .reduce((a, b) => a + b, 0);
+   }
+
+   const readabilityScore = calculateReadability(articleData.content);
+   // Target: 50-70 (Grade 8-12 reading level)
+   // <30 = too complex, >80 = too simple
+   ```
+
+   **3. Technical SEO Validation**
+   Check critical SEO requirements:
+
+   ```typescript
+   const seoChecks = {
+     // Title checks
+     titleLength: articleData.title.length >= 55 && articleData.title.length <= 65,
+     keywordInTitle: articleData.title.toLowerCase().includes(brief.primaryKeyword.toLowerCase()),
+
+     // Content checks
+     keywordInFirst100: articleData.content.slice(0, 500).toLowerCase().includes(brief.primaryKeyword.toLowerCase()),
+     hasH2Headings: (articleData.content.match(/^##\s/gm) || []).length >= 3,
+     minWordCount: articleData.wordCount >= 800,
+     maxWordCount: articleData.wordCount <= 2500,
+
+     // Meta checks
+     metaDescLength: articleData.metaDescription.length >= 150 && articleData.metaDescription.length <= 160,
+     keywordInMeta: articleData.metaDescription.toLowerCase().includes(brief.primaryKeyword.toLowerCase()),
+   };
+
+   const seoScore = Object.values(seoChecks).filter(Boolean).length / Object.keys(seoChecks).length * 100;
+
+   if (seoScore < 75) {
+     console.warn(`⚠️ SEO validation score: ${seoScore}%. Issues:`,
+       Object.entries(seoChecks).filter(([, v]) => !v).map(([k]) => k)
+     );
+   }
+   ```
+
+   **4. Quality Gate Decision**
+   Combine all checks into a final decision:
+
+   ```typescript
+   const qualityGate = {
+     aiQualityScore: articleData.qualityScore,     // AI self-assessment (target: 85+)
+     readabilityScore,                              // Target: 50-70
+     seoScore,                                      // Target: 75+
+     isDuplicate: false,                            // From semantic check
+   };
+
+   // Fail conditions (skip this article, try next brief)
+   if (qualityGate.aiQualityScore < 70) {
+     return { error: 'AI quality score too low', qualityGate };
+   }
+   if (qualityGate.isDuplicate) {
+     return { error: 'Semantic duplicate detected', qualityGate };
+   }
+
+   // Warning conditions (save but flag for review)
+   if (qualityGate.seoScore < 75 || qualityGate.readabilityScore < 40) {
+     // Set needsFixing = true so it doesn't auto-index
+   }
+
+   // Save with quality metrics for dashboard display
+   article = await db.sEOArticle.create({
+     data: {
+       ...articleData,
+       qualityScore: articleData.qualityScore,
+       readabilityScore,    // Add to schema if not present
+       seoScore,            // Add to schema if not present
+       // ... rest of fields
+     }
+   });
+   ```
+
+   **Schema Addition (Optional but Recommended)**:
+   ```prisma
+   model SEOArticle {
+     // ... existing fields ...
+     readabilityScore  Int?     // Flesch score (target 50-70)
+     seoScore          Int?     // Technical SEO score (target 75+)
+   }
+   ```
+
+9. **/app/api/seo/approve-article/route.ts**
+   - Magic link handler for article actions
+   - Supports multiple actions via query parameter `action`:
+     - `action=reject` - Soft delete (keeps in DB for audit)
+     - `action=needs-fixing` - Pause indexing until fixed
+     - `action=approve` - Clear flags, restart 3-day countdown
+   - Revalidates article page, category page, and sitemap
+   - Returns styled HTML response pages
+
+   **Action Implementations**:
+
+   ```typescript
+   export async function GET(request: Request) {
+     const { searchParams } = new URL(request.url);
+     const token = searchParams.get('token');
+     const action = searchParams.get('action');
+     const reason = searchParams.get('reason'); // Optional rejection reason
+
+     const article = await db.sEOArticle.findUnique({
+       where: { approvalToken: token },
+       include: { pillar: true },
+     });
+
+     if (!article) {
+       return htmlResponse('Article not found or already processed.', 404, 'error');
+     }
+
+     switch (action) {
+       case 'reject':
+         // SOFT DELETE: Keep in DB for audit, mark as rejected
+         await db.sEOArticle.update({
+           where: { id: article.id },
+           data: {
+             isRejected: true,
+             rejectedAt: new Date(),
+             rejectionReason: reason || 'Rejected via review link',
+             // Keep approvalToken for potential restore
+           },
+         });
+         revalidatePath(`/articles/${article.slug}`);
+         revalidatePath('/sitemap.xml');
+         return htmlResponse(
+           `"${article.title}" rejected. Kept in database for audit.`,
+           200,
+           'success'
+         );
+
+       case 'needs-fixing':
+         // PAUSE INDEXING: Keep accessible, but don't index
+         await db.sEOArticle.update({
+           where: { id: article.id },
+           data: { needsFixing: true },
+         });
+         revalidatePath(`/articles/${article.slug}`);
+         return htmlResponse(
+           `"${article.title}" marked as needing fixes. Indexing paused.`,
+           200,
+           'warning'
+         );
+
+       case 'approve':
+         // APPROVE: Clear flags, restart 3-day countdown
+         const newScheduledIndexAt = new Date();
+         newScheduledIndexAt.setDate(newScheduledIndexAt.getDate() + 3);
+
+         await db.sEOArticle.update({
+           where: { id: article.id },
+           data: {
+             needsFixing: false,
+             isRejected: false,
+             scheduledIndexAt: newScheduledIndexAt,
+             indexedAt: null, // Not indexed yet
+           },
+         });
+         revalidatePath(`/articles/${article.slug}`);
+         return htmlResponse(
+           `"${article.title}" approved! Will be indexed in 3 days.`,
+           200,
+           'success'
+         );
+
+       default:
+         return htmlResponse('Invalid action', 400, 'error');
+     }
+   }
+   ```
+
+   **HTML Response Helper**:
+   ```typescript
+   function htmlResponse(message: string, status: number, type: 'success' | 'error' | 'warning') {
+     const colors = {
+       success: { bg: '#ECFDF5', border: '#059669', text: '#065F46' },
+       error: { bg: '#FEF2F2', border: '#DC2626', text: '#991B1B' },
+       warning: { bg: '#FFFBEB', border: '#D97706', text: '#92400E' },
+     };
+     const color = colors[type];
+     const icon = { success: '✅', error: '❌', warning: '⚠️' }[type];
+
+     return new NextResponse(
+       \`<html><body style="font-family: Georgia; max-width: 600px; margin: 100px auto; padding: 20px;">
+         <div style="border: 3px solid \${color.border}; padding: 40px; background: \${color.bg};">
+           <h1 style="color: \${color.text};">\${icon} \${type.charAt(0).toUpperCase() + type.slice(1)}</h1>
+           <p style="color: \${color.text};">\${message}</p>
+           <a href="/seo-debug" style="display: inline-block; padding: 12px 24px; background: black; color: white;">
+             Manage All Articles
+           </a>
+         </div>
+       </body></html>\`,
+       { status, headers: { 'Content-Type': 'text/html' } }
+     );
+   }
+   ```
+
+10. **/app/api/cron/daily-content/route.ts**
+   - Daily article generation (Vercel cron at 2 AM)
+   - **Authentication**: User-Agent checking (NOT CRON_SECRET)
+     - Development mode: Allow all requests (NODE_ENV === "development")
+     - Production: Only allow requests with "vercel-cron" in User-Agent header
+     - Example: `const isVercelCron = userAgent.includes("vercel-cron")`
+   - Generates one article per day
+   - **CRITICAL**: Creates as status="published", approved=false
+   - **ENHANCED EMAIL**: Sends review email with indexing timeline
+
+   **🔄 BRIEF-BASED MODE (Recommended)**
+
+   When SEOBrief table has pending records, use this flow:
+
+   ```typescript
+   // 1. Get next pending brief (sorted by priority)
+   const brief = await db.sEOBrief.findFirst({
+     where: { status: 'pending' },
+     orderBy: { priority: 'asc' },
+     include: { pillar: true }
+   })
+
+   if (!brief) {
+     return NextResponse.json({
+       success: false,
+       message: 'All 100 briefs published! Keyword research complete.',
+       briefsRemaining: 0
+     })
+   }
+
+   // 2. Generate article using brief's pre-researched data
+   const articlePrompt = \`
+     Write an educational article about: "\${brief.title}"
+
+     **Target Keyword:** \${brief.primaryKeyword} (\${brief.primaryVolume} monthly searches)
+     **Secondary Keywords:** \${brief.secondaryKeywords.join(', ')}
+     **Search Intent:** \${brief.searchIntent}
+     **Content Pillar:** \${brief.pillar.name}
+     **Link To:** \${brief.linkTargets.join(', ') || 'none'}
+
+     Answer the search query directly. Use secondary keywords naturally.
+   \`
+
+   // 3. Create article and link to brief
+   const article = await db.sEOArticle.create({
+     data: {
+       // ... article fields ...
+       briefId: brief.id,  // Link to brief
+     }
+   })
+
+   // 4. Mark brief as published
+   await db.sEOBrief.update({
+     where: { id: brief.id },
+     data: {
+       status: 'published',
+       articleId: article.id
+     }
+   })
+   ```
+
+   **Benefits of Brief-Based Mode:**
+   - No AI guessing at keywords (pre-researched with real volume data)
+   - Predictable 100-article roadmap
+   - Client knows exactly what content is coming
+   - Better keyword targeting (searcher intent captured upfront)
+
+   **CRITICAL: Return Rich Output for Dev Testing**
+   The cron should return detailed JSON for the seo-debug dashboard:
+   ```typescript
+   return NextResponse.json({
+     success: true,
+     message: 'Article generated successfully',
+     article: {
+       id: article.id,
+       title: article.title,
+       slug: article.slug,
+       pillar: pillar.name,
+       qualityScore: article.qualityScore,
+       wordCount: article.wordCount,
+       scheduledIndexAt: article.scheduledIndexAt,
+       keyword: brief?.primaryKeyword || queueItem?.keyword,  // Show target keyword
+       searchVolume: brief?.primaryVolume || null  // Show volume if from brief
+     },
+     stats: {
+       briefsRemaining: await db.sEOBrief.count({ where: { status: 'pending' } }),  // Brief-based
+       queueRemaining: await db.sEOQueue.count({ where: { status: 'pending' } }),   // Legacy
+       totalArticles: await db.sEOArticle.count({ where: { status: 'published' } }),
+       indexingToday: indexingTodayCount,
+       indexingTomorrow: indexingTomorrowCount
+     },
+     mode: brief ? 'brief-based' : 'ai-guessing',  // Show which mode was used
+     emailSent: emailResult.success,
+     nextRun: 'Tomorrow 2:00 AM UTC'
+   })
+   ```
+
+   **Email Structure:**
+   ```typescript
+   // Fetch articles for timeline
+   const now = new Date();
+   const endOfToday = new Date(now); endOfToday.setHours(23, 59, 59, 999);
+   const startOfTomorrow = new Date(now); startOfTomorrow.setDate(startOfTomorrow.getDate() + 1); startOfTomorrow.setHours(0, 0, 0, 0);
+   const endOfTomorrow = new Date(startOfTomorrow); endOfTomorrow.setHours(23, 59, 59, 999);
+
+   // Articles being indexed TODAY (last chance!)
+   const indexingToday = await db.sEOArticle.findMany({
+     where: {
+       scheduledIndexAt: { lte: endOfToday },
+       isRejected: false,
+       needsFixing: false,
+       indexedAt: null,
+     },
+     orderBy: { scheduledIndexAt: 'asc' },
+   });
+
+   // Articles being indexed TOMORROW (review soon)
+   const indexingTomorrow = await db.sEOArticle.findMany({
+     where: {
+       scheduledIndexAt: { gt: startOfTomorrow, lte: endOfTomorrow },
+       isRejected: false,
+       needsFixing: false,
+       indexedAt: null,
+     },
+     orderBy: { scheduledIndexAt: 'asc' },
+   });
+
+   // Build email HTML - HashBuilds Wabi-Sabi Style
+   // Design philosophy:
+   // - Mobile-first: Table-based layout, inline styles only
+   // - Wabi-sabi colors: stone/warm grays (#78716c, #a8a29e, #e7e5e4)
+   // - Minimal: No heavy branding, just clean typography
+   // - One primary CTA button (dark), secondary actions as text links
+   // - Soft section backgrounds for urgency (red-50, amber-50)
+   // - Always render well in Gmail, Apple Mail, Outlook
+   const emailHtml = `
+   <!DOCTYPE html>
+   <html>
+   <head>
+     <meta charset="utf-8">
+     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   </head>
+   <body style="margin: 0; padding: 0; background-color: #fafaf9; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+     <table width="100%" cellpadding="0" cellspacing="0" style="max-width: 600px; margin: 0 auto; background-color: #ffffff;">
+       <!-- Header -->
+       <tr>
+         <td style="padding: 32px 24px; border-bottom: 1px solid #e7e5e4;">
+           <div style="font-size: 14px; font-weight: 600; color: #78716c; letter-spacing: 0.5px;">
+             Daily Content Report
+           </div>
+         </td>
+       </tr>
+
+       <!-- New Article Section -->
+       <tr>
+         <td style="padding: 32px 24px;">
+           <h1 style="margin: 0 0 16px 0; font-size: 20px; font-weight: 600; color: #1c1917; line-height: 1.4;">
+             ${article.title}
+           </h1>
+           <p style="margin: 0 0 24px 0; font-size: 14px; color: #78716c;">
+             ${article.keyword} · ${article.qualityScore}/100 · ${article.wordCount} words
+           </p>
+           <p style="margin: 0 0 24px 0; font-size: 13px; color: #a8a29e;">
+             Indexing: ${article.scheduledIndexAt.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+           </p>
+
+           <!-- Action Links (simple text links, mobile-friendly) -->
+           <div style="margin-bottom: 32px;">
+             <a href="${baseUrl}/articles/${article.slug}" style="display: inline-block; padding: 12px 24px; background-color: #1c1917; color: #ffffff; text-decoration: none; font-size: 14px; font-weight: 500; border-radius: 4px;">
+               Preview Article
+             </a>
+           </div>
+           <div style="font-size: 13px;">
+             <a href="${rejectLink}" style="color: #dc2626; text-decoration: none; margin-right: 16px;">Reject</a>
+             <a href="${needsFixingLink}" style="color: #d97706; text-decoration: none;">Needs Fixing</a>
+           </div>
+         </td>
+       </tr>
+
+       <!-- Indexing Today Section -->
+       <tr>
+         <td style="padding: 24px; background-color: #fef2f2; border-top: 1px solid #fecaca;">
+           <h2 style="margin: 0 0 12px 0; font-size: 13px; font-weight: 600; color: #991b1b; letter-spacing: 0.5px; text-transform: uppercase;">
+             Indexing Today
+           </h2>
+           ${indexingToday.length === 0
+             ? '<p style="margin: 0; font-size: 14px; color: #78716c;">None</p>'
+             : indexingToday.map(a => `
+               <div style="margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid #fecaca;">
+                 <div style="font-size: 14px; color: #1c1917; margin-bottom: 8px;">${a.title}</div>
+                 <div style="font-size: 12px;">
+                   <a href="${baseUrl}/articles/${a.slug}" style="color: #1c1917; text-decoration: underline; margin-right: 12px;">Preview</a>
+                   <a href="${baseUrl}/api/seo/approve-article?token=${a.approvalToken}&action=reject" style="color: #dc2626; text-decoration: none; margin-right: 12px;">Reject</a>
+                   <a href="${baseUrl}/api/seo/approve-article?token=${a.approvalToken}&action=needs-fixing" style="color: #d97706; text-decoration: none;">Fix</a>
+                 </div>
+               </div>
+             `).join('')
+           }
+         </td>
+       </tr>
+
+       <!-- Indexing Tomorrow Section -->
+       <tr>
+         <td style="padding: 24px; background-color: #fffbeb; border-top: 1px solid #fde68a;">
+           <h2 style="margin: 0 0 12px 0; font-size: 13px; font-weight: 600; color: #92400e; letter-spacing: 0.5px; text-transform: uppercase;">
+             Indexing Tomorrow
+           </h2>
+           ${indexingTomorrow.length === 0
+             ? '<p style="margin: 0; font-size: 14px; color: #78716c;">None</p>'
+             : indexingTomorrow.map(a => `
+               <div style="margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid #fde68a;">
+                 <div style="font-size: 14px; color: #1c1917; margin-bottom: 8px;">${a.title}</div>
+                 <div style="font-size: 12px;">
+                   <a href="${baseUrl}/articles/${a.slug}" style="color: #1c1917; text-decoration: underline; margin-right: 12px;">Preview</a>
+                   <a href="${baseUrl}/api/seo/approve-article?token=${a.approvalToken}&action=reject" style="color: #dc2626; text-decoration: none; margin-right: 12px;">Reject</a>
+                   <a href="${baseUrl}/api/seo/approve-article?token=${a.approvalToken}&action=needs-fixing" style="color: #d97706; text-decoration: none;">Fix</a>
+                 </div>
+               </div>
+             `).join('')
+           }
+         </td>
+       </tr>
+
+       <!-- Footer -->
+       <tr>
+         <td style="padding: 24px; border-top: 1px solid #e7e5e4; text-align: center;">
+           <p style="margin: 0; font-size: 12px; color: #a8a29e;">
+             HashBuilds SEO System · <a href="${baseUrl}/seo-debug" style="color: #78716c;">Manage Articles</a>
+           </p>
+         </td>
+       </tr>
+     </table>
+   </body>
+   </html>
+   `;
+   ```
+
+11. **/app/robots.ts** (CRITICAL - Prevent Next.js Chunk Crawling)
+    - **MANDATORY**: Create dynamic robots.txt to block Next.js build artifacts
+    - **THE PROBLEM**: Google crawls \_next/static/chunks/[hash].js files, wastes crawl budget
+    - **THE SOLUTION**: Comprehensive Disallow rules for Next.js internals
+
+    ```typescript
+    // /app/robots.ts
+    import { MetadataRoute } from 'next'
+
+    export default function robots(): MetadataRoute.Robots {
+      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://yourdomain.com'
+
+      return {
+        rules: [
+          {
+            userAgent: '*',
+            allow: '/',
+            disallow: [
+              '/_next/static/',      // Block all static build outputs
+              '/_next/image',        // Block image optimization
+              '/_next/data/',        // Block JSON data files
+              '/_next/webpack-hmr',  // Block HMR
+              '/_next/',             // Block all other Next.js internals
+              '/api/',               // Block API routes
+              '/_vercel/',           // Block Vercel platform internals
+              '/chunks/',            // Block chunk files
+              '/*.js$',              // Block JavaScript files
+              '/*.json$',            // Block JSON files
+              '/*.map$',             // Block source maps
+              '/.well-known/',       // Block verification files
+              '/sw.js',              // Block service workers
+              '/workbox-*.js',       // Block workbox files
+            ],
+          },
+        ],
+        sitemap: `${baseUrl}/sitemap.xml`,
+      }
+    }
+    ```
+
+    **Why This Matters**:
+    - Prevents Google from indexing webpack chunks
+    - Saves crawl budget for real content
+    - Eliminates "Indexed, not submitted in sitemap" errors
+    - Blocks API routes from search results
+    - Dynamic URL works in dev/staging/prod
+
+    **Verification**:
+    - Visit /robots.txt in browser → Confirm all Disallow rules present
+    - Google Search Console → Test blocked URLs
+    - Monitor "Coverage" report for reduction in indexed chunks
+
+12. **/app/sitemap.ts** (or update existing)
+    - **MANDATORY**: Include /articles main page (priority 0.8, changefreq daily)
+    - **MANDATORY**: Include all category pages at /articles/category/[slug] (priority 0.8, changefreq weekly)
+    - **CRITICAL**: Include ONLY INDEXED articles (indexedAt != null, isRejected = false)
+    - Fetch pillars from database: `await prisma.sEOPillar.findMany({ select: { slug: true, updatedAt: true } })`
+    - Fetch indexed articles: `where: { indexedAt: { not: null }, isRejected: false }`
+    - Why: Breadcrumbs require /articles and /articles/category/[slug] to be crawlable
+
+    **🚨 CRITICAL: Only Include INDEXED Articles (Not Just Approved)**
+
+    Articles must pass the 3-day review period before appearing in sitemap. This gives you time to reject or flag articles that need fixing.
+
+    ```typescript
+    // Main articles page
+    const articlesMainPage = {
+      url: `${baseUrl}/articles`,
+      lastModified: new Date(),
+      changeFrequency: 'daily' as const,
+      priority: 0.8,
+    }
+
+    // Category pages
+    const seoPillars = await prisma.sEOPillar.findMany({ select: { slug: true, updatedAt: true } })
+    const pillarPages = seoPillars.map(pillar => ({
+      url: `${baseUrl}/articles/category/${pillar.slug}`,
+      lastModified: pillar.updatedAt,
+      changeFrequency: 'weekly' as const,
+      priority: 0.8,
+    }))
+
+    // Individual articles - ONLY indexed (passed 3-day review) and not rejected
+    const seoArticles = await prisma.sEOArticle.findMany({
+      where: {
+        indexedAt: { not: null },  // ← CRITICAL: Must have passed 3-day review
+        isRejected: false,          // ← CRITICAL: Must not be rejected
+      },
+      select: { slug: true, updatedAt: true, indexedAt: true }
+    })
+
+    // Dynamic priority based on content age
+    const articlePages = seoArticles.map(article => {
+      const daysSinceUpdate = Math.floor((Date.now() - article.updatedAt.getTime()) / (1000 * 60 * 60 * 24))
+
+      return {
+        url: `${baseUrl}/articles/${article.slug}`,
+        lastModified: article.updatedAt, // ← Use updatedAt for freshness signals
+        changeFrequency: daysSinceUpdate < 30 ? 'weekly' : (daysSinceUpdate < 180 ? 'monthly' : 'yearly'),
+        priority: daysSinceUpdate < 30 ? 0.9 : (daysSinceUpdate < 180 ? 0.7 : 0.5)
+      }
+    })
+
+    return [...staticPages, articlesMainPage, ...pillarPages, ...articlePages]
+    ```
+
+    **Why indexedAt instead of approved**:
+    - 3-day review window before Google sees article
+    - Time to catch AI mistakes before they're indexed
+    - Rejected articles never appear in sitemap
+    - "Needs fixing" articles paused until resolved
+
+13. **/scripts/setup-seo-system.ts**
+    - Reads BUSINESS-CONTEXT.md (including Future Plans section)
+    - Auto-detects business type and scope
+    - Generates appropriate categories based on user's authority topics
+    - Seeds database with pillars (number varies based on business scope - typically 3-8)
+    - Generates initial queue (10 items per pillar)
+
+14. **/app/api/cron/refresh-sitemap/route.ts** (CRITICAL - Google Indexing Fix)
+    - **THE PROBLEM**: Google Search Console shows stale dates (e.g., "last updated: 11/21/25") despite active publishing
+    - **ROOT CAUSE**: Using `new Date()` for static pages creates "timestamp noise" - Google learns to ignore you
+    - **THE SOLUTION**: Daily cron that touches recent content to signal ongoing activity
+    - Runs daily at 3 AM (after daily-content at 2 AM)
+    - Touches 10 most recent articles (last 30 days) - updates their `updatedAt` timestamp
+    - Touches all active category pages (SEOPillar records)
+    - Authentication: User-Agent checking (same as daily-content cron)
+    - Result: Maintains Google's crawl interest without changing actual content
+
+    ```typescript
+    // Simplified implementation:
+    const thirtyDaysAgo = new Date()
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
+
+    // Touch recent articles
+    const recentArticles = await prisma.sEOArticle.findMany({
+      where: {
+        status: "published",
+        approved: true,
+        publishedAt: { gte: thirtyDaysAgo },
+      },
+      take: 10,
+    })
+
+    for (const article of recentArticles) {
+      await prisma.sEOArticle.update({
+        where: { id: article.id },
+        data: { updatedAt: new Date() },
+      })
+    }
+
+    // Also touch pillars (category pages)
+    const activePillars = await prisma.sEOPillar.findMany({
+      where: { active: true },
+    })
+
+    for (const pillar of activePillars) {
+      await prisma.sEOPillar.update({
+        where: { id: pillar.id },
+        data: { updatedAt: new Date() },
+      })
+    }
+    ```
+
+    **Add to vercel.json**:
+    ```json
+    {
+      "crons": [
+        {
+          "path": "/api/cron/daily-content",
+          "schedule": "0 2 * * *"
+        },
+        {
+          "path": "/api/cron/refresh-sitemap",
+          "schedule": "0 3 * * *"
+        }
+      ]
+    }
+    ```
+
+    **Why This Matters**:
+    - Prevents "crawl freeze" where Google stops prioritizing your site
+    - Signals ongoing activity without regenerating content
+    - Faster indexing: New content indexed in days instead of weeks
+    - Higher crawl frequency: Google sees daily freshness signals
+    - Battle-tested: Solved the 11/21/25 freeze on HashBuilds + ChemPro
+
+    **CRITICAL: Return Rich Output for Dev Testing**
+    ```typescript
+    return NextResponse.json({
+      success: true,
+      message: 'Sitemap refresh complete',
+      touched: {
+        articles: recentArticles.map(a => ({ id: a.id, title: a.title, slug: a.slug })),
+        pillars: activePillars.map(p => ({ id: p.id, name: p.name }))
+      },
+      stats: {
+        articlesTouched: recentArticles.length,
+        pillarsTouched: activePillars.length
+      },
+      nextRun: 'Tomorrow 3:00 AM UTC'
+    })
+    ```
+
+    **Reference**: See BOLT_ON_SEO.md section "Google Indexing & Sitemap Freshness Strategy" for complete documentation
+
+15. **/app/api/cron/index-articles/route.ts** (Auto-Index After 3-Day Review)
+    - **PURPOSE**: Automatically index articles after 3-day review period
+    - Runs daily at 4 AM (after daily-content at 2 AM, refresh-sitemap at 3 AM)
+    - Finds articles where: `scheduledIndexAt <= now` AND `!isRejected` AND `!needsFixing` AND `indexedAt = null`
+    - Sets `indexedAt = now()` (article now appears in sitemap)
+    - Sets `approved = true`, `approvedAt = now()` (legacy compatibility)
+    - **Authentication**: User-Agent checking (same as other crons)
+
+    ```typescript
+    import { NextResponse } from 'next/server';
+    import { prisma } from '@/lib/prisma';
+
+    export async function GET(request: Request) {
+      // Verify Vercel cron (same pattern as daily-content)
+      const userAgent = request.headers.get('user-agent') || '';
+      const isDev = process.env.NODE_ENV === 'development';
+      const isVercelCron = userAgent.includes('vercel-cron');
+
+      if (!isDev && !isVercelCron) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      }
+
+      try {
+        // Find articles ready for indexing
+        const articlesToIndex = await prisma.sEOArticle.findMany({
+          where: {
+            scheduledIndexAt: { lte: new Date() },
+            isRejected: false,
+            needsFixing: false,
+            indexedAt: null,
+          },
+          include: { pillar: true },
+        });
+
+        if (articlesToIndex.length === 0) {
+          return NextResponse.json({
+            message: 'No articles ready for indexing',
+            count: 0,
+          });
+        }
+
+        // Index each article
+        const indexed = [];
+        for (const article of articlesToIndex) {
+          await prisma.sEOArticle.update({
+            where: { id: article.id },
+            data: {
+              indexedAt: new Date(),
+              approved: true,      // Legacy compatibility
+              approvedAt: new Date(),
+            },
+          });
+          indexed.push({
+            title: article.title,
+            slug: article.slug,
+            pillar: article.pillar.name,
+          });
+        }
+
+        // Rich output for dev testing
+        const pendingCount = await prisma.sEOArticle.count({
+          where: { scheduledIndexAt: { gt: new Date() }, isRejected: false, needsFixing: false, indexedAt: null }
+        });
+        const totalIndexed = await prisma.sEOArticle.count({
+          where: { indexedAt: { not: null } }
+        });
+
+        return NextResponse.json({
+          success: true,
+          message: `Indexed ${indexed.length} articles`,
+          articles: indexed,
+          stats: {
+            indexedThisRun: indexed.length,
+            totalIndexed: totalIndexed,
+            pendingReview: pendingCount
+          },
+          nextRun: 'Tomorrow 4:00 AM UTC'
+        });
+
+      } catch (error) {
+        console.error('Error indexing articles:', error);
+        return NextResponse.json(
+          { success: false, error: 'Failed to index articles' },
+          { status: 500 }
+        );
+      }
+    }
+    ```
+
+    **Add to vercel.json** (update the crons array):
+    ```json
+    {
+      "crons": [
+        { "path": "/api/cron/daily-content", "schedule": "0 2 * * *" },
+        { "path": "/api/cron/refresh-sitemap", "schedule": "0 3 * * *" },
+        { "path": "/api/cron/index-articles", "schedule": "0 4 * * *" }
+      ]
+    }
+    ```
+
+    **Timeline Flow**:
+    - 2 AM: Generate new article (scheduledIndexAt = 3 days from now)
+    - 3 AM: Refresh sitemap timestamps (SEO freshness)
+    - 4 AM: Index articles that passed 3-day review window
+
+16. **/scripts/touch-all-content.ts** (Emergency Re-Index Tool)
+    - Manual script to update ALL article timestamps when needed
+    - Use before major deployments to force comprehensive re-indexing
+    - Use when Google indexing has stalled for >1 week
+    - Use after fixing site-wide issues (broken links, schema errors)
+    - Touches ALL published & approved articles (not just recent 10)
+    - Touches ALL active pillars (category pages)
+    - Reports summary with next steps
+
+    ```typescript
+    #!/usr/bin/env tsx
+    import { PrismaClient } from "@prisma/client"
+
+    const prisma = new PrismaClient()
+
+    async function touchAllContent() {
+      // Touch ALL published articles
+      const articles = await prisma.sEOArticle.findMany({
+        where: { status: "published", approved: true },
+      })
+
+      for (const article of articles) {
+        await prisma.sEOArticle.update({
+          where: { id: article.id },
+          data: { updatedAt: new Date() },
+        })
+      }
+
+      // Touch ALL active pillars
+      const pillars = await prisma.sEOPillar.findMany({
+        where: { active: true },
+      })
+
+      for (const pillar of pillars) {
+        await prisma.sEOPillar.update({
+          where: { id: pillar.id },
+          data: { updatedAt: new Date() },
+        })
+      }
+
+      console.log(`✅ Touched ${articles.length} articles + ${pillars.length} pillars`)
+      console.log("Next: Deploy site, verify sitemap, submit to GSC")
+    }
+
+    touchAllContent()
+    ```
+
+    **Usage**: `npx tsx scripts/touch-all-content.ts`
+
+    **When to Use**:
+    - Before first production deployment (signals all content is fresh)
+    - When GSC shows stale dates despite new content
+    - After site-wide fixes that affect all articles
+    - To reset Google's crawl schedule
+
+    **Expected Results** (2-3 days after running + deploying):
+    - ✅ Sitemap shows current dates (not frozen)
+    - ✅ Increased crawl frequency in GSC
+    - ✅ New content indexes faster
+
+14. **LONG-TAIL-SEO.md** (Bolt-on memory file)
+    - **IMPORTANT**: This is the ONLY .md file this bolt-on should create
+    - Do NOT create SEO-SYSTEM.md, SEO-QUICK-START.md, or other SEO .md files
+    - This file tracks:
+      - Generated strategy (business type, pillars, keyword approach)
+      - Current state (pillar count, article count, queue count)
+      - Configuration (domain, admin email, cron schedule)
+      - Prompt templates for each article format
+      - Iteration history (prompt changes, regenerations)
+    - Why: You may have OTHER SEO strategies (programmatic SEO, location pages, etc.)
+    - This file keeps LONG-TAIL SEO strategy isolated and trackable
+
+15. **Email notification setup**
+    - Review-first workflow (no approve buttons in email)
+    - Primary CTA: "Review Article" (goes to article page)
+    - Secondary link: "Manage All Articles" (goes to dashboard)
+    - Approval happens on article page, not in email
+
+17. **/app/seo-debug/page.tsx** (CRITICAL - Primary iteration tool)
+    - **⚠️ MUST BE AUTH PROTECTED** - This page exposes admin functions
+    - **ARCHITECTURE: Server Component + Server Actions Pattern**
+    - Main page is SERVER COMPONENT (fetches data from database)
+    - Interactive buttons use SEPARATE CLIENT COMPONENT
+    - Uses Next.js Server Actions for mutations (not API routes)
+
+    **🚨 CRITICAL: Server Actions & Client Components Pattern**
+
+    **THE BUG**: Functions cannot be passed as props from Server to Client Components.
+    This error is VERY COMMON:
+    ```
+    Error: Functions cannot be passed directly to Client Components
+    unless you explicitly expose it by marking it with "use server"
+    ```
+
+    **❌ WRONG - DO NOT DO THIS**:
+    ```tsx
+    // page.tsx (Server Component)
+    import { generateQueue } from './actions'
+    import ActionButton from './ActionButton'
+
+    export default function Page() {
+      return <ActionButton action={generateQueue} /> // ❌ BREAKS!
+    }
+    ```
+
+    **✅ CORRECT - Client Component imports actions directly**:
+    ```tsx
+    // ActionButtons.tsx (Client Component)
+    'use client'
+    import { generateQueue, generateArticle } from './actions'
+
+    export default function ActionButtons() {
+      const handleQueue = async () => await generateQueue()
+      const handleArticle = async () => await generateArticle()
+      return (
+        <div>
+          <button onClick={handleQueue}>Generate Queue</button>
+          <button onClick={handleArticle}>Generate Article</button>
+        </div>
+      )
+    }
+
+    // page.tsx (Server Component)
+    import ActionButtons from './ActionButtons'
+
+    export default function Page() {
+      return <ActionButtons /> // ✅ WORKS - no function props at all
+    }
+    ```
+
+    **THE RULE**: Client Components must import Server Actions themselves.
+    Pass strings/data as props, never functions.
+
+    **AUTH PROTECTION (REQUIRED)**:
+
+    Option 1 - Development-only (simplest):
+    ```tsx
+    export default async function SeoDebugPage() {
+      // Block in production unless explicitly allowed
+      if (process.env.NODE_ENV === 'production' && !process.env.ALLOW_SEO_DEBUG) {
+        return <div>SEO Debug disabled in production. Set ALLOW_SEO_DEBUG=true to enable.</div>
+      }
+      // ... rest of page
+    }
+    ```
+
+    Option 2 - Admin email check:
+    ```tsx
+    import { cookies } from 'next/headers'
+
+    export default async function SeoDebugPage() {
+      // Check for admin session (if you have auth)
+      const session = await getServerSession() // or your auth method
+      const adminEmail = process.env.ADMIN_EMAIL
+
+      if (!session?.user?.email || session.user.email !== adminEmail) {
+        redirect('/') // or show unauthorized
+      }
+      // ... rest of page
+    }
+    ```
+
+    Option 3 - Check AUTH-SYSTEM.md:
+    If AUTH-SYSTEM.md exists, follow its pattern for protecting admin routes.
+    Look for existing middleware or auth checks used elsewhere in the codebase.
+
+    **DASHBOARD SECTIONS (In Order)**:
+
+    **Section 1: Quick Access Links**
+      - Link to /sitemap.xml
+      - Link to latest published article (dynamic, NOT hardcoded)
+      - System stats (pillar count, article count, queue count, rules count)
+
+    **Section 2: Indexing Timeline** (NEW - CRITICAL)
+      - Color-coded cards showing article indexing status:
+      - 🔴 **INDEXING TODAY** (red border): Articles being indexed at 4 AM cron
+        - Shows: title, scheduled date, [Reject] [Needs Fixing] buttons
+      - 🟠 **INDEXING TOMORROW** (orange border): Last chance to review
+        - Shows: title, scheduled date, [Reject] [Needs Fixing] buttons
+      - 🔵 **PENDING REVIEW** (blue border): In 3-day window, time to review
+        - Shows: title, days until indexing, [Preview] link
+      - 🟡 **NEEDS FIXING** (yellow border): Paused until resolved
+        - Shows: title, [Approve & Restart] button to reset countdown
+
+    **Section 3: Content Rules** (NEW - User-Defined AI Rules)
+      - Add Rule form: text input + importance dropdown (low/medium/high/critical)
+      - Rules list with color-coded importance badges:
+        - Critical = red, High = orange, Medium = blue, Low = gray
+      - Toggle active/inactive button per rule
+      - Delete button per rule
+      - Explanation: "Rules are injected into every article generation prompt"
+
+    **Section 4: Internal Link Targets** (NEW - Products/Services Registry)
+      - Add Target form: title, url, description, keywords (comma-separated), type dropdown, priority
+      - Targets list with priority badges (1-10)
+      - Type badges: service, product, tool, resource
+      - Delete button per target
+      - Explanation: "AI naturally links to these pages when contextually relevant"
+
+    **Section 5: All Pillars**
+      - Show pillar name, description, article count, target count
+      - Progress bar for each pillar
+
+    **Section 6: All Articles** (most recent first)
+      - Article titles must be CLICKABLE LINKS (opens in new tab)
+      - Status badges: indexing status, needs-fixing, rejected
+      - Show: scheduled index date, actual indexed date (if set)
+      - Regenerate button on ALL articles (drafts AND published)
+      - Publish button (drafts only)
+      - Delete button (all articles)
+      - [Reject] [Needs Fixing] buttons for pending articles
+
+    **Section 7: Rejected Articles Audit** (NEW - Soft-Deleted)
+      - List of soft-deleted articles (isRejected = true)
+      - Shows: title, rejection date, rejection reason
+      - [Restore] button to un-reject (restarts 3-day countdown)
+      - Explanation: "Rejected articles kept for audit, never indexed"
+
+    **Section 8: Test Crons (DEV ONLY)** (CRITICAL - For Local Testing)
+      - Only show this section in development (process.env.NODE_ENV !== 'production')
+      - Three buttons to manually trigger each cron:
+        - [Run Daily Content] → Calls /api/cron/daily-content
+        - [Run Refresh Sitemap] → Calls /api/cron/refresh-sitemap
+        - [Run Index Articles] → Calls /api/cron/index-articles
+      - Each button shows detailed output after running:
+        - Success/failure status
+        - What was created/updated
+        - Any errors encountered
+      - **Output Display Box** for each cron result:
+        ```
+        ✅ Daily Content Cron Result:
+        - Generated: 1 article
+        - Title: "How to Choose the Best..."
+        - Pillar: "Buying Guides"
+        - Queue remaining: 47 items
+        - Next scheduled: Tomorrow 2:00 AM
+        ```
+      - Explanation: "Test crons locally before deploying. Production crons run automatically via Vercel."
+
+    - **Action Buttons with Loading States** (CRITICAL):
+      - "Generate Queue Ideas" button:
+        - Shows loading spinner when clicked
+        - Disabled state during processing
+        - Text changes: "Generate Queue Ideas" → "Generating..." (with spinner icon)
+        - Success: Show green toast "✓ Generated 10 queue ideas"
+        - Error: Show red toast "✗ Failed: [error message]"
+      - "Generate One Article" button:
+        - Shows loading spinner when clicked
+        - Disabled state during processing
+        - Text changes: "Generate One Article" → "Generating Article..." (with spinner)
+        - Success: Show green toast "✓ Article generated: [title]" + auto-refresh article list
+        - Error: Show red toast "✗ Failed: [error message]"
+      - "Simulate Daily Cron" button:
+        - Shows loading spinner when clicked
+        - Disabled state during processing
+        - Text changes: "Simulate Daily Cron" → "Running Cron..." (with spinner)
+        - Success: Show green toast "✓ Cron completed" + auto-refresh entire page
+        - Error: Show red toast "✗ Cron failed: [error message]"
+      - Per-Article Action Buttons:
+        - Regenerate button: "Regenerate" → "Regenerating..." (with spinner)
+        - Delete button: "Delete" → "Deleting..." (with spinner)
+        - Reject button: "Reject" → "Rejecting..." (with spinner) - NEW
+        - Needs Fixing button: "Needs Fixing" → "Marking..." (with spinner) - NEW
+        - Restore button: "Restore" → "Restoring..." (with spinner) - NEW
+    - **Client-Side Feedback Requirements**:
+      - Use React useState for loading states
+      - Simple toast/alert messages (no fancy library needed)
+      - Disable all buttons during any action (prevent double-clicks)
+      - Auto-refresh data after successful actions
+      - Show error messages clearly (don't just console.log)
+    - **NEVER hardcode article slugs - use dynamic data from database**
+
+    **ARCHITECTURE PATTERN: Three-File Structure**
+
+    This prevents the "Functions cannot be passed to Client Component" error:
+
+    **File 1: /app/seo-debug/page.tsx** (Server Component - NO 'use client'):
+    ```tsx
+    import { prisma } from '@/lib/prisma'
+    import ActionButtons from './ActionButtons'
+
+    export default async function SeoDebugPage() {
+      // Fetch data (server-side, fast database access)
+      const articles = await prisma.sEOArticle.findMany({
+        where: { status: 'published' },
+        orderBy: { publishedAt: 'desc' }
+      })
+
+      const queueCount = await prisma.sEOQueue.count({
+        where: { status: 'pending' }
+      })
+
+      return (
+        <div>
+          <h1>SEO Debug Dashboard</h1>
+
+          {/* Client component imports actions directly - NO function props! */}
+          <ActionButtons />
+
+          {/* Display articles (server-rendered) */}
+          {articles.map(article => (
+            <div key={article.id}>
+              <a href={`/articles/${article.slug}`} target="_blank">
+                {article.title} →
+              </a>
+            </div>
+          ))}
+        </div>
+      )
+    }
+    ```
+
+    **File 2: /app/seo-debug/actions.ts** (Server Actions - 'use server'):
+    ```tsx
+    'use server'
+
+    import { revalidatePath } from 'next/cache'
+    import { prisma } from '@/lib/prisma'
+
+    // === QUEUE & ARTICLE GENERATION ===
+
+    export async function generateQueue() {
+      try {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/seo/generate-queue`, {
+          method: 'POST'
+        })
+        const data = await response.json()
+        if (!response.ok) return { success: false, error: data.error || 'Failed' }
+        revalidatePath('/seo-debug')
+        return { success: true, data }
+      } catch (error) {
+        return { success: false, error: error.message }
+      }
+    }
+
+    export async function generateArticle() {
+      try {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/seo/generate-article`, {
+          method: 'POST'
+        })
+        const data = await response.json()
+        if (!response.ok) return { success: false, error: data.error || 'Failed' }
+        revalidatePath('/seo-debug')
+        return { success: true, data }
+      } catch (error) {
+        return { success: false, error: error.message }
+      }
+    }
+
+    export async function regenerateArticle(articleId: string) {
+      // Regenerate an existing article (keeps same slug, updates content)
+      try {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/seo/generate-article`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ forceArticleId: articleId })
+        })
+        const data = await response.json()
+        if (!response.ok) return { success: false, error: data.error || 'Failed to regenerate' }
+        revalidatePath('/seo-debug')
+        revalidatePath(`/articles/${data.article?.slug}`)
+        return { success: true, data }
+      } catch (error) {
+        return { success: false, error: error.message }
+      }
+    }
+
+    export async function deleteArticle(articleId: string) {
+      // Hard delete an article
+      try {
+        await prisma.sEOArticle.delete({ where: { id: articleId } })
+        revalidatePath('/seo-debug')
+        return { success: true }
+      } catch (error) {
+        return { success: false, error: error.message }
+      }
+    }
+
+    // === CONTENT RULES CRUD ===
+
+    export async function createRule(rule: string, importance: string) {
+      try {
+        await prisma.sEORule.create({
+          data: { rule, importance, isActive: true }
+        })
+        revalidatePath('/seo-debug')
+        return { success: true }
+      } catch (error) {
+        return { success: false, error: error.message }
+      }
+    }
+
+    export async function toggleRule(id: string) {
+      try {
+        const rule = await prisma.sEORule.findUnique({ where: { id } })
+        await prisma.sEORule.update({
+          where: { id },
+          data: { isActive: !rule?.isActive }
+        })
+        revalidatePath('/seo-debug')
+        return { success: true }
+      } catch (error) {
+        return { success: false, error: error.message }
+      }
+    }
+
+    export async function deleteRule(id: string) {
+      try {
+        await prisma.sEORule.delete({ where: { id } })
+        revalidatePath('/seo-debug')
+        return { success: true }
+      } catch (error) {
+        return { success: false, error: error.message }
+      }
+    }
+
+    // === LINK TARGETS CRUD ===
+
+    export async function createLinkTarget(data: {
+      title: string
+      url: string
+      description: string
+      keywords: string[] // Parsed from comma-separated input
+      type: string
+      priority: number
+    }) {
+      try {
+        await prisma.sEOLinkTarget.create({
+          data: { ...data, isActive: true }
+        })
+        revalidatePath('/seo-debug')
+        return { success: true }
+      } catch (error) {
+        return { success: false, error: error.message }
+      }
+    }
+
+    export async function deleteLinkTarget(id: string) {
+      try {
+        await prisma.sEOLinkTarget.delete({ where: { id } })
+        revalidatePath('/seo-debug')
+        return { success: true }
+      } catch (error) {
+        return { success: false, error: error.message }
+      }
+    }
+
+    // === ARTICLE MANAGEMENT ===
+
+    export async function rejectArticle(id: string, reason?: string) {
+      try {
+        await prisma.sEOArticle.update({
+          where: { id },
+          data: {
+            isRejected: true,
+            rejectedAt: new Date(),
+            rejectionReason: reason || 'Rejected via dashboard'
+          }
+        })
+        revalidatePath('/seo-debug')
+        return { success: true }
+      } catch (error) {
+        return { success: false, error: error.message }
+      }
+    }
+
+    export async function markNeedsFixing(id: string) {
+      try {
+        await prisma.sEOArticle.update({
+          where: { id },
+          data: { needsFixing: true }
+        })
+        revalidatePath('/seo-debug')
+        return { success: true }
+      } catch (error) {
+        return { success: false, error: error.message }
+      }
+    }
+
+    export async function approveAndRestart(id: string) {
+      // Clear flags and restart 3-day countdown
+      try {
+        const newScheduledIndexAt = new Date()
+        newScheduledIndexAt.setDate(newScheduledIndexAt.getDate() + 3)
+
+        await prisma.sEOArticle.update({
+          where: { id },
+          data: {
+            needsFixing: false,
+            isRejected: false,
+            scheduledIndexAt: newScheduledIndexAt,
+            indexedAt: null,
+            approved: false,
+            approvedAt: null
+          }
+        })
+        revalidatePath('/seo-debug')
+        return { success: true }
+      } catch (error) {
+        return { success: false, error: error.message }
+      }
+    }
+
+    export async function restoreArticle(id: string) {
+      // Un-reject and restart 3-day countdown
+      try {
+        const newScheduledIndexAt = new Date()
+        newScheduledIndexAt.setDate(newScheduledIndexAt.getDate() + 3)
+
+        await prisma.sEOArticle.update({
+          where: { id },
+          data: {
+            isRejected: false,
+            rejectedAt: null,
+            rejectionReason: null,
+            needsFixing: false,
+            scheduledIndexAt: newScheduledIndexAt,
+            indexedAt: null
+          }
+        })
+        revalidatePath('/seo-debug')
+        return { success: true }
+      } catch (error) {
+        return { success: false, error: error.message }
+      }
+    }
+
+    // === TEST CRON ACTIONS (DEV ONLY) ===
+
+    export async function testDailyContentCron() {
+      // Only allow in development
+      if (process.env.NODE_ENV === 'production') {
+        return { success: false, error: 'Test crons disabled in production' }
+      }
+
+      try {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/cron/daily-content`, {
+          method: 'GET',
+          headers: { 'User-Agent': 'vercel-cron-test' } // Bypass auth for local testing
+        })
+        const data = await response.json()
+        revalidatePath('/seo-debug')
+        return {
+          success: response.ok,
+          data: {
+            ...data,
+            cronType: 'daily-content',
+            timestamp: new Date().toISOString()
+          },
+          error: !response.ok ? data.error : undefined
+        }
+      } catch (error) {
+        return { success: false, error: error.message }
+      }
+    }
+
+    export async function testRefreshSitemapCron() {
+      if (process.env.NODE_ENV === 'production') {
+        return { success: false, error: 'Test crons disabled in production' }
+      }
+
+      try {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/cron/refresh-sitemap`, {
+          method: 'GET',
+          headers: { 'User-Agent': 'vercel-cron-test' }
+        })
+        const data = await response.json()
+        revalidatePath('/seo-debug')
+        return {
+          success: response.ok,
+          data: { ...data, cronType: 'refresh-sitemap', timestamp: new Date().toISOString() },
+          error: !response.ok ? data.error : undefined
+        }
+      } catch (error) {
+        return { success: false, error: error.message }
+      }
+    }
+
+    export async function testIndexArticlesCron() {
+      if (process.env.NODE_ENV === 'production') {
+        return { success: false, error: 'Test crons disabled in production' }
+      }
+
+      try {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/cron/index-articles`, {
+          method: 'GET',
+          headers: { 'User-Agent': 'vercel-cron-test' }
+        })
+        const data = await response.json()
+        revalidatePath('/seo-debug')
+        return {
+          success: response.ok,
+          data: { ...data, cronType: 'index-articles', timestamp: new Date().toISOString() },
+          error: !response.ok ? data.error : undefined
+        }
+      } catch (error) {
+        return { success: false, error: error.message }
+      }
+    }
+    ```
+
+    **File 3: /app/seo-debug/ActionButtons.tsx** (Client Component - imports actions directly):
+    ```tsx
+    'use client'
+
+    import { useState } from 'react'
+    // ✅ CORRECT: Client component imports server actions directly
+    import { generateQueue, generateArticle } from './actions'
+
+    export default function ActionButtons() {
+      const [loading, setLoading] = useState<string | null>(null)
+      const [message, setMessage] = useState<{ text: string; isError: boolean } | null>(null)
+
+      const handleAction = async (actionType: 'queue' | 'article') => {
+        setLoading(actionType)
+        setMessage(null)
+
+        try {
+          // ✅ Call imported server actions directly
+          const result = actionType === 'queue'
+            ? await generateQueue()
+            : await generateArticle()
+
+          if (result.success) {
+            setMessage({
+              text: actionType === 'queue' ? '✓ Generated queue ideas' : '✓ Article generated!',
+              isError: false
+            })
+            setTimeout(() => setMessage(null), 5000)
+          } else {
+            setMessage({ text: result.error || 'Action failed', isError: true })
+          }
+        } catch (error: any) {
+          setMessage({ text: error.message, isError: true })
+        } finally {
+          setLoading(null)
+        }
+      }
+
+      return (
+        <div className="flex gap-4">
+          <button
+            onClick={() => handleAction('queue')}
+            disabled={loading !== null}
+            className="px-6 py-3 bg-black text-white disabled:opacity-50"
+          >
+            {loading === 'queue' ? '⏳ Loading...' : 'Generate Queue Ideas'}
+          </button>
+
+          <button
+            onClick={() => handleAction('article')}
+            disabled={loading !== null}
+            className="px-6 py-3 bg-blue-600 text-white disabled:opacity-50"
+          >
+            {loading === 'article' ? '⏳ Loading...' : 'Generate One Article'}
+          </button>
+
+          {message && (
+            <div className={`p-3 ${message.isError ? 'bg-red-50 text-red-800' : 'bg-green-50 text-green-800'}`}>
+              {message.isError ? '❌' : '✓'} {message.text}
+            </div>
+          )}
+        </div>
+      )
+    }
+    ```
+
+    **Why This Pattern Works**:
+    - ✅ Main page is Server Component (fast database access, no hydration cost)
+    - ✅ Client Component imports Server Actions DIRECTLY (not via props)
+    - ✅ No function props passed from Server → Client (prevents the error!)
+    - ✅ Server Actions automatically handle revalidation
+    - ✅ Type-safe and clean separation of concerns
+
+    **File 4: /app/seo-debug/TestCronButtons.tsx** (DEV ONLY - Test Crons with Rich Output):
+    ```tsx
+    'use client'
+
+    import { useState } from 'react'
+    import {
+      testDailyContentCron,
+      testRefreshSitemapCron,
+      testIndexArticlesCron
+    } from './actions'
+
+    interface CronResult {
+      cronType: string
+      timestamp: string
+      [key: string]: any
+    }
+
+    export default function TestCronButtons() {
+      const [loading, setLoading] = useState<string | null>(null)
+      const [results, setResults] = useState<Record<string, CronResult | { error: string }>>({})
+
+      const runCron = async (cronType: 'daily-content' | 'refresh-sitemap' | 'index-articles') => {
+        setLoading(cronType)
+
+        try {
+          let result
+          switch (cronType) {
+            case 'daily-content':
+              result = await testDailyContentCron()
+              break
+            case 'refresh-sitemap':
+              result = await testRefreshSitemapCron()
+              break
+            case 'index-articles':
+              result = await testIndexArticlesCron()
+              break
+          }
+
+          setResults(prev => ({
+            ...prev,
+            [cronType]: result.success ? result.data : { error: result.error || 'Unknown error' }
+          }))
+        } catch (error: any) {
+          setResults(prev => ({ ...prev, [cronType]: { error: error.message } }))
+        } finally {
+          setLoading(null)
+        }
+      }
+
+      const formatResult = (result: CronResult | { error: string }) => {
+        if ('error' in result) {
+          return <div className="text-red-600">❌ Error: {result.error}</div>
+        }
+
+        return (
+          <pre className="bg-gray-100 p-4 rounded text-sm overflow-auto max-h-64">
+            {JSON.stringify(result, null, 2)}
+          </pre>
+        )
+      }
+
+      // Only render in development
+      if (process.env.NODE_ENV === 'production') return null
+
+      return (
+        <div className="border-2 border-dashed border-yellow-400 p-6 rounded-lg bg-yellow-50">
+          <h3 className="text-lg font-bold mb-4">🧪 Test Crons (Dev Only)</h3>
+          <p className="text-sm text-gray-600 mb-4">
+            Manually trigger cron jobs to test output. In production, these run automatically via Vercel.
+          </p>
+
+          <div className="grid grid-cols-3 gap-4 mb-6">
+            <button
+              onClick={() => runCron('daily-content')}
+              disabled={loading !== null}
+              className="px-4 py-2 bg-green-600 text-white rounded disabled:opacity-50"
+            >
+              {loading === 'daily-content' ? '⏳ Running...' : '📝 Run Daily Content'}
+            </button>
+
+            <button
+              onClick={() => runCron('refresh-sitemap')}
+              disabled={loading !== null}
+              className="px-4 py-2 bg-blue-600 text-white rounded disabled:opacity-50"
+            >
+              {loading === 'refresh-sitemap' ? '⏳ Running...' : '🗺️ Run Refresh Sitemap'}
+            </button>
+
+            <button
+              onClick={() => runCron('index-articles')}
+              disabled={loading !== null}
+              className="px-4 py-2 bg-purple-600 text-white rounded disabled:opacity-50"
+            >
+              {loading === 'index-articles' ? '⏳ Running...' : '📑 Run Index Articles'}
+            </button>
+          </div>
+
+          {/* Results display */}
+          <div className="space-y-4">
+            {Object.entries(results).map(([cronType, result]) => (
+              <div key={cronType} className="border rounded p-4">
+                <h4 className="font-semibold mb-2">
+                  {cronType === 'daily-content' && '📝 Daily Content Result'}
+                  {cronType === 'refresh-sitemap' && '🗺️ Refresh Sitemap Result'}
+                  {cronType === 'index-articles' && '📑 Index Articles Result'}
+                </h4>
+                {formatResult(result)}
+              </div>
+            ))}
+          </div>
+        </div>
+      )
+    }
+    ```
+
+    **File 5: /app/seo-debug/ArticleActions.tsx** (Per-Article Buttons - Regenerate, Delete, etc.):
+    ```tsx
+    'use client'
+
+    import { useState } from 'react'
+    import {
+      regenerateArticle,
+      deleteArticle,
+      rejectArticle,
+      markNeedsFix,
+      restoreArticle
+    } from './actions'
+
+    interface ArticleActionsProps {
+      articleId: string
+      articleTitle: string
+      isRejected?: boolean
+      needsFixing?: boolean
+    }
+
+    export default function ArticleActions({
+      articleId,
+      articleTitle,
+      isRejected,
+      needsFixing
+    }: ArticleActionsProps) {
+      const [loading, setLoading] = useState<string | null>(null)
+      const [message, setMessage] = useState<{ text: string; isError: boolean } | null>(null)
+
+      const handleAction = async (action: 'regenerate' | 'delete' | 'reject' | 'fix' | 'restore') => {
+        setLoading(action)
+        setMessage(null)
+
+        try {
+          let result
+          switch (action) {
+            case 'regenerate':
+              result = await regenerateArticle(articleId)
+              break
+            case 'delete':
+              if (!confirm(`Delete "${articleTitle}"? This cannot be undone.`)) {
+                setLoading(null)
+                return
+              }
+              result = await deleteArticle(articleId)
+              break
+            case 'reject':
+              result = await rejectArticle(articleId)
+              break
+            case 'fix':
+              result = await markNeedsFix(articleId)
+              break
+            case 'restore':
+              result = await restoreArticle(articleId)
+              break
+          }
+
+          if (result.success) {
+            setMessage({ text: `✓ ${action} successful`, isError: false })
+            setTimeout(() => setMessage(null), 3000)
+          } else {
+            setMessage({ text: result.error || 'Action failed', isError: true })
+          }
+        } catch (error: any) {
+          setMessage({ text: error.message, isError: true })
+        } finally {
+          setLoading(null)
+        }
+      }
+
+      return (
+        <div className="flex flex-wrap gap-2 items-center">
+          {/* Regenerate - always available */}
+          <button
+            onClick={() => handleAction('regenerate')}
+            disabled={loading !== null}
+            className="px-3 py-1 text-xs bg-blue-100 text-blue-800 rounded hover:bg-blue-200 disabled:opacity-50"
+          >
+            {loading === 'regenerate' ? '...' : 'Regenerate'}
+          </button>
+
+          {/* Reject/Restore based on state */}
+          {isRejected ? (
+            <button
+              onClick={() => handleAction('restore')}
+              disabled={loading !== null}
+              className="px-3 py-1 text-xs bg-green-100 text-green-800 rounded hover:bg-green-200 disabled:opacity-50"
+            >
+              {loading === 'restore' ? '...' : 'Restore'}
+            </button>
+          ) : (
+            <>
+              {!needsFixing && (
+                <button
+                  onClick={() => handleAction('reject')}
+                  disabled={loading !== null}
+                  className="px-3 py-1 text-xs bg-red-100 text-red-800 rounded hover:bg-red-200 disabled:opacity-50"
+                >
+                  {loading === 'reject' ? '...' : 'Reject'}
+                </button>
+              )}
+              {!needsFixing && (
+                <button
+                  onClick={() => handleAction('fix')}
+                  disabled={loading !== null}
+                  className="px-3 py-1 text-xs bg-amber-100 text-amber-800 rounded hover:bg-amber-200 disabled:opacity-50"
+                >
+                  {loading === 'fix' ? '...' : 'Needs Fix'}
+                </button>
+              )}
+            </>
+          )}
+
+          {/* Delete - always available */}
+          <button
+            onClick={() => handleAction('delete')}
+            disabled={loading !== null}
+            className="px-3 py-1 text-xs bg-gray-100 text-gray-600 rounded hover:bg-gray-200 disabled:opacity-50"
+          >
+            {loading === 'delete' ? '...' : 'Delete'}
+          </button>
+
+          {message && (
+            <span className={`text-xs ${message.isError ? 'text-red-600' : 'text-green-600'}`}>
+              {message.text}
+            </span>
+          )}
+        </div>
+      )
+    }
+    ```
+
+    **Update page.tsx to include all components:**
+    ```tsx
+    import ActionButtons from './ActionButtons'
+    import TestCronButtons from './TestCronButtons'
+    import ArticleActions from './ArticleActions'
+
+    export default async function SeoDebugPage() {
+      const articles = await prisma.sEOArticle.findMany({
+        orderBy: { createdAt: 'desc' },
+        include: { pillar: true }
+      })
+
+      return (
+        <div>
+          <h1>SEO Debug Dashboard</h1>
+
+          <ActionButtons />
+
+          {/* Test crons - only shows in development */}
+          <TestCronButtons />
+
+          {/* Articles list with per-article actions */}
+          <div className="space-y-4">
+            {articles.map(article => (
+              <div key={article.id} className="border p-4 rounded">
+                <a href={`/articles/${article.slug}`} target="_blank" className="font-medium hover:underline">
+                  {article.title}
+                </a>
+                <div className="text-sm text-gray-500 mt-1">
+                  {article.pillar.name} · {article.wordCount} words
+                </div>
+                {/* Per-article action buttons */}
+                <div className="mt-2">
+                  <ArticleActions
+                    articleId={article.id}
+                    articleTitle={article.title}
+                    isRejected={article.isRejected}
+                    needsFixing={article.needsFixing}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )
+    }
+    ```
+
+    **🚨 IMPORTANT: Email Links Must NOT Trigger Actions**
+
+    The "Preview Article" link in emails MUST go to `/articles/[slug]` (read-only page).
+    It must NOT accidentally call any API that modifies the article.
+
+    Common bug: If your article page has auto-approve or auto-reject logic on load, it will
+    trigger when clicking the email link. **Article pages should be read-only by default.**
+
+    Only these should modify articles:
+    - Explicit button clicks in seo-debug dashboard
+    - API calls from approve-article route (with token)
+
+**⚠️ CRITICAL: ISR & TWO-STATE APPROVAL SYSTEM (ADVANCED - READ CAREFULLY)**
+
+This is the most important architectural decision in the system. Get this wrong and you'll have 404 errors.
+
+**The Problem We're Solving**:
+- Cron generates article at 2:00 AM while developer sleeps
+- Developer wakes up, gets review email
+- Developer clicks article link → **MUST NOT 404**
+- Article not approved yet, but URL must work for review
+
+**The Solution: Two-State System**
+
+1. **status field** (controls URL accessibility):
+   - ALWAYS "published" for ALL articles (new and approved)
+   - Why: Makes /articles/[slug] immediately accessible
+   - ISR config: dynamicParams = true (allows new slugs without rebuild)
+
+2. **approved field** (controls SEO visibility):
+   - false: Article accessible but NOT in sitemap priority list
+   - true: Article accessible AND in sitemap with high priority
+   - Why: Google won't discover unapproved articles, but you can review them
+
+**DO NOT**:
+- ❌ Filter articles by status in /articles/[slug]/page.tsx
+- ❌ Use status="draft" for new articles
+- ❌ Require rebuild for new articles
+- ❌ Remove unapproved articles from sitemap entirely
+
+**DO**:
+- ✅ ALL articles have status="published"
+- ✅ /articles/[slug]/page.tsx renders ALL articles
+- ✅ Show approval banner on unapproved articles
+- ✅ Include unapproved articles in sitemap with low priority (0.3)
+- ✅ Use dynamicParams = true for ISR
+- ✅ approved=true just changes sitemap priority (0.3 → 0.8)
+
+**Example Flow**:
+1. Cron runs at 2:00 AM
+2. Creates article: status="published", approved=false
+3. Article immediately accessible at /articles/how-to-fix-furnace (ISR handles it)
+4. Developer clicks email link at 8:00 AM → Article loads (no 404!)
+5. Developer clicks "Approve" button
+6. approved=true, revalidate sitemap
+7. Google sees article in sitemap with priority 0.8
+
+**If You Get This Wrong**:
+- 404 errors when reviewing new articles
+- Frustrated developer can't see what was generated
+- System appears broken
+- Manual database updates required
+
+**Reference Implementation**:
+See /app/articles/[slug]/page.tsx in HashBuilds for the canonical ISR + two-state setup.
+
+---
+
+**STEP 6: RUN SETUP SCRIPT & VERIFY**
+
+**CRITICAL**: Before calling this "complete", you MUST:
+
+1. **Run the setup script**:
+   ```bash
+   npx tsx scripts/setup-seo-system.ts
+   ```
+   - This seeds the database with pillars and initial queue
+   - Verify it completes successfully
+   - Check that pillars are created in database
+
+2. **Generate ONE test article**:
+   - Either run: `curl -X POST http://localhost:3000/api/seo/generate-article`
+   - OR tell me to visit /seo-debug and click "Generate One Article"
+   - Verify the article is created and accessible
+
+3. **Verify the debug dashboard works**:
+   - Visit /seo-debug
+   - Confirm you can see:
+     - ✅ All pillars with progress bars (number varies by business scope)
+     - ✅ At least 1 generated article (from step 2)
+     - ✅ Article title is a clickable link
+     - ✅ Queue count shows 10+ items
+   - Click the article link → Should open article page
+   - Verify article renders correctly
+
+**STEP 7: CONFIGURE AUTOMATED GENERATION**
+
+**IMPORTANT: Cron Authentication (User-Agent Based, NOT CRON_SECRET)**
+
+Our cron route uses **User-Agent checking** for authentication:
+
+```typescript
+// /app/api/cron/daily-content/route.ts
+export async function GET(request: Request) {
+  // Verify cron authentication
+  const isDev = process.env.NODE_ENV === "development"
+  const userAgent = request.headers.get("user-agent") || ""
+  const isVercelCron = userAgent.includes("vercel-cron")
+
+  // Allow if: development mode OR Vercel Cron user agent
+  if (!isDev && !isVercelCron) {
+    return NextResponse.json(
+      { error: "Unauthorized - Not a valid cron request" },
+      { status: 401 }
+    )
+  }
+
+  // Continue with cron logic...
+}
+```
+
+**Why This Works**:
+- ✅ Development: All requests allowed (easy testing)
+- ✅ Production: Only Vercel's cron service has "vercel-cron" user agent
+- ✅ No secret management required
+- ✅ No environment variable needed
+
+**Vercel Cron Configuration**:
+
+Add to vercel.json:
+
+```json
+{
+  "crons": [
+    { "path": "/api/cron/daily-content", "schedule": "0 2 * * *" },
+    { "path": "/api/cron/refresh-sitemap", "schedule": "0 3 * * *" },
+    { "path": "/api/cron/index-articles", "schedule": "0 4 * * *" }
+  ]
+}
+```
+
+**Cron Schedule Explained**:
+- **2 AM**: Generate new article (scheduledIndexAt = 3 days from now)
+- **3 AM**: Refresh sitemap timestamps (Google freshness signals)
+- **4 AM**: Index articles that passed 3-day review window
+
+All times are UTC (adjust for your timezone).
+
+**Testing Cron Locally**:
+
+```bash
+# Development mode - works without user agent check
+curl http://localhost:3000/api/cron/daily-content
+
+# Or visit /seo-debug and click "Simulate Daily Cron"
+```
+
+**IMPORTANT DESIGN DECISIONS:**
+
+**Auto-Strategy Detection**:
+- System reads BUSINESS-CONTEXT.md and auto-generates categories
+- No manual pillar design required
+- Different strategies for local vs global businesses
+- Location modifiers added automatically for local businesses
+
+**Multi-Format Articles**:
+- Articles vary by search intent (not all the same format)
+- "how to X" → Tutorial format
+- "X vs Y" → Comparison format
+- "what is X" → Explainer format
+- "best X" → Buying guide format
+
+**Auto-Approve with 3-Day Review System**:
+- **All articles auto-approved after 3 days** (no manual approval required)
+- `scheduledIndexAt`: When article will be indexed (created + 3 days)
+- `indexedAt`: When article was added to sitemap (set by 4 AM cron)
+- `isRejected`: Soft delete - keeps article for audit, never indexed
+- `needsFixing`: Pauses indexing until issues resolved
+- **Review window**: User gets daily email with "indexing today/tomorrow" alerts
+- **Actions**: Reject (soft delete) | Needs Fixing (pause) | Approve & Restart (clear flags)
+
+**Review-First Email Workflow**:
+- Email contains "Review Article" button (primary)
+- Opens article on production site
+- Approval button is ON the article page
+- No approve/reject buttons in email
+
+**Token Optimization**:
+- Condenses last 20 articles to 150-char summaries
+- Single API call for generation
+- Queue generates 10 ideas at once (efficient)
+
+**Quality Control**:
+- AI self-evaluates (quality score 1-100)
+- Target 85+ quality score
+- Never auto-publishes (requires approval)
+- Draft-first safety
+
+**ISR for Dynamic Articles**:
+- dynamicParams = true (allows new slugs)
+- revalidate = 3600 (1 hour cache)
+- Prevents 404 on cron-generated articles
+
+**STEP 8: FINAL VERIFICATION & HANDOFF**
+
+**🚨 DO NOT say "complete" until ALL these checks PASS**
+
+**Assume ALL files are MISSING until you verify they exist.**
+
+Run these verification checks IN ORDER and show me the results for each:
+
+---
+
+**0. ✅ FILE EXISTENCE CHECK (MANDATORY - Run First)**
+
+Before testing functionality, verify ALL required files exist:
+
+```bash
+# Check each file exists - mark as [X] or [ ]
+ls -la lib/db.ts lib/prisma.ts 2>/dev/null || echo "❌ Missing: /lib/db.ts or /lib/prisma.ts"
+ls -la lib/seo-strategy-templates.ts || echo "❌ Missing: /lib/seo-strategy-templates.ts"
+ls -la app/api/seo/detect-strategy/route.ts || echo "❌ Missing: detect-strategy route"
+ls -la app/api/seo/generate-queue/route.ts || echo "❌ Missing: generate-queue route"
+ls -la app/api/seo/generate-article/route.ts || echo "❌ Missing: generate-article route"
+ls -la app/api/seo/approve-article/route.ts || echo "❌ Missing: approve-article route"
+ls -la app/api/cron/daily-content/route.ts || echo "❌ Missing: daily-content cron"
+ls -la app/api/cron/refresh-sitemap/route.ts || echo "❌ Missing: refresh-sitemap cron"
+ls -la app/api/cron/index-articles/route.ts || echo "❌ Missing: index-articles cron"
+ls -la app/articles/page.tsx || echo "❌ Missing: articles listing page"
+ls -la app/articles/[slug]/page.tsx || echo "❌ Missing: article renderer"
+ls -la app/articles/category/[slug]/page.tsx || echo "❌ Missing: category page"
+ls -la app/seo-debug/page.tsx || echo "❌ Missing: seo-debug dashboard"
+ls -la app/seo-debug/actions.ts || echo "❌ Missing: seo-debug actions"
+ls -la app/seo-debug/ActionButtons.tsx || echo "❌ Missing: seo-debug ActionButtons"
+ls -la app/seo-debug/TestCronButtons.tsx || echo "❌ Missing: seo-debug TestCronButtons (cron testing)"
+ls -la app/seo-debug/ArticleActions.tsx || echo "❌ Missing: seo-debug ArticleActions (per-article buttons)"
+ls -la app/sitemap.ts || echo "❌ Missing: sitemap"
+ls -la app/robots.ts || echo "❌ Missing: robots.txt"
+ls -la scripts/setup-seo-system.ts || echo "❌ Missing: setup script"
+```
+
+**If ANY file is missing → CREATE IT before proceeding.**
+
+Show me the results:
+```
+File Existence Check:
+[ ] /lib/db.ts or /lib/prisma.ts
+[ ] /lib/seo-strategy-templates.ts
+[ ] /app/api/seo/detect-strategy/route.ts
+[ ] /app/api/seo/generate-queue/route.ts
+[ ] /app/api/seo/generate-article/route.ts
+[ ] /app/api/seo/approve-article/route.ts
+[ ] /app/api/cron/daily-content/route.ts
+[ ] /app/api/cron/refresh-sitemap/route.ts
+[ ] /app/api/cron/index-articles/route.ts
+[ ] /app/articles/page.tsx
+[ ] /app/articles/[slug]/page.tsx
+[ ] /app/articles/category/[slug]/page.tsx
+[ ] /app/seo-debug/page.tsx (CRITICAL)
+[ ] /app/seo-debug/actions.ts
+[ ] /app/seo-debug/ActionButtons.tsx
+[ ] /app/seo-debug/TestCronButtons.tsx (DEV cron testing)
+[ ] /app/seo-debug/ArticleActions.tsx (per-article regenerate/delete)
+[ ] /app/sitemap.ts
+[ ] /app/robots.ts
+[ ] /scripts/setup-seo-system.ts
+[ ] vercel.json (has crons array)
+```
+
+---
+
+**1. ✅ Database Check**:
+   - Run: `npx prisma studio` (open in browser)
+   - Confirm SEOPillar table has rows (typically 3-8, based on business scope)
+   - Confirm SEOQueue table has 10+ rows
+   - Confirm SEOArticle table has 1+ rows
+   - Confirm SEORule table exists (may be empty)
+   - Confirm SEOLinkTarget table exists (may be empty)
+   - If ANY table is missing, run prisma migrate - FIX THIS
+   - If tables exist but empty, run setup script - FIX THIS
+
+**2. ✅ Debug Dashboard Check (CRITICAL)**:
+   - Visit: http://localhost:3000/seo-debug
+   - **If 404** → The seo-debug page wasn't created - CREATE IT NOW
+   - Confirm page loads without errors
+   - Confirm you can see:
+     - Indexing Timeline section (today/tomorrow/pending)
+     - Content Rules section with Add Rule form
+     - Link Targets section with Add Target form
+     - All pillars with progress bars (3-8 depending on scope)
+     - 1+ article in the articles list
+     - Article title is a CLICKABLE LINK
+     - Per-article buttons: Regenerate, Reject, Needs Fix, Delete
+     - Queue count shows 10+ items
+     - Test Crons section (DEV only) with 3 buttons
+   - **TEST 1**: Click "Generate One Article" button → Should generate article
+   - **TEST 2**: Click "Regenerate" on an article → Should regenerate with new content
+   - **TEST 3**: Click article link → Article page should load (NOT trigger any actions)
+   - If any section or button is missing, the dashboard is incomplete - FIX THIS
+
+**3. ✅ Article Renderer Check**:
+   - Click the article link from /seo-debug
+   - Confirm article page loads at /articles/[slug]
+   - Confirm you can see:
+     - Article title and content
+     - Reading time
+     - Indexing countdown banner (shows days until indexed)
+   - If article 404s, ISR config is wrong - FIX THIS
+
+   **Typography Check** (CRITICAL - Articles look broken without this):
+   - H2 headings are LARGE and BOLD with generous spacing above/below
+   - H3 headings are medium and bold with spacing
+   - Paragraphs have spacing between them (NOT a wall of text)
+   - Lists are indented with bullets/numbers visible
+   - If text looks like a wall with no hierarchy → Add typography classes!
+
+   **Canonical URL Check** (CRITICAL - SEO will suffer without this):
+   - View page source (Ctrl+U) on each page type
+   - Search for "canonical" - you MUST find:
+     - `/articles` page: `<link rel="canonical" href="https://yourdomain.com/articles"/>`
+     - `/articles/[slug]` page: `<link rel="canonical" href="https://yourdomain.com/articles/your-slug"/>`
+     - `/articles/category/[slug]` page: `<link rel="canonical" href="https://yourdomain.com/articles/category/your-category"/>`
+   - If ANY page is missing canonical → Add `alternates.canonical` to generateMetadata - FIX THIS
+
+**4. ✅ Build Check**:
+   - Run: `npm run build` (or `pnpm run build`)
+   - Confirm build succeeds with no TypeScript errors
+   - If build fails, fix errors before proceeding
+
+**5. ✅ Environment Variables Check**:
+   - Confirm .env has these variables:
+     - ANTHROPIC_API_KEY=sk-ant-api03-... (your Anthropic API key)
+     - EMAIL_SERVER_PASSWORD=re_... (your Resend API key)
+     - NEXT_PUBLIC_BASE_URL=http://localhost:3000 (or your local URL)
+     - ADMIN_EMAIL=your@email.com (for notifications)
+   - **CRITICAL**: Tell the user they MUST add these to production deployment
+   - If missing, system will fail silently in production
+
+**6. ✅ Cron Configuration Check**:
+   - Verify vercel.json has all 3 crons:
+   ```json
+   {
+     "crons": [
+       { "path": "/api/cron/daily-content", "schedule": "0 2 * * *" },
+       { "path": "/api/cron/refresh-sitemap", "schedule": "0 3 * * *" },
+       { "path": "/api/cron/index-articles", "schedule": "0 4 * * *" }
+     ]
+   }
+   ```
+   - If missing any cron, add it - FIX THIS
+
+**ONLY AFTER ALL 7 CHECKS PASS, tell me**:
+
+"✅ SEO Foundation Layer - Installation Complete!
+
+**Pre-Flight Checks** (all passed):
+✅ All 21 required files created and verified
+✅ Database seeded (pillars based on scope, 10+ queue items per pillar, 1 test article)
+✅ Debug dashboard working at /seo-debug (with indexing timeline, rules, link targets, cron testing)
+✅ Article renderer working at /articles/[slug] (with countdown banner)
+✅ Canonical URLs set on all pages (/articles, /articles/[slug], /articles/category/[slug])
+✅ Build successful (no TypeScript errors)
+✅ Environment variables configured (.env)
+✅ Vercel crons configured (daily-content, refresh-sitemap, index-articles)
+
+**Your Auto-Generated Strategy**:
+- Business Type: [type]
+- Location: [city/global]
+- Total Target: 90 articles across 4 categories
+- Keyword Strategy: [local modifiers / global keywords]
+
+**What You Can Do Now**:
+
+1. **View Your System**: http://localhost:3000/seo-debug
+   - See all 4 content pillars
+   - View your test article
+   - Generate more articles on demand
+
+2. **Test Article Quality**:
+   - Click article link from debug dashboard
+   - Review tone, content, formatting
+   - If style is off, update DESIGN-SYSTEM.md and regenerate
+
+3. **Generate More Content**:
+   - Click 'Generate One Article' button
+   - Watch it appear in the articles list
+   - Click to review immediately
+
+4. **Iterate on Design**:
+   - Edit /app/articles/[slug]/page.tsx for styling
+   - Use Regenerate button to test prompt changes
+   - Update DESIGN-SYSTEM.md for consistent branding
+
+**Next Steps (Before Deploying)**:
+
+1. Review test article quality - does it match your brand voice?
+2. Check article styling - does it match DESIGN-SYSTEM.md?
+3. Test approval workflow - click article → approve button
+4. Verify sitemap includes approved articles only
+
+5. **🚨 CRITICAL: Add Environment Variables to Production** 🚨
+
+   Go to your hosting dashboard (Vercel/Railway/etc) and add these environment variables:
+
+   - **ANTHROPIC_API_KEY** = sk-ant-api03-... (same as your .env)
+   - **EMAIL_SERVER_PASSWORD** = re_... (your Resend API key)
+   - **NEXT_PUBLIC_BASE_URL** = https://yourdomain.com (your production URL)
+
+   ⚠️ **WITHOUT THESE, THE SYSTEM WILL FAIL IN PRODUCTION**
+   - No ANTHROPIC_API_KEY → Articles can't generate
+   - No EMAIL_SERVER_PASSWORD → Review emails can't send
+   - No NEXT_PUBLIC_BASE_URL → Cron job will fail
+
+   **NO CRON_SECRET NEEDED** - We use User-Agent checking instead
+
+6. Deploy to production
+7. Push database schema: `npx prisma db push` (or `npx prisma migrate deploy`)
+8. Test cron endpoint manually: Visit `https://yourdomain.com/api/cron/daily-content` in browser
+9. Verify cron job runs at 2:00 AM UTC (check Vercel logs next day)
+
+**System is ready for production deployment when you approve the design/content quality!**"
+
+If ANY check fails, STOP and fix it before saying complete.
+
+---
+
+**MIGRATION GUIDE: Upgrading from Previous Version**
+
+If you're upgrading an existing Long-Tail SEO installation to this version:
+
+**1. Run Prisma Migration**:
+```bash
+npx prisma migrate dev --name add-auto-approve-v2
+```
+
+This adds:
+- `SEORule` model (user-defined content rules)
+- `SEOLinkTarget` model (internal linking registry)
+- New fields on `SEOArticle`: scheduledIndexAt, indexedAt, isRejected, needsFixing, rejectedAt, rejectionReason
+
+**2. Migrate Existing Articles**:
+
+Run this script to migrate existing articles to the new schema:
+
+```typescript
+// scripts/migrate-to-auto-approve.ts
+import { PrismaClient } from '@prisma/client'
+
+const prisma = new PrismaClient()
+
+async function migrate() {
+  console.log('Migrating existing articles to auto-approve system...')
+
+  // Published + approved articles → already indexed
+  const approvedArticles = await prisma.sEOArticle.updateMany({
+    where: {
+      status: 'published',
+      approved: true,
+    },
+    data: {
+      indexedAt: new Date(),
+      scheduledIndexAt: new Date(),
+      isRejected: false,
+      needsFixing: false,
+    },
+  })
+  console.log(`✅ Migrated ${approvedArticles.count} approved articles (marked as indexed)`)
+
+  // Published + unapproved articles → index immediately (grace period already passed)
+  const pendingArticles = await prisma.sEOArticle.updateMany({
+    where: {
+      status: 'published',
+      approved: false,
+    },
+    data: {
+      scheduledIndexAt: new Date(), // Will be indexed on next cron run
+      isRejected: false,
+      needsFixing: false,
+    },
+  })
+  console.log(`✅ Migrated ${pendingArticles.count} pending articles (scheduled for immediate indexing)`)
+
+  console.log('Migration complete!')
+  await prisma.$disconnect()
+}
+
+migrate().catch(console.error)
+```
+
+Run it:
+```bash
+npx tsx scripts/migrate-to-auto-approve.ts
+```
+
+**3. Update vercel.json** (add new cron):
+
+```json
+{
+  "crons": [
+    { "path": "/api/cron/daily-content", "schedule": "0 2 * * *" },
+    { "path": "/api/cron/refresh-sitemap", "schedule": "0 3 * * *" },
+    { "path": "/api/cron/index-articles", "schedule": "0 4 * * *" }
+  ]
+}
+```
+
+**4. Deploy and Verify**:
+- Deploy to production
+- Verify crons are running (check Vercel logs)
+- Visit /seo-debug to see new indexing timeline section
+
+---
+
+Ready? Let me check your BUSINESS-CONTEXT.md first.
+
+---
+
+## 📌 PATCH: Anti-Hallucination Default Rules (2025-12-19)
+
+**Problem**: Articles were reading like "newsletters" with invented case studies and fictional scenarios.
+
+**Root Cause**: The system allowed article generation without explicit anti-fabrication rules. Users could add SEORule entries, but if they didn't add rules against inventing stories, the AI would invent them.
+
+**Solution**: Add default anti-hallucination rules that are created during setup.
+
+### 1. Update SEORule Schema
+
+Add `isDefault` field to mark system-provided rules (users can't delete these):
+
+```prisma
+model SEORule {
+  id          String   @id @default(cuid())
+  rule        String   @db.Text
+  importance  String   @default("medium")
+  isActive    Boolean  @default(true)
+  isDefault   Boolean  @default(false)  // NEW: true = system anti-hallucination rule
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([isActive])
+}
+```
+
+### 2. Add Default Rules in setup-seo-system.ts
+
+Add this to your setup script (after pillar seeding):
+
+```typescript
+// Default anti-hallucination rules (CRITICAL for quality)
+const defaultRules = [
+  {
+    rule: "NEVER invent case studies, statistics, or fictional scenarios. If you don't have real data, use general guidance based on industry best practices.",
+    importance: "critical",
+    isActive: true,
+    isDefault: true
+  },
+  {
+    rule: "Use informational authority voice. Avoid newsletter storytelling, personal narratives, dramatic hooks, and story-style buildups to the answer.",
+    importance: "critical",
+    isActive: true,
+    isDefault: true
+  },
+  {
+    rule: "Answer the search query directly in the first paragraph. Don't build up to it with a story or hypothetical scenario.",
+    importance: "high",
+    isActive: true,
+    isDefault: true
+  }
+];
+
+// Insert default rules (skip if already exist)
+for (const rule of defaultRules) {
+  const existing = await prisma.sEORule.findFirst({
+    where: { rule: rule.rule, isDefault: true }
+  });
+
+  if (!existing) {
+    await prisma.sEORule.create({ data: rule });
+    console.log(`✅ Created default rule: ${rule.rule.substring(0, 50)}...`);
+  }
+}
+```
+
+### 3. Update seo-debug Dashboard (Optional Enhancement)
+
+Show default rules differently in the UI:
+
+```tsx
+// In your rules list component
+{rules.map(rule => (
+  <div key={rule.id} className={rule.isDefault ? 'bg-stone-100 border-stone-300' : ''}>
+    <span className="font-medium">{rule.rule}</span>
+    {rule.isDefault && (
+      <span className="ml-2 text-xs text-stone-500">(System default - cannot delete)</span>
+    )}
+    {!rule.isDefault && (
+      <button onClick={() => deleteRule(rule.id)}>Delete</button>
+    )}
+  </div>
+))}
+```
+
+### 4. Migration for Existing Installations
+
+If you already have the SEO system running without these rules:
+
+```bash
+# Add the isDefault field
+npx prisma db push
+
+# Run the setup script again - it will add missing default rules
+npx tsx scripts/setup-seo-system.ts
+```
+
+### Expected Result
+
+**Before (newsletter-style):**
+> "Sleep Tracking Changed Our Win-Loss Record"
+> "Your team looked perfect last season... but the missing piece wasn't another recruiting class."
+
+**After (informational authority):**
+> "What is Team Sleep Tracking in Football?"
+> "Team sleep tracking is a systematic approach to monitoring player recovery metrics. It involves collecting sleep data, analyzing patterns, and making adjustments to training schedules based on recovery indicators."
+
+---

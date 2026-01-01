@@ -15,13 +15,13 @@ If any are missing, tell the user what to complete first.
 
 ## This is a TWO-STEP process
 
-**Step 1: Keyword Research** (PROMPT_KEYWORD_RESEARCH.txt)
+**Step 1: Keyword Research** (`/prompts/PROMPT_KEYWORD_RESEARCH.txt`)
 - Uses Keywords Everywhere MCP for real search volume
 - Generates 100 article briefs (title, keyword, volume, intent)
 - Creates SEO_KEYWORDS.md memory file
 - Seeds SEOBrief database table
 
-**Step 2: System Build** (PROMPT_LONG_TAIL_SEO.txt)
+**Step 2: System Build** (`/prompts/PROMPT_LONG_TAIL_SEO.txt`)
 - Creates database schema (SEOPillar, SEOBrief, SEOArticle, SEORule)
 - Sets up daily cron job
 - Builds article renderer and approval flow
@@ -29,32 +29,22 @@ If any are missing, tell the user what to complete first.
 
 ## Instructions
 
-If prerequisites are met, guide the user:
+If prerequisites are met, run both steps in order.
 
-### Step 1: Get the Prompts
+### Step 1: Run Keyword Research
 
-Tell the user:
-"The SEO system requires two large prompts (40k+ tokens each).
-
-**Get them from:** https://hashbuilds.com/claude-code-long-tail-seo
-(In dev mode, the prompts are visible to copy)
-
-Or ask me to fetch them for you."
-
-### Step 2: Run Keyword Research
-
-1. User pastes PROMPT_KEYWORD_RESEARCH.txt content
+1. Read `/prompts/PROMPT_KEYWORD_RESEARCH.txt`
 2. Follow the prompt's instructions to:
-   - Analyze BUSINESS-CONTEXT.md
+   - Analyze 02-business-context.md
    - Ask discovery questions about pillars and future content
    - Use Keywords Everywhere MCP for real search volume
    - Generate 100 article briefs
    - Create SEO_KEYWORDS.md
    - Seed database with SEOBrief records
 
-### Step 3: Run System Build
+### Step 2: Run System Build
 
-1. User pastes PROMPT_LONG_TAIL_SEO.txt content
+1. Read `/prompts/PROMPT_LONG_TAIL_SEO.txt`
 2. Follow the prompt's instructions to:
    - Add Prisma models (SEOPillar, SEOBrief, SEOArticle, SEORule)
    - Create daily cron job

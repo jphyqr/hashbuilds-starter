@@ -153,6 +153,11 @@ Follow the numbered files in order:
   ├── _TEMPLATE.md            ← Blank spec template
   └── [feature-name].md       ← Individual feature specs
 
+/prompts/                     ← Large system prompts
+  ├── README.md               ← Prompt usage guide
+  ├── PROMPT_KEYWORD_RESEARCH.txt  ← SEO keyword research
+  └── PROMPT_LONG_TAIL_SEO.txt     ← SEO article system
+
 /deliverables/                ← Client-facing documentation
   ├── rollout.md              ← Public progress tracker
   ├── progress.md             ← Completed work log

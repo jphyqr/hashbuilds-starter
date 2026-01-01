@@ -67,9 +67,10 @@ Create these when you need more detail than `02-business-context.md` provides:
 | [kpis.md](business/kpis.md) | Metric definitions |
 | [roadmap.md](business/roadmap.md) | Future planning |
 
-### `/features/` - Feature Specifications
+### `/specs/` - Feature Specifications
 
-Detailed specs for complex features.
+Feature specs live at the project root in `/specs/` (not in docs).
+Use `/create-spec` and `/implement-spec` commands for spec-first development.
 
 ### `/plans/` - Implementation Roadmaps
 

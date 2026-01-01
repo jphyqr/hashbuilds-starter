@@ -53,7 +53,7 @@ export default async function RolloutPage() {
   let lastUpdated = '';
 
   try {
-    const filePath = path.join(process.cwd(), 'deliverables', 'ROLLOUT.md');
+    const filePath = path.join(process.cwd(), 'deliverables', 'rollout.md');
     const content = await fs.readFile(filePath, 'utf-8');
     phases = parseRollout(content);
 
@@ -104,7 +104,7 @@ export default async function RolloutPage() {
             <div className="text-center py-12 text-gray-500">
               <p>No rollout data yet.</p>
               <p className="text-sm mt-2">
-                Update deliverables/ROLLOUT.md to see progress here.
+                Update deliverables/rollout.md to see progress here.
               </p>
             </div>
           ) : (

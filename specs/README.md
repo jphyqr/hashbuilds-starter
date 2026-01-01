@@ -133,11 +133,9 @@ This will:
 
 ## Example Specs
 
-See these examples for reference:
+Use `_TEMPLATE.md` as your starting point for new specs.
 
-- `example-user-auth.md` - Authentication flow
-- `example-payment-flow.md` - Stripe integration
-- `example-file-upload.md` - File upload system
+After creating a few specs, this folder will contain real examples to reference.
 
 ---
 

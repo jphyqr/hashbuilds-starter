@@ -1,0 +1,453 @@
+I want to do deep keyword research for my SEO content strategy and generate 100 article briefs upfront.
+
+---
+**WHAT THIS PROMPT DOES**
+
+This prompt runs ONCE to establish your complete keyword → article mapping. It:
+1. Analyzes your business context and codebase
+2. Performs deep keyword research (requires Keywords Everywhere MCP)
+3. Generates exactly 100 article briefs with real search volume data
+4. Creates SEO_KEYWORDS.md memory file with the complete map
+5. Seeds your database with briefs for the daily cron to execute
+
+**AFTER THIS PROMPT**: Run PROMPT_LONG_TAIL_SEO.txt to build the system that executes these briefs.
+
+---
+
+**STEP 1: CHECK PREREQUISITES**
+
+First, verify:
+
+1. **BUSINESS-CONTEXT.md exists** (REQUIRED)
+   - Contains business type, services, target audience
+   - If missing: "Create BUSINESS-CONTEXT.md first. Visit: https://hashbuilds.com/ai-strategy-for-businesses"
+
+2. **Keywords Everywhere MCP is installed** (REQUIRED)
+   - Test by calling: `mcp__keywords-everywhere__get_credits`
+   - If not installed: "Install Keywords Everywhere MCP first. Get API key at keywordseverywhere.com"
+
+3. **Database with Prisma** (REQUIRED)
+   - Check for prisma/schema.prisma
+   - If missing: "Set up Prisma first"
+
+Show me which prerequisites are met.
+
+---
+
+**STEP 2: ANALYZE BUSINESS CONTEXT**
+
+Read BUSINESS-CONTEXT.md and scan the codebase to understand:
+
+1. **Business Type**: SaaS, consultancy, local service, e-commerce, marketplace?
+2. **Core Offerings**: What products/services exist?
+3. **Target Audience**: Who are the customers?
+4. **Geographic Scope**: Local, regional, national, global?
+5. **Existing Content**: Any /features, /services, /blog pages already?
+
+**Also check for:**
+- FEATURES.md or similar files (planned features to write about)
+- Existing article/content patterns
+- Competitor mentions
+- Industry vertical
+
+Then ask these discovery questions:
+
+"I've analyzed your codebase. Before keyword research, I need to understand:
+
+**A) Authority Topics**
+What 3-8 topics do you want to be THE authority on?
+(These become your content pillars)
+
+**B) Planned Rich Content**
+Are you building any cornerstone content that articles should link TO?
+- Calculators, tools, templates
+- Ultimate guides
+- Video series or courses
+
+**C) Topics to Avoid**
+Any subjects that are off-limits or outside your expertise?
+
+**D) Competitor Domains** (OPTIONAL)
+Want me to research what keywords your competitors rank for?
+(Provide 1-3 domains if yes)"
+
+---
+
+**STEP 3: DESIGN PILLAR STRUCTURE**
+
+Based on user answers, design 4-8 content pillars using this framework:
+
+**Pillar Design Rules:**
+1. **MECE**: Mutually Exclusive, Collectively Exhaustive (no overlap between pillars)
+2. **AI-Friendly**: Each pillar must pass the "Can a well-read generalist write this?" test
+3. **Keyword-Backed**: Each pillar targets a distinct keyword cluster
+4. **Link-Worthy**: Each pillar supports a cornerstone content piece
+
+**Present Your Pillar Proposal:**
+
+"Based on your business context and authority topics, I recommend [X] pillars:
+
+| Pillar | AI Suitability | Target Keywords | Link Target |
+|--------|---------------|-----------------|-------------|
+| [name] | ✅/🔶/❌ | [main keyword cluster] | [planned cornerstone content] |
+
+**Why this structure:**
+- [Explain pillar choices]
+- [How it supports current + future business]
+- [Any pillars NOT included and why]
+
+Approve this structure? Or adjust pillars before I do keyword research?"
+
+**Wait for user approval before proceeding.**
+
+---
+
+**STEP 4: DEEP KEYWORD RESEARCH**
+
+**CRITICAL: Use Keywords Everywhere MCP for real data**
+
+For each approved pillar, execute these research steps:
+
+**Step 4a: Get seed keyword data**
+```
+mcp__keywords-everywhere__get_keyword_data({
+  keywords: ["pillar main keyword", "pillar secondary keyword"],
+  country: "us",  // or user's target country
+  currency: "usd"
+})
+```
+
+**Step 4b: Get related keywords** (max 200 per pillar)
+```
+mcp__keywords-everywhere__get_related_keywords({
+  keyword: "pillar main keyword",
+  num: 200
+})
+```
+
+**Step 4c: Get "People Also Search For" keywords**
+```
+mcp__keywords-everywhere__get_pasf_keywords({
+  keyword: "pillar main keyword",
+  num: 100
+})
+```
+
+**Step 4d: (If competitor domains provided) Get competitor keywords**
+```
+mcp__keywords-everywhere__get_domain_keywords({
+  domain: "competitor.com",
+  country: "us",
+  num: 200
+})
+```
+
+**Keyword Selection Criteria:**
+- Volume: 100+ monthly searches preferred (lower OK for long-tail)
+- Competition: Low to medium preferred
+- Intent: Informational ("what is", "how to", "vs", "best")
+- Relevance: Direct match to pillar topic
+
+**IMPORTANT**: Deduplicate across pillars. Each keyword maps to ONE pillar only.
+
+---
+
+**STEP 5: GENERATE 100 ARTICLE BRIEFS**
+
+For each keyword, create a brief with:
+
+1. **Title**: SEO-optimized, includes primary keyword naturally
+2. **Primary Keyword**: Main search term (include volume)
+3. **Secondary Keywords**: 2-3 related terms to include
+4. **Search Intent**: What the searcher wants to learn
+5. **Pillar**: Which category this belongs to
+6. **Link Targets**: Which cornerstone content to link TO (if any)
+7. **Priority**: 1-100 (lower = publish first)
+
+**Brief Distribution:**
+- Aim for ~15-20 articles per pillar (for 6 pillars = 100 total)
+- Higher volume keywords get lower priority (publish first)
+- Mix of head terms (high volume) and long-tail (specific intent)
+
+**Output Format for Each Brief:**
+```
+## Brief #[number]: [Title]
+
+**Primary Keyword:** [keyword] ([volume] searches/mo)
+**Secondary Keywords:** [kw1], [kw2], [kw3]
+**Search Intent:** [What searcher wants]
+**Pillar:** [pillar name]
+**Link To:** [cornerstone content URL or "none"]
+**Priority:** [1-100]
+```
+
+---
+
+**STEP 5b: TITLE VALIDATION (QUALITY GATE)**
+
+Before finalizing briefs, run these validation checks:
+
+**1. Title Deduplication Check**
+Flag any titles that are semantically too similar:
+- "What is X?" vs "X Explained" → Flag as potential duplicate
+- "How to X" vs "X: A Complete Guide" → OK (different intent)
+- "X vs Y" vs "Y vs X" → Flag as duplicate
+
+**Action**: If flagged, merge into one brief or differentiate the angle.
+
+**2. Keyword Cannibalization Check**
+Scan all 100 briefs for:
+- Same primary keyword appearing twice → MUST FIX
+- Same secondary keyword as another brief's primary → WARN
+
+**Action**: Consolidate or reassign keywords so each brief owns unique territory.
+
+**3. Title Quality Scoring**
+For each title, verify:
+- [ ] Keyword appears naturally (not forced)
+- [ ] Length: 55-65 characters (optimal for SERPs)
+- [ ] Matches search intent (how-to → actionable, what-is → definitional)
+- [ ] No clickbait or sensationalism
+
+**Score**: 0-4 points. Titles scoring <3 should be rewritten.
+
+**4. Pillar Balance Check**
+Verify distribution across pillars:
+| Pillar | Target | Actual | Status |
+|--------|--------|--------|--------|
+| [name] | 15-20  | [X]    | ✅/⚠️  |
+
+**Action**: Redistribute if any pillar has <10 or >25 briefs.
+
+**Output Validation Summary:**
+```
+✅ TITLE VALIDATION COMPLETE
+
+Deduplication: [X] pairs flagged, [Y] resolved
+Cannibalization: [X] conflicts, [Y] resolved
+Quality Scores: [X] titles scoring 4/4, [Y] titles rewritten
+Pillar Balance: [status]
+
+All 100 briefs validated. Ready for database seeding.
+```
+
+**Wait for validation to pass before proceeding to Step 6.**
+
+---
+
+**STEP 6: CREATE SEO_KEYWORDS.md MEMORY FILE**
+
+Generate a comprehensive memory file:
+
+```markdown
+# SEO Keywords & Article Briefs
+
+**Generated:** [date]
+**Total Articles:** 100
+**Total Monthly Search Volume:** [sum]
+**Pillars:** [count]
+
+## Pillar Overview
+
+| Pillar | Articles | Total Volume | Top Keyword |
+|--------|----------|--------------|-------------|
+| [name] | [count] | [volume] | [top kw] |
+
+## Link Targets (Cornerstone Content)
+
+| Title | URL | Keywords That Link Here |
+|-------|-----|------------------------|
+| [name] | [url] | [list of brief numbers] |
+
+---
+
+## Pillar 1: [Name]
+
+### Brief #1: [Title]
+- **Keyword:** [kw] ([vol])
+- **Secondary:** [kw1], [kw2]
+- **Intent:** [intent]
+- **Link To:** [url or none]
+- **Priority:** 1
+
+### Brief #2: [Title]
+...
+
+---
+
+## Pillar 2: [Name]
+...
+```
+
+Save this file to the root directory as SEO_KEYWORDS.md.
+
+---
+
+**STEP 7: UPDATE PRISMA SCHEMA**
+
+Add SEOBrief model if it doesn't exist:
+
+```prisma
+model SEOBrief {
+  id          String   @id @default(cuid())
+  pillarId    String
+  pillar      SEOPillar @relation(fields: [pillarId], references: [id])
+  title       String   // Article title
+  primaryKeyword    String   // Main keyword
+  primaryVolume     Int      // Monthly search volume
+  secondaryKeywords String[] // Related keywords
+  searchIntent      String   // What searcher wants
+  linkTargets       String[] // URLs to link to
+  priority    Int      @default(50) // Lower = publish first
+  status      String   @default("pending") // pending | published | skipped
+  articleId   String?  @unique // Links to generated SEOArticle
+  article     SEOArticle? @relation(fields: [articleId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([status])
+  @@index([priority])
+}
+```
+
+Also update SEOPillar to have briefs relation:
+```prisma
+model SEOPillar {
+  // ... existing fields ...
+  briefs    SEOBrief[]
+}
+```
+
+And SEOArticle to have brief relation:
+```prisma
+model SEOArticle {
+  // ... existing fields ...
+  brief     SEOBrief?
+}
+```
+
+Run: `npx prisma migrate dev --name add-seo-briefs`
+
+---
+
+**STEP 8: SEED DATABASE WITH BRIEFS**
+
+Create a seed script or use the existing setup script to:
+
+1. Create or update SEOPillars for each pillar
+2. Create SEOBrief records for all 100 briefs
+3. Set priorities (lower = published sooner)
+
+```typescript
+// scripts/seed-seo-briefs.ts
+import { db } from '@/lib/db'
+
+async function seedBriefs() {
+  // Read from SEO_KEYWORDS.md or use hardcoded briefs
+  const briefs = [
+    {
+      pillarName: "Sales Pipeline & Coverage",
+      title: "What Is Pipeline Coverage? How RevOps Teams Calculate and Optimize It",
+      primaryKeyword: "pipeline coverage",
+      primaryVolume: 4400,
+      secondaryKeywords: ["sales pipeline coverage", "pipeline coverage ratio"],
+      searchIntent: "Understand what pipeline coverage means and how to calculate it",
+      linkTargets: ["/tools/pipeline-calculator"],
+      priority: 1
+    },
+    // ... all 100 briefs
+  ]
+
+  for (const brief of briefs) {
+    const pillar = await db.sEOPillar.findFirst({
+      where: { name: brief.pillarName }
+    })
+
+    if (pillar) {
+      await db.sEOBrief.create({
+        data: {
+          pillarId: pillar.id,
+          title: brief.title,
+          primaryKeyword: brief.primaryKeyword,
+          primaryVolume: brief.primaryVolume,
+          secondaryKeywords: brief.secondaryKeywords,
+          searchIntent: brief.searchIntent,
+          linkTargets: brief.linkTargets,
+          priority: brief.priority
+        }
+      })
+    }
+  }
+
+  console.log('Seeded 100 briefs')
+}
+
+seedBriefs()
+```
+
+Run: `npx tsx scripts/seed-seo-briefs.ts`
+
+---
+
+**STEP 9: SUMMARY OUTPUT**
+
+After completing all steps, show:
+
+```
+✅ KEYWORD RESEARCH COMPLETE
+
+📊 Research Summary:
+- Pillars created: [X]
+- Total briefs: 100
+- Total monthly searches: [sum]
+- Database seeded: ✓
+
+📁 Files Created:
+- SEO_KEYWORDS.md (memory file with all briefs)
+- prisma/schema.prisma (updated with SEOBrief model)
+- scripts/seed-seo-briefs.ts (database seeder)
+
+📈 Top Keywords by Volume:
+1. [keyword] - [volume]
+2. [keyword] - [volume]
+3. [keyword] - [volume]
+4. [keyword] - [volume]
+5. [keyword] - [volume]
+
+🏗️ Pillar Breakdown:
+| Pillar | Briefs | Avg Volume | Top Keyword |
+|--------|--------|------------|-------------|
+| ... | ... | ... | ... |
+
+🔗 Link Targets (Cornerstone Content):
+| Content | Articles Linking To It |
+|---------|----------------------|
+| [name] | [count] |
+
+⏭️ NEXT STEP:
+Run PROMPT_LONG_TAIL_SEO.txt to build the system that executes these briefs.
+The daily cron will use your pre-mapped briefs instead of AI-guessing keywords.
+```
+
+---
+
+**ARCHITECTURE NOTES**
+
+**Why Database for Briefs (Not Just Markdown)?**
+
+1. **Cron Access**: Daily cron queries `WHERE status = 'pending' ORDER BY priority`
+2. **State Tracking**: Each brief tracks status (pending/published/skipped)
+3. **Audit Trail**: See when each brief was created, updated, published
+4. **Client Editing**: Clients can modify briefs in admin UI without file corruption
+5. **Article Linking**: Each brief links to its generated SEOArticle
+
+**Brief → Article Flow:**
+1. Keyword research creates 100 SEOBrief records
+2. Daily cron picks next pending brief by priority
+3. Cron generates SEOArticle using brief's title/keywords/intent
+4. Brief.status → "published", Brief.articleId → new article ID
+5. No more AI guessing at keywords - just executing the plan
+
+**Memory File Purpose:**
+SEO_KEYWORDS.md serves as human-readable documentation of the keyword strategy.
+The database is the source of truth for the cron system.
