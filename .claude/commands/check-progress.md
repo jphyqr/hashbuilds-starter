@@ -44,12 +44,12 @@ Check each service doc for configuration status:
 - ⬜ Not configured - No env vars
 - ⚠️ Partial - Env vars but docs empty
 
-### 3. Specs (specs/)
+### 3. Specs (docs/product/)
 
 List all spec files and their status:
 
 ```
-specs/
+docs/product/
 ├── feature-name.md (Status: Ready/In Progress/Complete)
 └── another-feature.md (Status: Planning)
 ```

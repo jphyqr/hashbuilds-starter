@@ -102,13 +102,13 @@ ready=0
 in_progress=0
 complete=0
 
-if [ -d "specs" ]; then
-  spec_count=$(find specs -name "*.md" ! -name "README.md" ! -name "_TEMPLATE.md" 2>/dev/null | wc -l | tr -d ' ')
+if [ -d "docs/product" ]; then
+  spec_count=$(find docs/product -name "*.md" ! -name "README.md" ! -name "_template.md" 2>/dev/null | wc -l | tr -d ' ')
   if [ "$spec_count" -gt 0 ]; then
-    planning=$(grep -l "Status.*Planning" specs/*.md 2>/dev/null | wc -l | tr -d ' ')
-    ready=$(grep -l "Status.*Ready" specs/*.md 2>/dev/null | wc -l | tr -d ' ')
-    in_progress=$(grep -l "Status.*In Progress" specs/*.md 2>/dev/null | wc -l | tr -d ' ')
-    complete=$(grep -l "Status.*Complete" specs/*.md 2>/dev/null | wc -l | tr -d ' ')
+    planning=$(grep -l "Status.*Planning" docs/product/*.md 2>/dev/null | wc -l | tr -d ' ')
+    ready=$(grep -l "Status.*Ready" docs/product/*.md 2>/dev/null | wc -l | tr -d ' ')
+    in_progress=$(grep -l "Status.*In Progress" docs/product/*.md 2>/dev/null | wc -l | tr -d ' ')
+    complete=$(grep -l "Status.*Complete" docs/product/*.md 2>/dev/null | wc -l | tr -d ' ')
     echo "- Planning: $planning"
     echo "- Ready: $ready"
     echo "- In Progress: $in_progress"
@@ -117,7 +117,7 @@ if [ -d "specs" ]; then
     echo "No feature specs yet. Use /create-spec to start."
   fi
 else
-  echo "No specs folder."
+  echo "No product folder. Run /setup first."
 fi
 echo ""
 

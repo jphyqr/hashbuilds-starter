@@ -6,7 +6,7 @@ Sync all deliverables documentation after completing work.
 
 First, run a quick status check by scanning:
 - `.env` for configured services
-- `specs/` for feature status
+- `docs/product/` for feature spec status
 - `app/` for routes and components
 - `prisma/schema.prisma` for models
 
