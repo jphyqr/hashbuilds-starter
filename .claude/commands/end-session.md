@@ -49,7 +49,25 @@ If we were implementing a spec from `/docs/product/`:
 1. Update the spec's `Status:` field (In Progress → Complete, or note progress)
 2. Add any implementation notes to the spec
 
-### Step 4: Quick Status Report
+### Step 4: Code Health Check
+
+Before wrapping up, do a quick code health scan:
+
+1. **Pattern violations:** Did we deviate from documented patterns in `/docs/architecture/`?
+   - If yes, ask: "Should we update the pattern docs, or was this a one-off?"
+
+2. **Tech debt introduced:** Did we take any shortcuts?
+   - If yes, log to `/docs/architecture/code-health.md` under Tech Debt Log
+
+3. **New patterns established:** Did we create a reusable pattern?
+   - If yes, ask: "Should I add this to the architecture docs?"
+
+4. **Anti-patterns spotted:** Did we do anything that shouldn't be repeated?
+   - If yes, add to Anti-Patterns section in code-health.md
+
+Only ask about these if they actually occurred during the session.
+
+### Step 5: Quick Status Report
 
 After updating, give the user a summary:
 
@@ -62,9 +80,12 @@ Next session: Y tasks planned
 Files updated:
 - deliverables/progress.md
 - [any specs updated]
+
+Code health:
+- [any pattern notes, or "✓ No issues"]
 ```
 
-### Step 5: Offer Client Update (Optional)
+### Step 6: Offer Client Update (Optional)
 
 Ask: "Should I also update the client-facing rollout? (y/n)"
 

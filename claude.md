@@ -135,6 +135,14 @@ Follow the numbered files in order:
   ├── 07-integration-test.md  ← Testing strategy
   ├── handoff.md              ← Account ownership, credentials
   │
+  ├── architecture/           ← System architecture (grows with app)
+  │   ├── README.md           ← Overview + pattern sync rules
+  │   ├── data-model.md       ← Entity relationships, design decisions
+  │   ├── api-conventions.md  ← REST patterns, auth, response formats
+  │   ├── components.md       ← Component inventory
+  │   ├── ui-patterns.md      ← Forms, toasts, errors, loading states
+  │   └── code-health.md      ← Tech debt, pattern violations, audits
+  │
   ├── business/               ← CEO strategy layer (Role: CEO/Founder)
   │   └── README.md           ← Role-priming + deep-dive templates
   │
