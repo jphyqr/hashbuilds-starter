@@ -32,12 +32,13 @@ Check each service doc for configuration status:
 | File | Check For |
 |------|-----------|
 | 01-database.md | DATABASE_URL in .env, Prisma schema |
-| 02-auth.md | NEXTAUTH_SECRET in .env |
 | 03-email.md | RESEND_API_KEY in .env |
 | 04-payments.md | STRIPE keys in .env |
 | 05-storage.md | Storage config in .env |
 | 06-sms.md | SMS provider in .env |
 | 07-analytics.md | Analytics config |
+
+**Note:** Auth is checked via `docs/06-auth-system.md` (NEXTAUTH_SECRET in .env)
 
 **Status indicators:**
 - ✅ Configured - Env vars present, docs filled
@@ -125,7 +126,7 @@ Generate this report:
 **Phase 2: Services** - Database done, auth next
 
 ## Suggested Next Steps
-1. Configure auth (docs/services/02-auth.md)
+1. Configure auth (docs/06-auth-system.md)
 2. Set up email for magic links (docs/services/03-email.md)
 3. Create first feature spec (/create-spec [name])
 ```

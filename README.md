@@ -145,13 +145,14 @@ Before prioritizing, configure your product strategy:
 ### Service Guides (docs/services/)
 
 - **01-database.md** - PostgreSQL setup (Neon recommended)
-- **02-auth.md** - NextAuth configuration
 - **03-email.md** - Resend setup
 - **04-payments.md** - Stripe integration
 - **05-storage.md** - File uploads
 - **06-sms.md** - SMS integration
 - **07-analytics.md** - Analytics setup
 - **08-deployment.md** - Vercel deployment
+
+> **Auth:** See `docs/06-auth-system.md` - auth is architecture, not an external service.
 
 ### GTM Strategies (docs/gtm/)
 

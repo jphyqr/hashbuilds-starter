@@ -23,14 +23,15 @@ Claude Code will ask you questions and help configure each service.
 
 **Required services:**
 1. 01-database.md → Everything depends on this
-2. 02-auth.md → Most features need user context
-3. 03-email.md → Auth needs this for magic links
+2. 03-email.md → Auth needs this for magic links
 
 **Optional services (skip if not needed for MVP):**
-4. 04-payments.md → Only if charging users
-5. 05-storage.md → Only if users upload files
-6. 06-sms.md → Rarely needed (email usually suffices)
-7. 07-analytics.md → Set up before launch
+3. 04-payments.md → Only if charging users
+4. 05-storage.md → Only if users upload files
+5. 06-sms.md → Rarely needed (email usually suffices)
+6. 07-analytics.md → Set up before launch
+
+**Note:** Auth is handled in [docs/06-auth-system.md](../06-auth-system.md) - it's an architecture concern, not an external service.
 -->
 
 ---
@@ -40,12 +41,13 @@ Claude Code will ask you questions and help configure each service.
 | # | Service | File | Required? | Status |
 |---|---------|------|-----------|--------|
 | 1 | Database | [01-database.md](01-database.md) | Yes | [ ] Not started |
-| 2 | Authentication | [02-auth.md](02-auth.md) | Yes | [ ] Not started |
-| 3 | Email | [03-email.md](03-email.md) | Usually | [ ] Not started |
-| 4 | Payments | [04-payments.md](04-payments.md) | Sometimes | [ ] Not started |
-| 5 | File Storage | [05-storage.md](05-storage.md) | Sometimes | [ ] Not started |
-| 6 | SMS | [06-sms.md](06-sms.md) | Rarely | [ ] Not started |
-| 7 | Analytics | [07-analytics.md](07-analytics.md) | Before launch | [ ] Not started |
+| 2 | Email | [03-email.md](03-email.md) | Usually | [ ] Not started |
+| 3 | Payments | [04-payments.md](04-payments.md) | Sometimes | [ ] Not started |
+| 4 | File Storage | [05-storage.md](05-storage.md) | Sometimes | [ ] Not started |
+| 5 | SMS | [06-sms.md](06-sms.md) | Rarely | [ ] Not started |
+| 6 | Analytics | [07-analytics.md](07-analytics.md) | Before launch | [ ] Not started |
+
+> **Auth:** See [docs/06-auth-system.md](../06-auth-system.md) - handled as architecture, not external service.
 
 ---
 

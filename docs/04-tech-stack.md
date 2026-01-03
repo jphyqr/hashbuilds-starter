@@ -26,7 +26,7 @@ This file is reference documentation - update the Changelog section when stack c
 | **Styling** | Tailwind CSS | 4.x | With CSS variables |
 | **UI Library** | shadcn/ui | Latest | Radix primitives |
 | **Database** | Prisma | 6.x | See [services/01-database.md](services/01-database.md) |
-| **Auth** | NextAuth.js | 4.x | See [services/02-auth.md](services/02-auth.md) |
+| **Auth** | NextAuth.js | 4.x | See [06-auth-system.md](06-auth-system.md) |
 | **Email** | Resend | 4.x | See [services/03-email.md](services/03-email.md) |
 | **Animations** | Framer Motion | 12.x | For complex animations |
 | **Forms** | react-hook-form | 7.x | With Zod validation |

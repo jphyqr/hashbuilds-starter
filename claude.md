@@ -18,12 +18,13 @@ Follow the numbered files in /docs/:
 
 Set up services in /docs/services/:
 1. 01-database.md → Required
-2. 02-auth.md → Required
-3. 03-email.md → Usually required (for magic links)
-4. 04-payments.md → Optional
-5. 05-storage.md → Optional
-6. 06-sms.md → Optional
-7. 07-analytics.md → Before launch
+2. 03-email.md → Usually required (for magic links)
+3. 04-payments.md → Optional
+4. 05-storage.md → Optional
+5. 06-sms.md → Optional
+6. 07-analytics.md → Before launch
+
+Note: Auth is in docs/06-auth-system.md (architecture, not external service)
 
 ## Feature Development (Phase 6)
 
@@ -102,13 +103,14 @@ Follow the numbered files in order:
 | # | File | Required? |
 |---|------|-----------|
 | 1 | [services/01-database.md](docs/services/01-database.md) | Yes |
-| 2 | [services/02-auth.md](docs/services/02-auth.md) | Yes |
-| 3 | [services/03-email.md](docs/services/03-email.md) | Usually |
-| 4 | [services/04-payments.md](docs/services/04-payments.md) | Sometimes |
-| 5 | [services/05-storage.md](docs/services/05-storage.md) | Sometimes |
-| 6 | [services/06-sms.md](docs/services/06-sms.md) | Rarely |
-| 7 | [services/07-analytics.md](docs/services/07-analytics.md) | Before launch |
-| 8 | [services/08-deployment.md](docs/services/08-deployment.md) | At launch |
+| 2 | [services/03-email.md](docs/services/03-email.md) | Usually |
+| 3 | [services/04-payments.md](docs/services/04-payments.md) | Sometimes |
+| 4 | [services/05-storage.md](docs/services/05-storage.md) | Sometimes |
+| 5 | [services/06-sms.md](docs/services/06-sms.md) | Rarely |
+| 6 | [services/07-analytics.md](docs/services/07-analytics.md) | Before launch |
+| 7 | [services/08-deployment.md](docs/services/08-deployment.md) | At launch |
+
+> **Auth:** See [06-auth-system.md](docs/06-auth-system.md) in Phase 1 - it's architecture, not an external service.
 
 ### Phase 3: GTM (After MVP is Live)
 
@@ -157,13 +159,13 @@ Follow the numbered files in order:
   ├── services/               ← External integrations (Role: DevOps)
   │   ├── README.md           ← Role-priming
   │   ├── 01-database.md
-  │   ├── 02-auth.md
   │   ├── 03-email.md
   │   ├── 04-payments.md
   │   ├── 05-storage.md
   │   ├── 06-sms.md
   │   ├── 07-analytics.md
   │   └── 08-deployment.md
+  │   (Auth is in 06-auth-system.md - architecture, not service)
   │
   └── gtm/                    ← Go-to-market (Role: Head of Growth)
       ├── README.md           ← Role-priming

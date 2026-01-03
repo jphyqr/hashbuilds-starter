@@ -14,12 +14,13 @@ Each file has a PROMPT section at the top - Claude Code will ask you questions a
 
 **Then services (in /services folder):**
 1. 01-database.md → Set up Neon/PostgreSQL
-2. 02-auth.md → Set up NextAuth
-3. 03-email.md → Set up Resend
-4. 04-payments.md → (Optional) Set up Stripe
-5. 05-storage.md → (Optional) Set up file uploads
-6. 06-sms.md → (Optional) Set up Twilio
-7. 07-analytics.md → Set up before launch
+2. 03-email.md → Set up Resend
+3. 04-payments.md → (Optional) Set up Stripe
+4. 05-storage.md → (Optional) Set up file uploads
+5. 06-sms.md → (Optional) Set up Twilio
+6. 07-analytics.md → Set up before launch
+
+**Note:** Auth is in 06-auth-system.md (core docs, not services)
 
 **Skip files you don't need.** Come back to optional ones later.
 -->
@@ -44,12 +45,13 @@ See [services/README.md](services/README.md) for details.
 | # | File | Required? | Purpose |
 |---|------|-----------|---------|
 | 1 | [01-database.md](services/01-database.md) | Yes | PostgreSQL (Neon) |
-| 2 | [02-auth.md](services/02-auth.md) | Yes | NextAuth.js |
-| 3 | [03-email.md](services/03-email.md) | Usually | Resend (for magic links) |
-| 4 | [04-payments.md](services/04-payments.md) | Sometimes | Stripe |
-| 5 | [05-storage.md](services/05-storage.md) | Sometimes | Vercel Blob |
-| 6 | [06-sms.md](services/06-sms.md) | Rarely | Twilio |
-| 7 | [07-analytics.md](services/07-analytics.md) | Before launch | Vercel Analytics |
+| 2 | [03-email.md](services/03-email.md) | Usually | Resend (for magic links) |
+| 3 | [04-payments.md](services/04-payments.md) | Sometimes | Stripe |
+| 4 | [05-storage.md](services/05-storage.md) | Sometimes | Vercel Blob |
+| 5 | [06-sms.md](services/06-sms.md) | Rarely | Twilio |
+| 6 | [07-analytics.md](services/07-analytics.md) | Before launch | Vercel Analytics |
+
+> **Auth:** See [06-auth-system.md](06-auth-system.md) - it's architecture, not an external service.
 
 ---
 

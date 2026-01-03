@@ -73,7 +73,7 @@ Mark complete when DATABASE_URL is in `.env` and Prisma works.
 
 ### Step 2: Auth
 
-Read the embedded prompt in `/docs/services/02-auth.md`:
+Read `/docs/06-auth-system.md` for the complete auth guide:
 
 1. Ask auth method preference (recommend magic link)
 2. Ask about user roles (recommend ADMIN, TEAM, USER)
