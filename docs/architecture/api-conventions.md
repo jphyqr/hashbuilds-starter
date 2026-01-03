@@ -1,8 +1,29 @@
 # API Conventions
 
-Project-specific API patterns and conventions.
+**Read this BEFORE creating any `app/api/**/route.ts` file.**
 
 For general patterns, see [docs/05-coding-standards.md](../05-coding-standards.md).
+
+---
+
+## Pre-Flight Checklist
+
+Before creating an API route:
+
+| Question | Answer | Action |
+|----------|--------|--------|
+| Is this a public endpoint? | Yes/No | Skip auth check if public |
+| What HTTP methods needed? | GET/POST/etc | Export only those |
+| What input does it accept? | Body/Query/Params | Define Zod schema |
+| Who can access this? | Anyone/Logged in/Admin | Add auth + role check |
+
+### Every API Route MUST Have
+
+- [ ] **Auth check** (unless explicitly public)
+- [ ] **Input validation** (Zod schema for body/params)
+- [ ] **Proper status codes** (not just 200 for everything)
+- [ ] **Error handling** (try/catch, user-friendly messages)
+- [ ] **TypeScript types** (no `any`)
 
 ---
 
@@ -250,6 +271,81 @@ Track your API routes as they grow:
 |-------|---------|------|---------|
 | `/api/auth/*` | Various | - | NextAuth |
 | _[Add as you build]_ | | | |
+
+---
+
+## Quick Copy Template
+
+```typescript
+// app/api/[resource]/route.ts
+import { auth } from '@/lib/auth'
+import { db } from '@/lib/db'
+import { z } from 'zod'
+
+const CreateSchema = z.object({
+  name: z.string().min(1),
+  // ... other fields
+})
+
+// GET /api/resource - List all
+export async function GET() {
+  const session = await auth()
+  if (!session) {
+    return Response.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
+  try {
+    const items = await db.resource.findMany({
+      where: { userId: session.user.id }
+    })
+    return Response.json({ data: items })
+  } catch {
+    return Response.json({ error: 'Failed to fetch' }, { status: 500 })
+  }
+}
+
+// POST /api/resource - Create new
+export async function POST(request: Request) {
+  const session = await auth()
+  if (!session) {
+    return Response.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
+  try {
+    const body = await request.json()
+    const result = CreateSchema.safeParse(body)
+
+    if (!result.success) {
+      return Response.json(
+        { error: 'Validation failed', details: result.error.flatten() },
+        { status: 400 }
+      )
+    }
+
+    const item = await db.resource.create({
+      data: { ...result.data, userId: session.user.id }
+    })
+
+    return Response.json({ data: item }, { status: 201 })
+  } catch {
+    return Response.json({ error: 'Failed to create' }, { status: 500 })
+  }
+}
+```
+
+---
+
+## Final Checklist
+
+Before committing an API route:
+
+- [ ] Auth check present (or explicitly marked as public)
+- [ ] Input validated with Zod
+- [ ] Proper HTTP status codes used
+- [ ] Error responses are user-friendly (no stack traces)
+- [ ] Added to API Inventory table above
+- [ ] Tested with invalid input
+- [ ] Tested unauthorized access
 
 ---
 

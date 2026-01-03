@@ -1,20 +1,57 @@
-# /docs/architecture - System Architecture
+# /docs/architecture - Build Checklists & Patterns
 
-This folder documents architectural decisions that evolve as the app grows.
+This folder contains **guardrails for creating new files** and architectural patterns.
 
 **Source of truth:** Code is always the source of truth. These docs capture *intent* and *patterns*, not duplicate code.
 
 ---
 
+## BEFORE YOU CREATE (Read First!)
+
+| Creating This... | Read First | Why |
+|------------------|------------|-----|
+| `app/**/page.tsx` | [pages.md](pages.md) | SEO, metadata, layouts |
+| `app/**/layout.tsx` | [pages.md](pages.md) | Metadata inheritance |
+| `app/api/**/route.ts` | [api-conventions.md](api-conventions.md) | Auth, validation, errors |
+| `prisma/schema.prisma` changes | [schema.md](schema.md) | Migration safety |
+
+**These are NON-NEGOTIABLE.** Every page needs SEO. Every API needs auth. Every schema change needs safety.
+
+---
+
 ## Files
 
-| File | Purpose | When to Update |
-|------|---------|----------------|
-| [data-model.md](data-model.md) | Entity relationships, design decisions | When adding/changing Prisma models |
-| [api-conventions.md](api-conventions.md) | REST patterns, auth, response formats | When adding new API patterns |
-| [components.md](components.md) | Key component inventory, usage patterns | When building reusable components |
+| File | Purpose | When to Read |
+|------|---------|--------------|
+| [pages.md](pages.md) | **Checklist:** SEO, meta, OpenGraph, layouts | Before creating pages |
+| [schema.md](schema.md) | **Checklist:** Migrations, indexes, cascades | Before schema changes |
+| [api-conventions.md](api-conventions.md) | **Checklist:** Auth, validation, response formats | Before creating APIs |
+| [data-model.md](data-model.md) | Entity relationships, design decisions | After schema changes |
+| [components.md](components.md) | Component inventory, usage patterns | When building reusable components |
 | [ui-patterns.md](ui-patterns.md) | Forms, toasts, errors, loading states | When changing core UI patterns |
-| [code-health.md](code-health.md) | Tech debt, pattern violations, code quality | During /end-session or code reviews |
+| [code-health.md](code-health.md) | Tech debt, pattern violations | During /end-session or code reviews |
+
+---
+
+## Quick Reference
+
+### Every Page Needs:
+- [ ] Unique `<title>` (50-60 chars)
+- [ ] `description` meta (150-160 chars)
+- [ ] OpenGraph tags (or inherit from layout)
+- [ ] JSON-LD if content page
+
+### Every API Route Needs:
+- [ ] Auth check (unless explicitly public)
+- [ ] Zod input validation
+- [ ] Proper status codes
+- [ ] Error handling
+
+### Every Schema Change Needs:
+- [ ] Safe migration path (no data loss)
+- [ ] Indexes for query patterns
+- [ ] Cascade rules defined
+- [ ] Tested locally first
 
 ---
 
@@ -36,10 +73,11 @@ This folder documents architectural decisions that evolve as the app grows.
 
 | This Folder | vs | Other Docs |
 |-------------|----|-----------|
-| data-model.md | → | `prisma/schema.prisma` is the source of truth; this explains *why* |
-| api-conventions.md | → | `05-coding-standards.md` has patterns; this has project-specific conventions |
+| pages.md | → | `03-design-system.md` has aesthetics; this has SEO rules |
+| schema.md | → | `prisma/schema.prisma` is source of truth; this explains safety |
+| api-conventions.md | → | `05-coding-standards.md` has general patterns; this has API specifics |
+| data-model.md | → | `prisma/schema.prisma` is source of truth; this explains *why* |
 | components.md | → | `03-design-system.md` has aesthetics; this has component inventory |
-| ui-patterns.md | → | `05-coding-standards.md` has general patterns; this has ready-to-use code |
 
 ---
 
@@ -56,11 +94,6 @@ If you're implementing something differently than what's documented in this fold
 
 This keeps patterns consistent across the project while allowing evolution.
 
-**When to update patterns:**
-- The new approach is clearly better (simpler, more maintainable)
-- It will be used in multiple places
-- The old pattern should no longer be used
-
 ---
 
-_These docs grow with your app. Start minimal, add as patterns emerge._
+_These checklists exist because fixing SEO/security/data issues after the fact is 10x harder than doing it right the first time._

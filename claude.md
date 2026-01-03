@@ -236,6 +236,43 @@ Dev server runs on **port 3000**. Change in `package.json` if needed.
 
 ---
 
+## Architecture Rules (MUST READ)
+
+**Before creating certain files, read the corresponding checklist:**
+
+| Creating... | Read First | Why |
+|-------------|------------|-----|
+| `app/**/page.tsx` | [docs/architecture/pages.md](docs/architecture/pages.md) | SEO, meta, layouts |
+| `app/**/layout.tsx` | [docs/architecture/pages.md](docs/architecture/pages.md) | Metadata inheritance |
+| `app/api/**/route.ts` | [docs/architecture/api-conventions.md](docs/architecture/api-conventions.md) | Auth, validation, errors |
+| `prisma/schema.prisma` | [docs/architecture/schema.md](docs/architecture/schema.md) | Migration safety |
+
+**These are NON-NEGOTIABLE:**
+- Every public page needs SEO metadata
+- Every API route needs auth check (unless explicitly public)
+- Every schema change needs safe migration path
+
+### Quick Checklist
+
+**Every Page:**
+- [ ] Unique `<title>` (50-60 chars)
+- [ ] `description` meta (150-160 chars)
+- [ ] OpenGraph tags
+- [ ] JSON-LD if content page
+
+**Every API Route:**
+- [ ] Auth check
+- [ ] Zod input validation
+- [ ] Proper status codes
+- [ ] Error handling
+
+**Every Schema Change:**
+- [ ] Add nullable first, then make required
+- [ ] Indexes for query patterns
+- [ ] Cascade rules for relations
+
+---
+
 ## Tech Stack
 
 | Layer | Technology | Status |
