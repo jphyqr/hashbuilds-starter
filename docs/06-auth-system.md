@@ -33,6 +33,40 @@ After you answer, I'll set up the auth system with:
 
 ---
 
+## Auth Decisions (Fill This First)
+
+Before implementing auth, answer these questions. Claude Code will use these to configure the system.
+
+| Decision | Options | Your Choice |
+|----------|---------|-------------|
+| **What needs protection?** | Admin only / User accounts / API routes | _______________ |
+| **Auth provider(s)?** | Magic link / OAuth (Google, GitHub) / Both | _______________ |
+| **Roles needed?** | Single (admin) / Multiple (admin, user, team) / Permissions-based | _______________ |
+| **Session strategy?** | Database (recommended) / JWT only | _______________ |
+| **Who can sign up?** | Anyone / Invite only / Waitlist | _______________ |
+
+### Route Protection Plan
+
+| Route Pattern | Who Can Access | Redirect If Unauthorized |
+|--------------|----------------|--------------------------|
+| `/admin/*` | _______________ | _______________ |
+| `/dashboard/*` | _______________ | _______________ |
+| `/api/admin/*` | _______________ | _______________ |
+| `/api/*` | _______________ | _______________ |
+| `/*` (public) | Everyone | N/A |
+
+### Role Definitions
+
+| Role | Description | Example Users |
+|------|-------------|---------------|
+| `ADMIN` | _______________ | _______________ |
+| `TEAM` | _______________ | _______________ |
+| `USER` | _______________ | _______________ |
+
+> **Note:** Fill out the tables above first. The implementation guide below shows how to build what you've decided.
+
+---
+
 ## Overview
 
 This guide covers setting up authentication with NextAuth.js (Auth.js) in Next.js 14 App Router.
