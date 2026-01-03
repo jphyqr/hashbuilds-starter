@@ -672,6 +672,346 @@ export default async function Navigation() {
 
 ---
 
+## Development & Testing
+
+### Seed Users
+
+Create test users for each role. Add to `prisma/seed.ts`:
+
+```typescript
+const testUsers = [
+  { email: 'user@test.com', name: 'Test User', role: 'USER' },
+  { email: 'team@test.com', name: 'Test Team', role: 'TEAM' },
+  { email: 'admin@test.com', name: 'Test Admin', role: 'ADMIN' },
+]
+
+async function main() {
+  for (const user of testUsers) {
+    await prisma.user.upsert({
+      where: { email: user.email },
+      update: {},
+      create: user,
+    })
+  }
+  console.log('Seed users created')
+}
+
+main()
+```
+
+Add to `package.json`:
+```json
+{
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
+  }
+}
+```
+
+Run: `npx prisma db seed`
+
+---
+
+### Dev Sign-In Bypass (Skip Email in Dev)
+
+For rapid testing, bypass email verification in development:
+
+```typescript
+// app/api/dev/signin/route.ts
+import { db } from "@/lib/db"
+import { encode } from "next-auth/jwt"
+import { cookies } from "next/headers"
+
+export async function POST(req: Request) {
+  if (process.env.NODE_ENV !== 'development') {
+    return Response.json({ error: 'Not available' }, { status: 403 })
+  }
+
+  const { email } = await req.json()
+  const user = await db.user.findUnique({ where: { email } })
+
+  if (!user) {
+    return Response.json({ error: 'User not found' }, { status: 404 })
+  }
+
+  // Create session token
+  const token = await encode({
+    token: { sub: user.id, role: user.role, email: user.email, name: user.name },
+    secret: process.env.NEXTAUTH_SECRET!,
+  })
+
+  // Set session cookie
+  cookies().set('next-auth.session-token', token, {
+    httpOnly: true,
+    secure: false, // dev only
+    sameSite: 'lax',
+    path: '/',
+  })
+
+  return Response.json({ success: true, user })
+}
+```
+
+---
+
+### Dev Testing Panel
+
+A floating panel for rapid auth testing. Only shows in development.
+
+```tsx
+// components/dev/DevTestingPanel.tsx
+"use client"
+
+import { useState } from "react"
+import { useSession, signOut } from "next-auth/react"
+import { useRouter, usePathname } from "next/navigation"
+import { cn } from "@/lib/utils"
+
+const TEST_USERS = [
+  { email: 'user@test.com', role: 'USER' },
+  { email: 'team@test.com', role: 'TEAM' },
+  { email: 'admin@test.com', role: 'ADMIN' },
+]
+
+const ROUTE_TESTS = [
+  { name: 'Home', path: '/', access: 'public' },
+  { name: 'Sign In', path: '/auth/signin', access: 'public' },
+  { name: 'Dashboard', path: '/dashboard', access: 'authenticated' },
+  { name: 'Settings', path: '/settings', access: 'authenticated' },
+  { name: 'Admin', path: '/admin', access: 'admin' },
+  { name: 'Admin Users', path: '/admin/users', access: 'admin' },
+]
+
+const API_TESTS = [
+  { name: 'My Profile', method: 'GET', path: '/api/user/profile', access: 'authenticated' },
+  { name: 'Admin Users', method: 'GET', path: '/api/admin/users', access: 'admin' },
+]
+
+export function DevTestingPanel() {
+  const [isOpen, setIsOpen] = useState(false)
+  const [activeTab, setActiveTab] = useState<'users' | 'routes' | 'api'>('users')
+  const [apiResults, setApiResults] = useState<Record<string, string>>({})
+  const { data: session } = useSession()
+  const router = useRouter()
+  const pathname = usePathname()
+
+  if (process.env.NODE_ENV !== 'development') return null
+
+  const switchUser = async (email: string) => {
+    await signOut({ redirect: false })
+    await fetch('/api/dev/signin', {
+      method: 'POST',
+      body: JSON.stringify({ email }),
+    })
+    router.refresh()
+  }
+
+  const getRouteColor = (access: string) => {
+    if (access === 'public') return 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30'
+    if (!session) return 'bg-red-500/20 text-red-400 border-red-500/30'
+    if (access === 'authenticated') return 'bg-green-500/20 text-green-400 border-green-500/30'
+    if (access === 'admin' && session.user.role === 'ADMIN') return 'bg-green-500/20 text-green-400 border-green-500/30'
+    if (access === 'team' && ['TEAM', 'ADMIN'].includes(session.user.role)) return 'bg-green-500/20 text-green-400 border-green-500/30'
+    return 'bg-red-500/20 text-red-400 border-red-500/30'
+  }
+
+  const testApi = async (path: string, method: string) => {
+    try {
+      const res = await fetch(path, { method })
+      setApiResults(prev => ({ ...prev, [path]: `${res.status} ${res.statusText}` }))
+    } catch (e) {
+      setApiResults(prev => ({ ...prev, [path]: 'Error' }))
+    }
+  }
+
+  return (
+    <div className="fixed bottom-4 right-4 z-50">
+      {/* Toggle Button */}
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="absolute bottom-0 right-0 bg-yellow-500 text-black px-3 py-1 rounded-full text-xs font-bold"
+      >
+        {isOpen ? '✕' : 'DEV'}
+      </button>
+
+      {isOpen && (
+        <div className="mb-10 w-80 bg-zinc-900 border border-zinc-700 rounded-lg shadow-xl overflow-hidden">
+          {/* Header */}
+          <div className="p-3 border-b border-zinc-700 flex justify-between items-center">
+            <span className="text-xs text-zinc-400">
+              {session ? `${session.user.email} (${session.user.role})` : 'Not signed in'}
+            </span>
+            {session && (
+              <button onClick={() => signOut({ redirect: false })} className="text-xs text-red-400">
+                Sign Out
+              </button>
+            )}
+          </div>
+
+          {/* Tabs */}
+          <div className="flex border-b border-zinc-700">
+            {(['users', 'routes', 'api'] as const).map(tab => (
+              <button
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                className={cn(
+                  "flex-1 px-3 py-2 text-xs uppercase",
+                  activeTab === tab ? "bg-zinc-800 text-white" : "text-zinc-500"
+                )}
+              >
+                {tab}
+              </button>
+            ))}
+          </div>
+
+          {/* Content */}
+          <div className="p-3 max-h-64 overflow-y-auto space-y-2">
+            {activeTab === 'users' && (
+              <>
+                <p className="text-xs text-zinc-500 mb-2">Click to switch user:</p>
+                {TEST_USERS.map(user => (
+                  <button
+                    key={user.email}
+                    onClick={() => switchUser(user.email)}
+                    className={cn(
+                      "w-full p-2 rounded text-left text-sm border",
+                      session?.user.email === user.email
+                        ? "bg-green-500/20 border-green-500/30 text-green-400"
+                        : "bg-zinc-800 border-zinc-700 text-zinc-300 hover:bg-zinc-700"
+                    )}
+                  >
+                    <div className="font-medium">{user.email}</div>
+                    <div className="text-xs opacity-70">{user.role}</div>
+                  </button>
+                ))}
+              </>
+            )}
+
+            {activeTab === 'routes' && (
+              <>
+                <p className="text-xs text-zinc-500 mb-2">
+                  🟢 Should access | 🔴 Should block | 🟡 Public
+                </p>
+                {ROUTE_TESTS.map(route => (
+                  <button
+                    key={route.path}
+                    onClick={() => router.push(route.path)}
+                    className={cn(
+                      "w-full p-2 rounded text-left text-sm border",
+                      getRouteColor(route.access),
+                      pathname === route.path && "ring-2 ring-white/50"
+                    )}
+                  >
+                    <div className="font-medium">{route.name}</div>
+                    <div className="text-xs opacity-70">{route.path} • {route.access}</div>
+                  </button>
+                ))}
+              </>
+            )}
+
+            {activeTab === 'api' && (
+              <>
+                <p className="text-xs text-zinc-500 mb-2">Click to test API endpoints:</p>
+                {API_TESTS.map(api => (
+                  <button
+                    key={api.path}
+                    onClick={() => testApi(api.path, api.method)}
+                    className={cn(
+                      "w-full p-2 rounded text-left text-sm border",
+                      getRouteColor(api.access)
+                    )}
+                  >
+                    <div className="font-medium">{api.name}</div>
+                    <div className="text-xs opacity-70">
+                      {api.method} {api.path}
+                      {apiResults[api.path] && ` → ${apiResults[api.path]}`}
+                    </div>
+                  </button>
+                ))}
+              </>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+```
+
+Add to root layout (dev only):
+```tsx
+// app/layout.tsx
+import { DevTestingPanel } from "@/components/dev/DevTestingPanel"
+
+export default function RootLayout({ children }) {
+  return (
+    <html>
+      <body>
+        <Providers>
+          {children}
+          {process.env.NODE_ENV === 'development' && <DevTestingPanel />}
+        </Providers>
+      </body>
+    </html>
+  )
+}
+```
+
+---
+
+### 403 Forbidden Page
+
+```tsx
+// app/403/page.tsx
+import Link from "next/link"
+import { Button } from "@/components/ui/button"
+
+export default function ForbiddenPage() {
+  return (
+    <div className="min-h-screen flex items-center justify-center">
+      <div className="text-center space-y-4">
+        <h1 className="text-4xl font-bold">403</h1>
+        <p className="text-muted-foreground">You don't have permission to access this page.</p>
+        <Button asChild>
+          <Link href="/dashboard">Go to Dashboard</Link>
+        </Button>
+      </div>
+    </div>
+  )
+}
+```
+
+---
+
+### Auth Testing Checklist
+
+Before shipping, test these scenarios:
+
+**As Guest (not signed in):**
+- [ ] Public pages load correctly
+- [ ] Protected pages redirect to sign-in
+- [ ] Admin routes redirect to sign-in
+- [ ] Protected APIs return 401
+
+**As USER:**
+- [ ] Can access dashboard
+- [ ] Cannot access admin routes (redirects to 403)
+- [ ] Admin APIs return 403
+- [ ] User-specific data shows correctly
+
+**As ADMIN:**
+- [ ] Can access all authenticated routes
+- [ ] Can access admin routes
+- [ ] Admin APIs return data
+
+**Edge Cases:**
+- [ ] Expired session redirects to sign-in
+- [ ] Invalid magic link shows error
+- [ ] Sign out clears session completely
+- [ ] Role change takes effect on next request
+
+---
+
 ## Security Checklist
 
 - [ ] `NEXTAUTH_SECRET` is set and secure (32+ chars)
