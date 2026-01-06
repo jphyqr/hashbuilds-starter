@@ -28,7 +28,7 @@ export async function sendEmail({ to, subject, html, text, replyTo }: SendEmailP
       from: process.env.EMAIL_FROM,
       to,
       subject,
-      html,
+      html: html ?? "",
       text,
       replyTo,
     })
